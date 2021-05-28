@@ -6,7 +6,7 @@ if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN 
 if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;
 fi
 
-VERSION="1.3.1"
+VERSION="1.3.2"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 if [ -n "${WIN_CMD_ROOT}" ] ; then
@@ -57,12 +57,12 @@ information about $(echo_bold "linked mode")
 ${linked_description}
 hdontarget will log on stderr, use $(echo_bold "--verbose") option to see more output
 For usage examples run: $(echo_bold "${__real_file__} --help-examples")
-As a  pure sh-script, it is difficult for hdontarget to handle filenames
+As a  pure sh-script, it  is  difficult for  hdontarget to  handle paths
 containing spaces.
 "
 if [ "${LINKED_MODE}" != "1" ] ; then
     echo "$(echo_bold Target Sets)
-Ta be able  to quick  access  different  remote targets  hdontarget uses
+Ta be able  to quick  access  different  remote machines hdontarget uses
 special formatted strings which are called $(echo_bold "sets"). A set is  a data record
 which contains at least a $(echo_bold "name")(unique token), and optionally $(echo_bold "users name"),
 $(echo_bold "pass") and $(echo_bold "target host name(or ip address)"). A set would look like this:
@@ -82,12 +82,12 @@ It is possible to use all of them at the same time, with following
 precendece hierarchy:
   $(echo_bold "HDONTARGET_SETS")(highest priority) -> $(echo_bold "--load-set/-L") -> $(echo_bold "~/.hdontarget_sets") -> $(echo_bold "/etc/hdontarget_sets")
 
-This is example content of a set file (use '#' for comments)
-zynq:root,10.42.0.44,root
-nas1:nas_user,192.168.13.123,${HOME}/secret_keys/very_secret_key
-# currently disabled
-# ws_test:username,webserver.local
-ws_test2:,webserver2.local
+This is a example content of a set file (use '#' for comments):
+    zynq:root,10.42.0.44,root
+    nas1:nas_user,192.168.13.123,${HOME}/secret_keys/very_secret_key
+    # currently disabled
+    # ws_test:username,webserver.local
+    ws_test2:,webserver2.local
 
 To list known sets use $(echo_bold "--list/-L") option.
 Particular  credential  options $(echo_bold "--user/-u"), $(echo_bold "--host/-H") and $(echo_bold "--pass/-p")  have
@@ -102,7 +102,8 @@ $(echo_bold "OPTIONS")
 if [ "${LINKED_MODE}" != "1" ] ; then
     echo "    --update-completion     update my bash completion file
     -ec --edit-config       open  local  user config: ~/.hdontarget_sets
-                            for edit
+                            for edit. Add something like:
+                                $(echo_bold "name:username,host,pass")
 "
 else
     echo ""
@@ -221,15 +222,15 @@ $(echo_bold "Miscellaneous")
     --verbose-show-full-cmd dont cut multiline commands to 3 lines. This
                             will automatically imply: $(echo_bold "--verbose") option
 
-    --save-inline-script    If  you  use --as-script option,  especially
+    --save-inline-script    If  you  use $(echo_bold "--as-script option"),  especially
                             together  with $(echo_bold "--use-sh-script-ext/-se").  You
                             may want to save final  script which will be
                             inlined for debug purposes.
 
                             Some remote combinations dropbear/busybox-sh
                             could have limitations regarding script size
-                            For example to 8kByte. If your script does not
-                            work as expected, save it using this option.
+                            For example to 8kByte. If  your  script does
+                            not work  as expected, save it first.
                             Then run it with $(echo_bold "--run-local-cmd-ontarget")
 
     --dry                   don't really run commands
