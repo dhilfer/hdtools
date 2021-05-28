@@ -37,7 +37,7 @@ FIND_IGNORE_PATTTERNS='
 '
 
 # upgrade stuff
-UPGRADE_LATEST_RELEASE_LINK="http://github.com/dhilfer/hdtools/hdgrep"
+UPGRADE_LATEST_RELEASE_LINK="http://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep"
 UPGRADE_UNIQUE_TOKEN="5c159128-8a2c-46ca-b044-c1c82476b174"
 
 if true; then                                                           # grep color scheme
