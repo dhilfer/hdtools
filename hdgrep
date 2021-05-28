@@ -1,0 +1,1218 @@
+#!/bin/sh
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License 3 as published
+# by the Free Software Foundation.
+# THERE IS NO ANY WARRANTY AT ALL
+
+# MODIFIED: run() -> __run()
+___srV="2.6.0_m";[ -z "$___srD" ] && ___srD=0;___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};___sw "$(echo -e t)" "-e" || alias echo="echo -e";_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo "(sr) $__file__: $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $nr -le $# ] && { echo "(sr) $__file__: $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ local __fn='__cIFS';_chkargs ${__fn} 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ local __fn='__rIFS'; _chkargs ${__fn} 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS '_IN_' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS '_IN_';return $__r;};__run(){ [ -n "$__rE" ] || [ "$DBG_RUN" = "1" ] && echo "run: $@";eval "$@";return $?;};run_e(){ __rE=1 run "$@";__rEr=$?;__rE=;return $__rEr;};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0; [ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ $__is_bbash__ = 1 ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__pid__=$$;__cwd__=$(pwd);__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};add_sr_PATH "$__path__";[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");
+
+# this is hdgrep: grep for stuff with increased usability
+# 2008-2021: Dieter Hilfer
+# the zen of hdgrep:
+#   - be one file-tool
+#   - run on sh, bash, busybox-sh, windows mingw/git-like environments
+#   - do not use persistence (except for intermediate helper):
+#       - HDGREP_ENABLE_KEEP_LAST_RESULT
+#       - HDGREP_ENABLE_TOOL_FEATURE_CACHE
+#     which can easily be disabled
+#   - exec speed is not as important, as usability (and code maintainability)
+
+__VERSION__="7.8.0"
+
+BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [FILEMASK=\"*\"]"
+
+# control persistence here
+HDGREP_ENABLE_KEEP_LAST_RESULT=1
+# this will save you A LOT of time while startup on Windows (if not using ripgrep)
+HDGREP_ENABLE_TOOL_FEATURE_CACHE=1
+
+# ignore search here by default
+FIND_IGNORE_PATTTERNS='
+/.svn
+/.git
+/.cmake
+/__pycache__
+*.min.js
+'
+
+# upgrade stuff
+UPGRADE_LATEST_RELEASE_LINK="http://github.com/dhilfer/hdtools/hdgrep"
+UPGRADE_UNIQUE_TOKEN="5c159128-8a2c-46ca-b044-c1c82476b174"
+
+if true; then                                                           # grep color scheme
+COLOR_SCHEME_GREP_HD='ms=43;31:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=' #1.0.1
+COLOR_SCHEME=${COLOR_SCHEME_GREP_HD}
+export GREP_COLORS=${COLOR_SCHEME}
+fi
+if true; then                                                           # run echo's, baselib
+run() { [ "${CMD_LINE_OPT__DRY}" != "1" ] && __run "$*"; return $?; }
+echo_stderr()    { >&2 echo "$@"; }
+echo_red() { echo "\033[31m${@}\033[0m"; }
+echo_yellow() { echo "\033[33m${@}\033[0m"; }
+echo_green() { echo "\033[32m${@}\033[0m"; }
+echo_magenta() { echo "\033[35m${@}\033[0m"; }
+lognotice()  { [ "${CMD_LINE_OPT__VERBOSE}" = "1" ] && echo_stderr " [notice]: $@"; }
+logwarning() { [ "${CMD_LINE_OPT__VERBOSE}" = "1" ] && echo_stderr "$(echo_yellow "[warning]: $@")"; }
+logerror()   { echo_stderr "$(echo_red    "  [error]: $@")"; } # always show errors
+strip_lines() { echo "${@}" | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$//'; }
+
+# check os tools
+_cet() { local _T=;local _A=;_T=$(echo "${1}" | cut -d":" -f1);_A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_T})"  ] || { logwarning "${_T}: was not found. try: sudo apt-get install ${_A} , or so"; return 1 ; } ; }
+_ct() { local ret=; local _i=; ret=0; for _i in ${1} ; do _cet "${_i}"; if [ "$?" != "0" ]; then ret=1; fi; done; if [ "$ret" != "0" ]; then  exit 1; fi; }
+
+# sed must support binary patterns (some busybox sed does not)
+SED_SUPPORTS_BINARY_PATTERNS=0; [ -z "$(echo "1" | sed -r 's!([0-9]+)!\x1b[32m\1\x1b[0m!g' | grep x1b)" ] && SED_SUPPORTS_BINARY_PATTERNS=1
+if [ "${SED_SUPPORTS_BINARY_PATTERNS}" = "1" ] ; then
+    strip_colors() { echo "$@" | sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,3}(;[0-9]{1,3}(;[0-9]{1,3}(;[0-9]{1,3}(;[0-9]{1,3})?)?)?)?)?)?[mGK]//g' ; }
+else
+    strip_colors() { echo "$@"; }
+fi
+
+fi
+if true; then                                                           # persistence setup
+_handle_pers_setup()
+{
+    if [ -n "${WIN_CMD_ROOT}" ]; then
+        # we are on Windows
+        HDGREP_LAST_RESULT_TMP_FILE="${WIN_CMD_ROOT}/tmp/hdgrep.last_result"
+        HDGREP_CTSO_CACHE_TMP_FILE="${WIN_CMD_ROOT}/tmp/hdgrep.ctso"
+        HDGREP_CTSO_CACHE_CTRL_TMP_FILE="${WIN_CMD_ROOT}/tmp/hdgrep.ctrl.ctso"
+
+    else
+        local _xpref="/tmp/"
+        if [ -n "${XDG_RUNTIME_DIR}" ] ; then
+            # try work with XDG tmpfs
+            _xpref="${XDG_RUNTIME_DIR}"
+        fi
+        HDGREP_LAST_RESULT_TMP_FILE="${_xpref}/hdgrep.$(whoami).last_result"
+        HDGREP_CTSO_CACHE_TMP_FILE="${_xpref}/hdgrep.ctso"
+        HDGREP_CTSO_CACHE_CTRL_TMP_FILE="${_xpref}/hdgrep.ctrl.ctso"
+    fi
+
+    [ "${HDGREP_ENABLE_KEEP_LAST_RESULT}" != "1" ] && HDGREP_LAST_RESULT_TMP_FILE=
+    [ "${HDGREP_ENABLE_TOOL_FEATURE_CACHE}" != "1" ] && { HDGREP_CTSO_CACHE_TMP_FILE= ; }
+}
+_handle_pers_setup
+fi
+if true; then                                                           # options
+# MODIFIED: # extends FIND_IGNORE_PATTTERNS, pretty usage, extended comment at [ "${broken_opts}" = "1" ]
+print_usage()
+{
+    # options
+    echo "${BASIC_USAGE}
+
+Grep for PATTERN in files matching FILEMASK.
+If given, standard input (stdin) is interpreted as a LIST OF PATHS (files,
+dirs) to search in.
+
+hdgrep will NOT follow symbolic links
+
+hdhgrep is a friendly wrapper for find and grep (utilizing more tools such
+as: xargs, [nl, tee, cut, column, bingrep, pdfgrep, zgrep, nm, wget])
+
+Meanwhile there is an extremely fast search tool named 'ripgrep':
+    https://github.com/BurntSushi/ripgrep/releases
+ripgrep is shipped with all major distros. It's recommended to install
+ripgrep (rg) on the machine on which you want to use hdgrep.
+
+If ripgrep is not available (e.g. on tiny busybox environment) hdgrep will
+fallback to find and grep automatically.
+
+You can force hdgrep to skip use of ripgrep with --no-rg option.
+
+If running first time  hdgrep will  scan supported  features of used tools
+Something  like:  can 'grep'  produce colored output?  The result  will be
+cached, and re-loaded on later runs.
+The cache file is  normally stored  under a volatile tmp/, so after reboot
+a rescan is done  again. This  ensures cache/tool-feature updates  once in
+a while. You can force immediate rescan by using: --rescan-tools-opts
+
+If hdgrep does not behave like you expect, maybe you should rerun with
+--verbose/-v flag to see useful messages and the real grep command.
+
+[OPTIONS]:
+  -h       --help                this help
+           --rescan-tools-opts   reset tools options cache and rescan
+                                 supported tools features (use with
+                                 --verbose/-v flag to see more details)
+
+
+------------ SEARCH RELATED OPTIONS --------------------------------------
+
+  -C       --chdir DIR           change directory before starting search
+
+  -i       --ignore-case         ignore word case
+  -w       --whole-words-only    look for whole words only
+  -regex   --regex               threat PATTERN as extended POSIX regex
+
+
+  -e       --exclude-path PATH   You can specify multiple path patterns
+                                 which should be excluded from search.
+                                 (e.g: -e '/.build' -e '/.cmake')
+                                 hdgrep presets some paths like /.svn,
+                                 ./git etc. Show them using --verbose/-v
+                                 option. To disable exclude paths use
+                                 -J/--ignore-exclude option.
+  -J       --ignore-exclude      Ignore all specified and predefined
+                                 -e/--exclude-paths
+
+  -d       --depth DEPTH         stop search at DEPTH
+
+NOTE: if searching in LIST OF PATHS given via standard input (stdin) using
+default backend: grep, options --depth and --exclude-path will NOT work.
+Using backend ripgrep(rg) works.
+
+
+------------ DISPLAY RESULTS OPTIONS -------------------------------------
+
+  -u       --dont-limit-match    printing of TEXT match is limited to
+                                 256 bytes for each line.
+                                 This flag will disable the limitation
+
+  -a       --prev-post=N         grep: show surrounding N lines
+  -t       --tab-results         show results ajusted in table mode
+                                 using 'column' (not recommended on
+                                 large and deep search)
+
+Choosing  one of the  following --show-X-only  options might be helpful to
+pipe hdgrep  results to  other  tools  (e.g.: grep).  It will  also advice
+hdgrep NOT to store search results in a tmp file (currently):
+  ${HDGREP_LAST_RESULT_TMP_FILE}
+
+  -sm      --show-match-only     show matching TEXT only
+  -sd      --show-dirs-only      show DIRS containing  matching files only
+  -sf      --show-files-only     show matching FILES only
+
+  -D       --show-defaults       force default show  behaviour  (overrides
+                                 any --show-X-only)
+
+hdgrep will try to force colored output on every search. However sometimes
+it's more convinient to disable colors (e.g. on output redirection)
+  -dc      --disable-color       disable colored output
+
+
+------------ GREP TOOLS SELECTION ----------------------------------------
+
+You can change  default grep tool  (grep/rg) to perform a  specific search
+Please make sure that the related tools are  available in your environment
+  -z       --zgrep               use 'zgrep' (grep  in z-compressed files)
+  -p       --pdfgrep             use 'pdfgrep' (grep in pdf-files)
+  -b       --bingrep             use 'bingrep' (hd) (grep for binary
+                                 patterns)
+
+You can also select one of  following tools  to perform even more specific
+searches.
+  -o       --nm                  use 'nm' to find a (object-)file which
+                                 contains specified C/C++ symbol
+  -P       --ps                  use 'ps' to find current running process
+
+
+------------ OTHER OPTIONS -----------------------------------------------
+
+  -dry     --dry                 show calls only, don't perform any search
+  -v       --verbose             print messages (which may help you to
+                                 analyze hdgrep's behaviour)
+           --upgrade             try to upgrade  hdgrep to latest version,
+                                 using this link:
+                                    ${UPGRADE_LATEST_RELEASE_LINK}
+
+
+------------ USEFUL TRICKS -----------------------------------------------
+
+Find all Makefile targets within local dir-tree
+    export TARGET_RE='^[0-9a-zA-Z_\-]+'; hdgrep --depth 1 -regex -sm -dc \${TARGET_RE}':' 'Makefile*' | sed -nr 's!('\${TARGET_RE}'):(.*)!\\\1!p' | sort | uniq; unset TARGET_RE
+"
+}
+
+# options
+CMD_LINE_OPT__RESCAN_TOOLS_OPTS="0"  # -
+CMD_LINE_OPT__IGNORE_CASE="0"  # -
+CMD_LINE_OPT__WHOLE_WORDS_ONLY="0"  # -
+CMD_LINE_OPT__REGEX="0"  # -
+CMD_LINE_OPT__CHDIR="./"  # -
+CMD_LINE_OPT__TAB_RESULTS="0"  # -
+CMD_LINE_OPT__PREV_POST="0"  # -
+CMD_LINE_OPT__ZGREP="0"  # -
+CMD_LINE_OPT__BINGREP="0"  # -
+CMD_LINE_OPT__PDFGREP="0"  # -
+CMD_LINE_OPT__NM="0"  # -
+CMD_LINE_OPT__PS="0"  # -
+CMD_LINE_OPT__EXCLUDE_PATH=""  # -
+CMD_LINE_OPT__VERBOSE="0"  # -
+CMD_LINE_OPT__DISABLE_COLOR="0"  # -
+CMD_LINE_OPT__DRY="0"  # -
+CMD_LINE_OPT__SHOW_MATCH_ONLY="0"  # -
+CMD_LINE_OPT__SHOW_DIRS_ONLY="0"  # -
+CMD_LINE_OPT__SHOW_FILES_ONLY="0"  # -
+CMD_LINE_OPT__SHOW_DEFAULTS="0"  # -
+CMD_LINE_OPT__DONT_LIMIT_MATCH="0"  # -
+CMD_LINE_OPT__DEPTH=""  # -
+CMD_LINE_OPT__NO_RG="0"  # -
+CMD_LINE_OPT__IGNORE_EXCLUDE="0"  # -
+CMD_LINE_OPT__UPGRADE="0"  # -
+parse_all_options()
+{
+    local shifted=
+    shifted=0
+    local broken_opts=
+    while [ "$#" -gt 0 ]; do
+        case "${1}" in
+            --)
+            # end of option list
+                shift 1; shifted=$((shifted+1))
+                break;;
+            --help|-h)
+                print_usage; exit 0;;
+            # -
+            --rescan-tools-opts)
+                CMD_LINE_OPT__RESCAN_TOOLS_OPTS="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --ignore-case|-i)
+                CMD_LINE_OPT__IGNORE_CASE="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --whole-words-only|-w)
+                CMD_LINE_OPT__WHOLE_WORDS_ONLY="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --regex|-regex)
+                CMD_LINE_OPT__REGEX="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --chdir|-C)
+                CMD_LINE_OPT__CHDIR="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--chdir|-C needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            # -
+            --tab-results|-t)
+                CMD_LINE_OPT__TAB_RESULTS="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --prev-post|-a)
+                CMD_LINE_OPT__PREV_POST="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--prev-post|-a needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            # -
+            --zgrep|-z)
+                CMD_LINE_OPT__ZGREP="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --bingrep|-b)
+                CMD_LINE_OPT__BINGREP="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --pdfgrep|-p)
+                CMD_LINE_OPT__PDFGREP="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --nm|-o)
+                CMD_LINE_OPT__NM="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --ps|-P)
+                CMD_LINE_OPT__PS="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --exclude-path|-e)
+                CMD_LINE_OPT__EXCLUDE_PATH="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--exclude-path|-e needs an additional parameter" >&2; exit 1; };
+
+                # extend FIND_IGNORE_PATTTERNS
+                FIND_IGNORE_PATTTERNS="${FIND_IGNORE_PATTTERNS}
+${CMD_LINE_OPT__EXCLUDE_PATH}"
+
+                shift 2; shifted=$((shifted+2));;
+            # -
+            --verbose|-v)
+                CMD_LINE_OPT__VERBOSE="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --disable-color|-dc)
+                CMD_LINE_OPT__DISABLE_COLOR="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --dry|-dry)
+                CMD_LINE_OPT__DRY="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --show-match-only|-sm)
+                CMD_LINE_OPT__SHOW_MATCH_ONLY="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --show-dirs-only|-sd)
+                CMD_LINE_OPT__SHOW_DIRS_ONLY="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --show-files-only|-sf)
+                CMD_LINE_OPT__SHOW_FILES_ONLY="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --show-defaults|-D)
+                CMD_LINE_OPT__SHOW_DEFAULTS="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --dont-limit-match|-u)
+                CMD_LINE_OPT__DONT_LIMIT_MATCH="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --depth|-d)
+                CMD_LINE_OPT__DEPTH="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--depth|-d needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            # -
+            --no-rg)
+                CMD_LINE_OPT__NO_RG="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --ignore-exclude|-J)
+                CMD_LINE_OPT__IGNORE_EXCLUDE="1"
+                shift 1 ; shifted=$((shifted+1));;
+            # -
+            --upgrade)
+                CMD_LINE_OPT__UPGRADE="1"
+                shift 1 ; shifted=$((shifted+1));;
+            -*)
+              echo "unknown option: $1" >&2
+              broken_opts=1
+              shift 1;;
+            *)
+              # options parse done
+              break ;;
+      esac
+    done
+
+    [ "${broken_opts}" = "1" ] && { echo "run with --help to see available options, or use -- to separate PATTERN" >&2; exit 1; };
+
+    return ${shifted}
+}
+
+# parse early
+parse_all_options "$@"
+shift $?
+if [ "${CMD_LINE_OPT__DISABLE_COLOR}" = "1" ]; then
+    echo_yellow() { echo "$@"; }
+    echo_red()    { echo "$@"; }
+fi
+fi
+if true; then                                                           # get running conditions
+# echo "/path/to/file" | hdgrep test
+DO_I_RUN_INTERACTIVELY=
+_get_running_conditions_simple()
+{
+    if [ ! -t 0 ] ; then DO_I_RUN_INTERACTIVELY="1" ; fi
+}
+_get_running_conditions_simple
+#echo "DO_I_RUN_INTERACTIVELY: $DO_I_RUN_INTERACTIVELY"
+fi
+if true; then                                                           # _csto: v2.0.0
+_ctso_prev_tool=
+_ctso_prev_cache=
+_ctso_pers_cache_path="$HDGREP_CTSO_CACHE_TMP_FILE"
+_ctso_pers_cache_loaded=0
+_ctso() #(tool, option_regex, *feature, [ignore_cache="0", check_opt="--help"])
+{
+    local __fn='_ctso'; _chkargsm ${__fn} 3 "$@"
+
+    local tool=
+    local option_regex=
+    local export_var_feature=
+    local ignore_cache=
+    local check_opt=
+    tool="${1}"
+    option_regex="${2}"
+    export_var_feature="${3}" ; eval "export ${export_var_feature}"
+    ignore_cache="${4}"
+    check_opt="${5}"
+
+    [ -z "${ignore_cache}" ] && ignore_cache=0
+    [ -z "${check_opt}" ] && check_opt="--help"
+
+    # ----------
+    local ret_feature=
+
+    # ----------------------------------------
+
+    if [ "${ignore_cache}" = "0" ] && [ "${_ctso_pers_cache_loaded}" = "0" ] && [ -n "${_ctso_pers_cache_path}" ] ; then
+        # try load persistence cache once
+        [ -e "${_ctso_pers_cache_path}" ] && . "${_ctso_pers_cache_path}"
+        _ctso_pers_cache_loaded=1
+    fi
+    if [ "${ignore_cache}" = "0" ] && [ -n "$(eval echo "$""$export_var_feature")"  ]; then
+        return 0;
+    fi
+
+    ret_feature=0
+    local ret=
+
+    if [ "${_ctso_prev_tool}" != "${tool}" ]; then
+        # update cache
+        _ctso_prev_cache=$(${tool} ${check_opt} 2>&1)
+        _ctso_prev_tool=${tool}
+    fi
+    #local tool_real=
+    #tool_real=$(echo "${_ctso_prev_cache}" | sed -nr 's!(.*)('${option_regex}')(.*)!\2!p' | head -n 1)
+    #if [ "${tool_real}" = "${option_regex}" ]; then
+    echo "${_ctso_prev_cache}" | grep -w -e "${option_regex}" >/dev/null 2>&1
+    ret="$?"
+    if [ "$ret" = "0" ]; then
+        # ok
+        ret_feature=1
+    fi
+
+    if [ "${ignore_cache}" = "0" ] && [ -n "${_ctso_pers_cache_path}" ] ; then
+        echo "export ${export_var_feature}=${ret_feature}" >> "${_ctso_pers_cache_path}"
+    fi
+
+    lognotice "scan tool feature: ${tool}: ${option_regex}: $( [ ${ret_feature} = 1 ] && echo "OK" || echo "NOK" )"
+    # ----------------------------------------
+    # return values
+    eval "export ${export_var_feature}='${ret_feature}'"
+    return $ret
+}
+_ctso_reset_pers_cache() #()
+{
+    if [ -f "${HDGREP_CTSO_CACHE_TMP_FILE}" ] ; then
+        logwarning "reset csto persistence cache: ${HDGREP_CTSO_CACHE_TMP_FILE}"
+        cmd="rm '${HDGREP_CTSO_CACHE_TMP_FILE}'"
+        run "${cmd}"
+        _ctso_pers_cache_loaded=0
+    fi
+}
+if [ "${CMD_LINE_OPT__RESCAN_TOOLS_OPTS}" = "1" ] ; then
+    logwarning "--rescan-tools-opts: reset tools options cache"
+    _ctso_reset_pers_cache
+fi
+fi
+if true; then                                                           # check tools, and features
+# basic tooling
+rescan_grep_features() #(grep_tool)
+{
+    local __fn='rescan_grep_features'; _chkargs ${__fn} 1 "$@"
+
+    local grep_tool=
+    grep_tool="${1}"
+
+    if [ "${grep_tool}" = "rg" ] ; then
+        # we'll use ripgrep
+        return
+    fi
+
+    local last_scanned_grep_tool=
+    local force_rescan=0
+    if [ -n "${HDGREP_CTSO_CACHE_TMP_FILE}" ] ; then
+        last_scanned_grep_tool=$(cat "${HDGREP_CTSO_CACHE_CTRL_TMP_FILE}" 2>/dev/null)
+        last_scanned_grep_tool=$(strip_lines "${last_scanned_grep_tool}")
+        if [ -n "${last_scanned_grep_tool}" ] && [ "${last_scanned_grep_tool}" != "${grep_tool}" ] ; then
+            logwarning "last used grep tool has changed: ${last_scanned_grep_tool} -> ${grep_tool}"
+            _ctso_reset_pers_cache
+            force_rescan=1
+        fi
+        echo "${grep_tool}" > "${HDGREP_CTSO_CACHE_CTRL_TMP_FILE}"
+    fi
+    #grep features
+    _ctso "${grep_tool}" "--color" GREP_CAN_COLOR       ${force_rescan}
+    _ctso "${grep_tool}" "-n" GREP_CAN_LINE_NUMBER      ${force_rescan}
+    _ctso "${grep_tool}" "-H" GREP_CAN_FILENAME         ${force_rescan}
+    _ctso "${grep_tool}" "-I" GREP_CAN_SKIP_BINARY      ${force_rescan}
+    _ctso "${grep_tool}" "-r" GREP_CAN_RECURSIVE        ${force_rescan}
+    _ctso "${grep_tool}" "-i" GREP_CAN_IGNORECASE       ${force_rescan}
+    _ctso "${grep_tool}" "-w" GREP_CAN_WHOLEWORDS       ${force_rescan}
+
+    _ctso "${grep_tool}" "-A" GREP_CAN_CONTEXT          ${force_rescan}
+    _ctso "${grep_tool}" "-E" GREP_CAN_REGEX            ${force_rescan}
+
+    _ctso "${grep_tool}" "-e" GREP_CAN_EXPLICIT_PATTERN ${force_rescan}
+
+    _ctso "${grep_tool}" "-l" GREP_CAN_SHOW_FILES_ONLY  ${force_rescan}
+    _ctso "${grep_tool}" "-Z" GREP_CAN_NULLBYTE         ${force_rescan}
+}
+
+# check ripgrep
+_ctso "rg" "--version" RG_AVAILABLE
+[ "${RG_AVAILABLE}" = "1" ] && _ctso "rg" "--max-columns-preview" RG_CAN_MAX_COLUMNS_PREVIEW
+
+if [ "${CMD_LINE_OPT__ZGREP}" != "1" ] && [ "${CMD_LINE_OPT__PDFGREP}" != "1" ] && [ "${CMD_LINE_OPT__BINGREP}" != "1" ] && [ "${CMD_LINE_OPT__NM}" != "1" ] && [ "${CMD_LINE_OPT__PS}" != "1" ] && [ "${RG_AVAILABLE}" = "1" ] && [ "${CMD_LINE_OPT__NO_RG}" != "1" ]; then
+    # we will use ripgrep for search
+    true # pass
+else
+    # scan basic tools features
+
+    # find features
+    _ctso "find" "-print0" FIND_CAN_PRINT0
+    _ctso "find" "-wholename" FIND_CAN_WHOLENAME
+    _ctso "find" "-not" FIND_CAN_NOT
+    _ctso "find" "-maxdepth" FIND_CAN_MAXDEPTH
+
+    # xargs features
+    _ctso "xargs" "-0" XARGS_CAN_0
+    _ctso "xargs" "-P" XARGS_CAN_MULTIPROCESS
+    _ctso "xargs" "-I" XARGS_CAN_STRING_REPLACE
+fi
+
+# optional tooling
+# nl
+_cet "nl" && NL_EXISTING="1";
+# no nl, no sense for last search
+[ "${NL_EXISTING}" != "1" ] && { logwarning "no nl: disable results persistence" ; HDGREP_LAST_RESULT_TMP_FILE=;}
+if [ "${NL_EXISTING}" = "1" ]; then
+    _ctso "nl" "-b" NL_CAN_BODY_NUMBERING
+    _ctso "nl" "pBRE" NL_CAN_STYLE_REGEX
+    [ "${NL_CAN_BODY_NUMBERING}" = "1" ] && [ "${NL_CAN_STYLE_REGEX}" = "1" ] && NL_CAN_REGEX_FILTER="1";
+    _ctso "nl" "-w" NL_CAN_NUMBER_WIDTH
+    _ctso "nl" "-s" NL_CAN_NUMBER_SEPARATOR
+fi
+# column (assume ALL needed column features are available)
+COLUMN_EXISTING="0"
+_cet "column" && COLUMN_EXISTING="1";
+# check nm
+_ctso "nm" "--version" NM_AVAILABLE
+# check ps
+PS_AVAILABLE=1
+#_ctso "ps" "--help" PS_AVAILABLE
+# check zgrep
+_ctso "zgrep" "--context" ZGREP_AVAILABLE
+# check pdfgrep
+_ctso "pdfgrep" "--context" PDFGREP_AVAILABLE
+# check bingrep
+_ctso "bingrep" "--context" BINGREP_AVAILABLE
+fi
+if true; then                                                           # upgrade
+run_upgrade() #(name_info, upgrade_link, check_token, version_regex, target_path, target_file)
+{
+    local __fn='run_upgrade'; _chkargs ${__fn} 6 "$@"
+
+    local name_info=
+    local upgrade_link=
+    local check_token=
+    local version_regex=
+    local target_path=
+    local target_file=
+    name_info="${1}"
+    upgrade_link="${2}"
+    check_token="${3}"
+    version_regex="${4}"
+    target_path="${5}"
+    target_file="${6}"
+
+    local ret=
+    local cmd=
+    local err_msg=
+    err_msg="
+something went wrong:
+    - check write access to: ${target_path},
+    - check the upgrade link: ${upgrade_link}
+"
+
+    local target_tmp_file=
+    target_tmp_file="${target_path}/${target_file}._upgrade.tmp"
+
+    lognotice "run upgrade for ${name_info} ..."
+
+    # don't consider 1000 possible wget settings, just get it
+    lognotice "download data (to ${target_tmp_file}) ...
+"
+    cmd="wget '${upgrade_link}' -O - > '${target_tmp_file}'"
+    run "${cmd}"
+    ret=$?
+    if [ "${ret}" != "0" ]; then
+        # broken multiline colored on stderr on windows
+        #logerror "${err_msg}"
+        >&2 echo_red "[error]: ${err_msg}"
+        exit 1
+    fi
+
+    # now check unique token
+    lognotice "check contents ..."
+    local tok_ok=
+    tok_ok=$(cat "${target_tmp_file}" | grep "${check_token}")
+    if [ -z "${tok_ok}" ]; then
+        cmd="rm -f '${target_tmp_file}'"
+        run "${cmd}"
+        # broken multiline colored on stderr on windows
+        >&2 echo_red "[error]: ${err_msg}"
+        exit 1
+    fi
+
+    # is valid
+    local new_version_str=
+    new_version_str=$(cat "${target_tmp_file}" | sed -nr "${version_regex}")
+
+    lognotice "replace old version ..."
+    cmd="mv '${target_tmp_file}' '${target_path}/${target_file}'"
+    run "${cmd}"
+    ret=$?
+    if [ "${ret}" != "0" ]; then
+        # broken multiline colored on stderr on windows
+        >&2 echo_red "[error]: ${err_msg}"
+        exit 1
+    fi
+
+    if [ -z "${WIN_CMD_ROOT}" ] ; then
+        # chmod in linux only
+        cmd="chmod +x '${target_path}/${target_file}'"
+        run "${cmd}"
+    fi
+
+    lognotice "ALL GOOD. ${name_info} was upgraded: ${__VERSION__} -> ${new_version_str}"
+    exit 0
+}
+fi
+
+main()
+{
+    local i=
+    local one_line_from_stdin=
+
+    local grep_for_this=
+    local find_files_pattern=
+    local search_in_this_directory=
+
+    if [ "${CMD_LINE_OPT__UPGRADE}" = "1" ] ; then
+        CMD_LINE_OPT__VERBOSE="1"
+        export CMD_LINE_OPT__VERBOSE
+        CMD_LINE_OPT__DRY="0"
+        export CMD_LINE_OPT__DRY
+        run_upgrade 'hdgrep' "${UPGRADE_LATEST_RELEASE_LINK}" "${UPGRADE_UNIQUE_TOKEN}" 's!^__VERSION__="(.+)"$!\1!p' "${__path__}" "${__file__}"
+        exit $? # always exit after upgrade!
+    fi
+
+    if [ "${CMD_LINE_OPT__IGNORE_EXCLUDE}" = "1" ] ; then
+        FIND_IGNORE_PATTTERNS=
+    fi
+
+    [ "${HDGREP_ENABLE_KEEP_LAST_RESULT}" != "1" ] && logwarning "keep last search result is disabled"
+    [ "${HDGREP_ENABLE_TOOL_FEATURE_CACHE}" != "1" ] && logwarning "'tool supports option' cache is disabled"
+
+    [ "${CMD_LINE_OPT__DRY}" = "1" ] && {
+         logwarning "This is a DRY run. No real search is performed";
+         CMD_LINE_OPT__VERBOSE="1";
+         }
+
+    grep_for_this="NO_SEARCH_STRING_WAS_SPECIFIED"
+    find_files_pattern="*"
+    search_in_this_directory="${CMD_LINE_OPT__CHDIR}"
+
+    lognotice "last result persistence: ${HDGREP_LAST_RESULT_TMP_FILE}"
+    lognotice "tools options cache: ${HDGREP_CTSO_CACHE_TMP_FILE}"
+    lognotice "tools options cache control: ${HDGREP_CTSO_CACHE_CTRL_TMP_FILE}"
+
+    local ign_info=
+    __cIFS '_info_ign_' '
+'
+    for i in ${FIND_IGNORE_PATTTERNS} ; do
+        ign_info="${ign_info} '${i}'"
+    done
+    __rIFS '_info_ign_'
+    lognotice "exclude path patterns: ${ign_info}"
+
+    if [ "$#" = "1" ] ; then
+        grep_for_this="${1}"
+    elif [ "$#" = "2" ] ; then
+        grep_for_this="${1}"
+        find_files_pattern="${2}"
+    else
+        CMD_LINE_OPT__VERBOSE="1";
+        echo "${BASIC_USAGE}"
+        exit 0
+    fi
+
+
+    local exlusive_ctr=0;
+    [ "${CMD_LINE_OPT__ZGREP}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
+    [ "${CMD_LINE_OPT__PDFGREP}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
+    [ "${CMD_LINE_OPT__BINGREP}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
+    [ "${CMD_LINE_OPT__NM}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
+    [ "${CMD_LINE_OPT__PS}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
+    if [ ${exlusive_ctr} -ne 0 ] && [ ${exlusive_ctr} -ne 1 ]; then
+        CMD_LINE_OPT__VERBOSE="1";
+        logerror "please select ONE of them: --zgrep, --pdfgrep, --bingrep, --nm"
+        exit 1
+    fi
+
+    # override * to *.pdf if no explicit filemask option was given
+    if [ "${CMD_LINE_OPT__PDFGREP}" = "1" ] ; then
+        if [ "${find_files_pattern}" = "*" ] ; then
+            find_files_pattern="*.pdf"
+        fi
+    fi
+
+    # print some info for user
+    if [ "${DO_I_RUN_INTERACTIVELY}" != "1" ]; then
+        lognotice "grep for '""$(echo_red "${grep_for_this}")""' in '""${search_in_this_directory}""' in '""$(echo_red "${find_files_pattern}")""' files"
+    else
+        lognotice "grep for '""$(echo_red "${grep_for_this}")""' in list given via ""$(echo_red stdin)"""
+        if [ "${SED_SUPPORTS_BINARY_PATTERNS}" != "1" ] ; then
+            logwarning "your 'sed' does not support binary patterns, I'll not be able to strip colors from stdin"
+        fi
+    fi
+
+
+    # escape '
+    grep_for_this=$(echo "${grep_for_this}" | sed -r "s!'!'\\\''!g")
+
+    if [ "${CMD_LINE_OPT__REGEX}" = "1" ] && [ "${CMD_LINE_OPT__WHOLE_WORDS_ONLY}" = "1" ]; then
+        logwarning "Combined use of -w and -regex is may not what you want"
+    fi
+    if [ "${CMD_LINE_OPT__REGEX}" = "1" ] ; then
+        lognotice "posix REGEX tips:"
+        lognotice "  [1] [.]+  : will not WORK, use     :  .+"
+        lognotice "  [2] (     : escape ( with 2 slashes:  \\\\\\("
+        lognotice '  [3] $     : escape $ with 1 slash:  \$'
+    fi
+
+
+    local grep_cmd=
+    grep_cmd="grep"
+    if [ "${CMD_LINE_OPT__ZGREP}" = "1" ] ; then
+        grep_cmd="zgrep" # OPTIONS are the same as for 'grep'.
+        if [ "${ZGREP_AVAILABLE}" != "1" ] ; then
+            logerror "zgrep: seems not be installed on your machine, cannot perform zgrep search"
+            exit 1
+        fi
+    elif [ "${CMD_LINE_OPT__PDFGREP}" = "1" ] ; then
+        grep_cmd="pdfgrep"
+        if [ "${PDFGREP_AVAILABLE}" != "1" ] ; then
+            logerror "pdfgrep: seems not be installed on your machine, cannot perform pdfgrep search"
+            exit 1
+        fi
+    elif [ "${CMD_LINE_OPT__BINGREP}" = "1" ] ; then
+        grep_cmd="bingrep"
+        if [ "${BINGREP_AVAILABLE}" != "1" ] ; then
+            logerror "bingrep: seems not be installed on your machine, cannot perform bingrep search"
+            exit 1
+        fi
+    elif [ "${CMD_LINE_OPT__NM}" = "1" ] ; then
+        grep_cmd="nm"
+        if [ "${NM_AVAILABLE}" != "1" ] ; then
+            logerror "nm: seems not be installed on your machine, cannot perform nm search"
+            exit 1
+        fi
+    elif [ "${CMD_LINE_OPT__PS}" = "1" ] ; then
+        CMD_LINE_OPT__NO_RG=1 # disable rg search
+        CMD_LINE_OPT__DONT_LIMIT_MATCH=1 # disable cut 256
+        if [ "${PS_AVAILABLE}" != "1" ] ; then
+            logerror "ps: seems not be installed on your machine, cannot perform ps search"
+            exit 1
+        fi
+    fi
+    if [ "${grep_cmd}" = "grep" ] && [ "${RG_AVAILABLE}" = "1" ] && [ "${CMD_LINE_OPT__NO_RG}" != "1" ]; then
+        grep_cmd="rg"
+        if [ -n "${WIN_CMD_ROOT}" ] ; then
+            search_in_this_directory=$(echo "${search_in_this_directory}" | tr '/' '\\')
+        fi
+    fi
+
+    # generic
+    if [ "${grep_cmd}" != "rg" ] ; then # -
+        local cmd_post__dirs_only=
+        local cmd_post__cut=
+        if [ "${CMD_LINE_OPT__DONT_LIMIT_MATCH}" != "1" ] ; then
+            cmd_post__cut=" | cut -c 1-256 "
+        fi
+
+    fi
+
+    local xargs_cmd=
+    xargs_cmd="xargs"
+
+    #find
+    if [ "${grep_cmd}" != "rg" ] ; then # -
+        local find_cmd=
+        local find_options=
+        find_cmd="find"
+        find_options="${find_options} '${search_in_this_directory}'";
+
+        if [ "${CMD_LINE_OPT__PS}" = "1" ] ; then
+            find_cmd="ps"
+            find_options="aux";
+            if [ -n "${WIN_CMD_ROOT}" ] ; then
+                find_options="-a -W";
+            fi
+            xargs_cmd= # none
+        else
+            # use classic find
+
+            # search depth
+            if [ -n "${CMD_LINE_OPT__DEPTH}" ]; then
+                if [ "${FIND_CAN_MAXDEPTH}" = "1" ]; then
+                    find_options="${find_options} -maxdepth ${CMD_LINE_OPT__DEPTH}"
+                else
+                    logwarning "'find' does not support '-maxdepth', --depth will be ignored"
+                fi
+            fi
+
+            find_options="${find_options} -type f";
+
+            local ignore_tmp=
+            if [ "${FIND_CAN_WHOLENAME}" = "1" ] && [ "${FIND_CAN_NOT}" = "1" ]; then
+                __cIFS '_find_ign_' '
+    '
+                for i in ${FIND_IGNORE_PATTTERNS} ; do
+                    ignore_tmp=${i}
+                    ___sw "${ignore_tmp}" "*" || ignore_tmp="*${ignore_tmp}"
+                    ___ew "${ignore_tmp}" "*" || ignore_tmp="${ignore_tmp}*"
+                    find_options="${find_options} -not -wholename '${ignore_tmp}'";
+                done
+                __rIFS '_find_ign_'
+            else
+                logwarning "'find' does not support '-not -wholename', therefore no search paths can be ignored"
+                logwarning "    desired paths to skip: ${FIND_IGNORE_PATTTERNS}"
+            fi
+            find_options="${find_options} -name '${find_files_pattern}'";
+            [ "${FIND_CAN_PRINT0}" = "1" ] && [ "${XARGS_CAN_0}" = "1" ] && find_options="${find_options} -print0";
+        fi
+    fi
+
+    if true; then # handle 'show what'
+        local show_defaults=
+        local show_files_only=
+        local show_dirs_only=
+        local show_match_only=
+
+        show_defaults="1"
+        show_files_only="0"
+        show_dirs_only="0"
+        show_match_only="0"
+
+        if [ "${CMD_LINE_OPT__SHOW_FILES_ONLY}" = "1" ]; then
+            show_defaults="0"
+            show_files_only="1"
+            show_dirs_only="0"
+            show_match_only="0"
+        elif [ "${CMD_LINE_OPT__SHOW_DIRS_ONLY}" = "1" ]; then
+            show_defaults="0"
+            show_files_only="1"
+            show_dirs_only="1"
+            show_match_only="0"
+        elif [ "${CMD_LINE_OPT__SHOW_MATCH_ONLY}" = "1" ]; then
+            show_defaults="0"
+            show_files_only="0"
+            show_dirs_only="0"
+            show_match_only="1"
+        fi
+        if [ "${CMD_LINE_OPT__SHOW_DEFAULTS}" = "1" ]; then
+            show_defaults="1"
+            show_files_only="0"
+            show_dirs_only="0"
+            show_match_only="0"
+        fi
+    fi
+
+    local color_txt=
+    color_txt='--color="always"'
+    if [ "${CMD_LINE_OPT__DISABLE_COLOR}" = "1" ]; then
+        color_txt=
+    fi
+
+    local nl_BASIC_regex_filter="-b 'p.~|'" # very basic!
+
+    # grep/ripgrep
+    if [ "${grep_cmd}" = "nm" ] ; then # -
+        true
+    elif [ "${grep_cmd}" != "rg" ] ; then # -
+        # dont use ripgrep
+
+        if [ "${CMD_LINE_OPT__ZGREP}" = "1" ] ; then
+            grep_cmd="grep" # zgrep has same features
+        fi
+        rescan_grep_features "${grep_cmd}"
+
+        local grep_options=
+        # http://stackoverflow.com/questions/9066609/fastest-possible-grep
+        #   If you're searching very large files, then setting your locale can really help.
+        #   GNU grep goes a lot faster in the C locale than with UTF-8.
+
+        # since we use column, we need to deactivate this, or we get
+        #   column: Invalid or incomplete multibyte or wide character
+        if [ "${CMD_LINE_OPT__TAB_RESULTS}" != "1" ]; then
+            export LC_ALL=C
+        fi
+
+        if [ "${CMD_LINE_OPT__ZGREP}" = "1" ] ; then
+            grep_cmd="zgrep"
+        fi
+
+        if [ "${GREP_CAN_COLOR}" = "1" ] ; then
+            true # pass
+        else
+            logwarning "'grep' does not support colors"
+            color_txt=
+        fi
+
+        if [ "${show_files_only}" = "1" ] ; then
+            if [ "${GREP_CAN_SHOW_FILES_ONLY}" != "1" ] ; then
+                # crap
+                CMD_LINE_OPT__VERBOSE=1
+                logerror "your selected grep tool: ${grep_cmd} does not support -l 'Show only names of files that match' option"
+                logerror "try to rerun with additional options: '--verbose --show-defaults' to see real calls, maybe it will be helpful"
+                exit 1
+            fi
+        fi
+        if [ "${show_dirs_only}" = "1" ] && [ "${XARGS_CAN_STRING_REPLACE}" != "1" ] ; then
+            logerror "'xargs' does not support -I (Replace STR), cannot run with --show-dirs-only"
+            exit 1
+        fi
+
+        if [ "${show_defaults}" = "1" ] ; then
+            if [ "${find_cmd}" != "ps" ] ; then
+                [ "${GREP_CAN_LINE_NUMBER}" = "1" ] && grep_options="${grep_options} -n";
+                [ "${GREP_CAN_FILENAME}"    = "1" ] && grep_options="${grep_options} -H";
+            fi
+            [ "${GREP_CAN_SKIP_BINARY}" = "1" ] && grep_options="${grep_options} -I";
+            [ "${GREP_CAN_CONTEXT}"     = "1" ] && [ "${CMD_LINE_OPT__PREV_POST}" != "0" ]   && grep_options="${grep_options} -A ${CMD_LINE_OPT__PREV_POST} -B ${CMD_LINE_OPT__PREV_POST}"
+        elif [ "${show_files_only}" = "1" ]; then
+            # show files and dirs only -> disable colors
+            color_txt=
+
+            cmd_post__cut=
+            # show files only
+            grep_options="${grep_options} -l";
+            if [ "${show_dirs_only}" = "1" ] ; then
+                local __tmp_x0=
+                local __tmp_g0=
+                if [ "${GREP_CAN_NULLBYTE}" = "1" ] ; then
+                    __tmp_x0='-0'
+                    __tmp_g0='-Z'
+                fi
+                cmd_post__dirs_only=" | ${xargs_cmd} ${__tmp_x0} -n1 -I '_p1' sh -c '_f(){ i=\$1; [ ! -d \"\$1\" ] && echo \"\${i%/*}\" || echo \"\$1\";}; _f \"_p1\"' | sort | uniq"
+                grep_options="${grep_options} ${__tmp_g0}"
+            fi
+        elif [ "${show_match_only}" = "1" ]; then
+            true # pass
+        else
+            true # pass
+        fi
+        #[ "${GREP_CAN_RECURSIVE}"   = "1" ] && grep_options="${grep_options} -r";
+        [ "${GREP_CAN_REGEX}"       = "1" ] && [ "${CMD_LINE_OPT__REGEX}" = "1" ]            && grep_options="${grep_options} -E";
+        [ "${GREP_CAN_IGNORECASE}"  = "1" ] && [ "${CMD_LINE_OPT__IGNORE_CASE}" = "1" ]      && grep_options="${grep_options} -i";
+        [ "${GREP_CAN_WHOLEWORDS}"  = "1" ] && [ "${CMD_LINE_OPT__WHOLE_WORDS_ONLY}" = "1" ] && grep_options="${grep_options} -w";
+
+
+        # bingrep will report on multilines
+        local stderr_txt=
+        stderr_txt="2>/dev/null"
+
+        local parallel_txt=
+        [ "${XARGS_CAN_MULTIPROCESS}" = "1" ] && parallel_txt="-P0";
+        [ "${COLUMN_EXISTING}" = "1" ] && [ "${CMD_LINE_OPT__TAB_RESULTS}" = "1" ] && parallel_txt=;
+
+        # bingrep is "specific" -> redefine some
+        if [ "${CMD_LINE_OPT__BINGREP}" = "1" ] ; then
+            if [ "${CMD_LINE_OPT__PREV_POST}" = "0" ] ; then
+                grep_options="${grep_options} -C 16"
+            fi
+
+            # no column tabs
+            CMD_LINE_OPT__TAB_RESULTS=0
+
+            # bingrep has color on by default -> disable if neccessary
+            if ! [ "${color_txt}" = '--color="always"' ]; then
+                color_txt='--color=none'
+            fi
+
+            # no parallel for bingrep
+            parallel_txt=
+            # 7 | ./strhdc.c:13313:   0x3401          # filter example shall match: ':   0x': last digit of offset 3x<space> bin offset start '0x'
+            #nl_BASIC_regex_filter="-b 'p:.+0x'" # very basic!
+        fi
+    else
+        # use ripgrep
+        local col_preview=
+        grep_options=
+        __cIFS '_rg_ign_' '
+'
+        local ignore_tmp=
+        for i in ${FIND_IGNORE_PATTTERNS} ; do
+            ignore_tmp=${i}
+            if ___sw "${ignore_tmp}" "/"; then
+                # fix rg glob pattern
+                ignore_tmp='**'"${ignore_tmp}"
+            fi
+            if [ -n "${WIN_CMD_ROOT}" ] ; then
+                # fix rg windows paths
+                ignore_tmp=$(echo "${ignore_tmp}" | tr '/' '\\')
+            fi
+            grep_options="${grep_options} -g '!${ignore_tmp}'";
+        done
+        __rIFS '_rg_ign_'
+
+        if [ -n "${CMD_LINE_OPT__DEPTH}" ]; then
+            grep_options="${grep_options} --max-depth ${CMD_LINE_OPT__DEPTH}";
+        fi
+
+        grep_options="${grep_options} --no-config --no-ignore --no-follow --hidden --no-heading"
+
+        if [ "${show_defaults}" = "1" ] ; then
+            grep_options="${grep_options} -n"
+            [ "${CMD_LINE_OPT__PREV_POST}" != "0" ] && grep_options="${grep_options} -A ${CMD_LINE_OPT__PREV_POST} -B ${CMD_LINE_OPT__PREV_POST}"
+            if [ "${CMD_LINE_OPT__DONT_LIMIT_MATCH}" != "1" ] ; then
+                col_preview=; [ "${RG_CAN_MAX_COLUMNS_PREVIEW}" = "1" ] && col_preview="--max-columns-preview"
+                grep_options="${grep_options} -M 256 ${col_preview} "
+            fi
+        elif [ "${show_files_only}" = "1" ]; then
+            # show files and dirs only -> disable colors
+            color_txt=
+
+            grep_options="${grep_options} --files-with-matches"
+            if [ "${show_dirs_only}" = "1" ] ; then
+                local __tmp_x0=
+                local __tmp_g0=
+                __tmp_x0='-0'
+                __tmp_g0='--null'
+                cmd_post__dirs_only=" | ${xargs_cmd} ${__tmp_x0} -n1 -I '_p1' sh -c '_f(){ i=\$1; [ ! -d \"\$1\" ] && echo \"\${i%/*}\" || echo \"\$1\";}; _f \"_p1\"' | sort | uniq"
+                grep_options="${grep_options} ${__tmp_g0}"
+            fi
+        elif [ "${show_match_only}" = "1" ]; then
+            grep_options="${grep_options} --no-filename -N"
+            if [ "${CMD_LINE_OPT__DONT_LIMIT_MATCH}" != "1" ] ; then
+                col_preview=; [ "${RG_CAN_MAX_COLUMNS_PREVIEW}" = "1" ] && col_preview="--max-columns-preview"
+                grep_options="${grep_options} -M 256 ${col_preview} "
+            fi
+        else
+            true # pass
+        fi
+
+        if [ -n "${color_txt}" ] ; then
+            grep_options="${grep_options} --colors 'match:none' --colors 'match:bg:yellow' --colors 'match:fg:red'"
+        else
+            grep_options="${grep_options} --color never"
+        fi
+
+        [ "${CMD_LINE_OPT__REGEX}" != "1" ]           && grep_options="${grep_options} --fixed-strings"
+        [ "${CMD_LINE_OPT__IGNORE_CASE}" = "1" ]      && grep_options="${grep_options} -i";
+        [ "${CMD_LINE_OPT__WHOLE_WORDS_ONLY}" = "1" ] && grep_options="${grep_options} -w";
+    fi
+
+    # xargs
+    local xargs_options=
+    if [ "${find_cmd}" = "ps" ] ; then # -
+        true # pass
+    elif [ "${grep_cmd}" != "rg" ] ; then # -
+        [ "${FIND_CAN_PRINT0}" = "1" ] && [ "${XARGS_CAN_0}" = "1" ] && xargs_options="${xargs_options} -0"
+        xargs_options="${xargs_options} ${parallel_txt}"
+        xargs_options="${xargs_options} -r"
+        xargs_options="${xargs_options} -n1"
+
+        if [ "${grep_cmd}" = "nm" ] ; then # -
+            # on nm search, all happens within xargs
+            local echo_cmd=
+            echo_cmd='echo "\033[35m$i\033[0m:\033[32m0\033[0m: $val"'
+            if [ "${CMD_LINE_OPT__DISABLE_COLOR}" = "1" ]; then
+                echo_cmd='echo "$i:0: $val"'
+            fi
+            grep_options=
+            [ "${GREP_CAN_EXPLICIT_PATTERN}" = "1" ] && grep_options="${grep_options} -e";
+            xargs_options="${xargs_options} -I '_p1' sh -c '_f(){ i=\$1; val=\$(nm -C \"\$i\" 2>/dev/null | grep ${color_txt} ${grep_options} '${grep_for_this}' ${stderr_txt}); [ -n \"\$val\" ] && ${echo_cmd};}; _f \"_p1\"'"
+        fi
+    fi
+    if [ "${grep_cmd}" != "nm" ] && [ -n "${xargs_options}" ] ; then
+        xargs_options="${xargs_options} --"
+    fi
+
+    # nl
+    local nl_cmd=
+    local nl_options=
+    if [ "${NL_EXISTING}" = "1" ]; then
+        nl_cmd="nl"
+        if [ "${find_cmd}" != "ps" ] ; then
+            [ "${NL_CAN_REGEX_FILTER}" = "1" ] && nl_options="${nl_options} ${nl_BASIC_regex_filter}";
+        fi
+        [ "${NL_CAN_NUMBER_WIDTH}" = "1" ] && nl_options="${nl_options} -w 3";
+        [ "${NL_CAN_NUMBER_SEPARATOR}" = "1" ] && nl_options="${nl_options} -s ' | '";
+    fi
+
+    # command line call
+    local cmd=
+    local cmd_pre=
+    local cmd_post=
+    local cmd_pesistence_redirect=
+
+    # cmd_pre: is the basic search command
+    # important: must be the last one
+    if [ "${grep_cmd}" = "nm" ] ; then # -
+        cmd_pre="${find_cmd} ${find_options} | ${xargs_cmd} ${xargs_options}"
+    elif [ "${grep_cmd}" != "rg" ] ; then # -
+        [ "${GREP_CAN_EXPLICIT_PATTERN}" = "1" ] && grep_options="${grep_options} -e";
+        cmd_pre="${find_cmd} ${find_options} | ${xargs_cmd} ${xargs_options} ${grep_cmd} ${color_txt} ${grep_options} '${grep_for_this}' ${stderr_txt}"
+    else
+        # ripgrep search
+        local rg_file_pattern=
+        rg_file_pattern=
+        if [ "${find_files_pattern}" != "*" ] ; then
+            rg_file_pattern="-g '${find_files_pattern}'"
+        fi
+        cmd_pre="${grep_cmd} ${color_txt} ${rg_file_pattern} ${grep_options} -- '${grep_for_this}' '${search_in_this_directory}' ${stderr_txt}"
+    fi
+
+
+    # redirect output to tmpfile, using last search results in other tools
+    if [ "${show_defaults}" = "1" ] && [ -n "${HDGREP_LAST_RESULT_TMP_FILE}" ]; then
+        cmd_pesistence_redirect=" | tee '${HDGREP_LAST_RESULT_TMP_FILE}'"
+    fi
+
+    if [ "${show_defaults}" = "1" ]; then
+        # cmd_post: will 'pretty' show the results
+        if [ "${find_cmd}" = "ps" ] ; then
+            # grep -v grep and hdgrep
+
+            cmd_post="${cmd_post} | grep -v -w grep | grep -v -w hdgrep"
+            if [ "${CMD_LINE_OPT__DISABLE_COLOR}" = "1" ]; then
+                cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \1 | !1'"
+            else
+                if [ "${SED_SUPPORTS_BINARY_PATTERNS}" = "1" ]; then
+                    cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \x1b[32m\1\x1b[0m | !1'"
+#                else
+#                    cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \1 | !1' | grep --color=always -e 'PID:'"
+                fi
+            fi
+            # use only nl on ps
+            [ "${NL_EXISTING}" = "1" ] && [ -n "${cmd_pesistence_redirect}" ] && [ "${DO_I_RUN_INTERACTIVELY}" != "1" ] && cmd_post="${cmd_post} | ${nl_cmd} ${nl_options}"
+        else
+            cmd_post="${cmd_post} | sed -r 's/(:)/ ~|/2'"
+            [ "${NL_EXISTING}" = "1" ] && [ -n "${cmd_pesistence_redirect}" ] && [ "${DO_I_RUN_INTERACTIVELY}" != "1" ] && cmd_post="${cmd_post} | ${nl_cmd} ${nl_options}"
+            [ "${COLUMN_EXISTING}" = "1" ] && [ "${CMD_LINE_OPT__TAB_RESULTS}" = "1" ] && cmd_post="${cmd_post} | column -t -s'~'"
+        fi
+    fi
+
+    if [ "${DO_I_RUN_INTERACTIVELY}" != "1" ]; then
+        cmd="${cmd_pre}${cmd_post}${cmd_post__dirs_only}${cmd_post__cut}${cmd_pesistence_redirect}"
+        cmd=$(echo "${cmd}" | sed -r  's!2>/dev/null!!g')
+        if [ -n "${WIN_CMD_ROOT}" ]; then
+            lognotice "(real cmd): sh -c \"${cmd}\""
+        else
+            lognotice "(real cmd): ${cmd}"
+        fi
+        run "${cmd}"
+    else
+        # we get data from a pipe, assume this is a list, where we should grep
+        while read -r one_line_from_stdin ; do
+            one_line_from_stdin=$(strip_colors "${one_line_from_stdin}")
+            lognotice "grep in: '${one_line_from_stdin}' ..."
+            if [ -e "${one_line_from_stdin}" ] ; then
+                local grep_add_cmd=
+                if [ "${grep_cmd}" != "rg" ] && [ -d "${one_line_from_stdin}" ] ; then
+                    grep_add_cmd="-R" # grep on dirs
+                elif [ "${grep_cmd}" = "rg" ] && [ ! -d "${one_line_from_stdin}" ] ; then
+                    grep_add_cmd="--with-filename" # rg on files
+                fi
+                cmd_pre="${grep_cmd} ${color_txt} ${grep_add_cmd} ${grep_options} '${grep_for_this}' '${one_line_from_stdin}' ${stderr_txt}"
+                cmd="${cmd_pre}${cmd_post}${cmd_post__dirs_only}${cmd_post__cut}"
+                if [ -n "${WIN_CMD_ROOT}" ]; then
+                    lognotice "(real cmd): sh -c \"${cmd}\""
+                else
+                    lognotice "(real cmd): ${cmd}"
+                fi
+                run "${cmd}"
+            else
+                logwarning "grep in: '${one_line_from_stdin}' failed (path does not exist), skip ..."
+            fi
+        done
+    fi
+    return 0
+}
+if [ "${__name__}" = "__main__" ] ; then
+    main "$@"
+    exit $?
+fi
