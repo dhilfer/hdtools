@@ -59,7 +59,7 @@ files using *nm*.
 This is basically a wrapper to find command, increasing find usability.
 (Get the basic motivation here at [XKCD](https://xkcd.com/1168/))
 
-<video loop autoplay src="https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.mp4">
+<video loop autoplay src="https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.mp4?raw=true">
 </video>
 
 Both hdgrep and hdfind will store last search results in a file, named
