@@ -59,6 +59,9 @@ files using *nm*.
 This is basically a wrapper to find command, increasing find usability.
 (Get the basic motivation here at [XKCD](https://xkcd.com/1168/))
 
+<video loop autoplay src="https://raw.githubusercontent.com/dhilfer/hdtools/doc_assets/hdfind_example.mp4">
+</video>
+
 Both hdgrep and hdfind will store last search results in a file, named
 *hdgrep.bplus.last_result*. By default either in */tmp/* or (on X11 env)
 */run/user/<user_id>/*. This can be used to quick sync your search
