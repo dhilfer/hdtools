@@ -38,7 +38,7 @@ another machine, or custom scripts.
 Basic motivation for **hdgrep** and **hdfind** can be understand here here at [XKCD](https://xkcd.com/1168/)
 
 Both tools will store last search results in a file, named
-*hdgrep.<whoami>.last_result*. By default either in */tmp/* or (on X11 env)
+*hdgrep.whoami.last_result*. By default either in */tmp/* or (on X11 env)
 */run/user/<user_id>/*. This can be used to quick sync your search
 results with your favourite editor.
 
@@ -60,7 +60,7 @@ sudo apt-get install ripgrep
 
 ![hdgrep_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdgrep_example.gif?raw=true)
 
-<span style="color:#888;font-size:0.8em">Example usage of hdgrep</span>
+> Example usage of hdgrep
 
 
 hdgrep offers more useful searches utilising some other tools than grep.
@@ -69,11 +69,11 @@ files using *nm*.
 
 ![hdgrep_pdf_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdgrep_pdf_example.gif?raw=true)
 
-<span style="color:#888;font-size:0.8em">Searching in pdf files using pdfgrep</span>
+> Searching in pdf files using pdfgrep
 
-![hdgrep_obj_bin_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdgrep_example.gif?raw=true)
+![hdgrep_obj_bin_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdgrep_obj_bin_example.gif?raw=true)
 
-<span style="color:#888;font-size:0.8em">Searching in object files using nm (-o) and bingrep (-b)</span>
+> Searching in object files using nm (-o) and bingrep (-b)
 
 
 
@@ -82,7 +82,7 @@ This is basically a wrapper to find command, increasing its usability.
 
 ![hdfind_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.gif?raw=true)
 
-<span style="color:#888;font-size:0.8em">Example usage of hdfind</span>
+> Example usage of hdfind
 
 
 
