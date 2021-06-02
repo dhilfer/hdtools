@@ -6,7 +6,7 @@ if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN 
 if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;
 fi
 
-VERSION="1.3.2"
+VERSION="1.3.3"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 if [ -n "${WIN_CMD_ROOT}" ] ; then
@@ -17,7 +17,7 @@ echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0
 if [ "${__name__}" = "__main__" ]; then                                 # preface
 # upgrade links, use # for comments
 UPGRADE_LATEST_RELEASE_LINKS="
-http://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
 "
 UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
 

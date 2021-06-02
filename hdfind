@@ -18,7 +18,7 @@ ___srV="2.6.0_m";[ -z "$___srD" ] && ___srD=0;___sw(){ case "$1" in "$2"*) retur
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.8.0"
+__VERSION__="7.8.1"
 
 BASIC_USAGE="(${__VERSION__}): hdfind [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [PATTERN PATTERN ...]"
 
@@ -36,7 +36,7 @@ FIND_IGNORE_PATTTERNS='
 '
 
 # upgrade stuff
-UPGRADE_LATEST_RELEASE_LINK="http://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind"
+UPGRADE_LATEST_RELEASE_LINK="https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind"
 UPGRADE_UNIQUE_TOKEN="bba20c00-f039-45ec-affa-6be03c698135"
 
 if true; then                                                           # grep color scheme
