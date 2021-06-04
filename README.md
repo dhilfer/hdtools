@@ -35,11 +35,11 @@ another machine, or custom scripts.
 
 ## Short overview of available tools and features
 
-Basic motivation for **hdgrep** and **hdfind** can be understand here here at [XKCD](https://xkcd.com/1168/)
+Basic motivation for **hdgrep** and **hdfind** can be understand here at [XKCD](https://xkcd.com/1168/)
 
 Both tools will store last search results in a file, named
-*hdgrep.whoami.last_result*. By default either in */tmp/* or (on X11 env)
-*/run/user/<user_id>/*. This can be used to quick sync your search
+**hdgrep.$(whoami).last_result**. By default either in '*/tmp/*' or (on X11 env)
+'*/run/user/<user_id>/*'. This can be used to quick sync your search
 results with your favourite editor.
 
 ### hdgrep
