@@ -30,9 +30,9 @@ Try to replace *'curl -L \<url> -o \<target>'* with *'wget \<url> -O \<target>'*
 if curl is not available on your system.
 
 Due to github's URL policy you'll need a tool which is able to handle
-*https://* URL's, which may is not available on your tiniest
+*https://* URL's. This is may not available on some of your tiniest
 initramfs-busybox. Beware of this constraint, or just get the tools
-somehere on your local network and host by yourself (replace
+somewhere on your local network and host by yourself (replace
 **UPGRADE_LATEST_RELEASE_LINK** within the code).
 
 
