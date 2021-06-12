@@ -2,6 +2,10 @@ hdtools: some sort of useful command line tools
 
 - [INSTALLATION](#installation)
 - [DESCRIPTION](#description)
+    - [hdgrep](#hdgrep)
+    - [hdfind](#hdfind)
+    - [hdontarget](#hdontarget)
+
 
 # INSTALLATION
 
@@ -26,7 +30,7 @@ Try to replace *'curl -L \<url> -o \<target>'* with *'wget \<url> -O \<target>'*
 if curl is not available on your system.
 
 Due to github's URL policy you'll need a tool which is able to handle
-'*https://*' URL's, which may is not available on your tiniest
+*https://* URL's, which may is not available on your tiniest
 initramfs-busybox. Beware of this constraint, or just get the tools
 somehere on your local network and host by yourself (replace
 **UPGRADE_LATEST_RELEASE_LINK** within the code).
@@ -67,7 +71,7 @@ commands without execution. This one is useful to add some more
 ~~unsupported~~ user-specific options or just to copy-/paste commands to
 another machine, or custom scripts.
 
-## Short overview of available tools and features
+## Short overview for available tools and features
 
 Basic motivation for **hdgrep** and **hdfind** can be understand here at [XKCD](https://xkcd.com/1168/)
 
@@ -78,7 +82,7 @@ results with your favourite editor.
 
 ### hdgrep
 This tool performs (primary) a text search within files. For that it
-uses *grep* and *find*.
+uses **grep** and **find**.
 
 Type to install:
 
@@ -90,7 +94,6 @@ Type to (auto-)update
 ```sh
 hdgrep --upgrade
 ```
-
 
 Thank to [Rust](https://www.rust-lang.org/) there is a "insanely fast"
 searching tool named *[ripgrep](https://github.com/BurntSushi/ripgrep/releases)*
@@ -108,7 +111,6 @@ sudo apt-get install ripgrep
 
 > Example usage of hdgrep
 
-
 hdgrep offers more useful searches utilising some other tools than grep.
 For example you can search in pdf-files using *pdfgrep*, or in object
 files using *nm*.
@@ -122,13 +124,38 @@ files using *nm*.
 > Searching in object files using nm (-o) and bingrep (-b)
 
 
-
 ### hdfind
-This is basically a wrapper to find command, increasing its usability.
+
+This is basically a wrapper to **find** command, increasing its usability.
+
+Type to install:
+
+```sh
+export GET_THIS_TOOL=hdfind; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+```
+
+Type to (auto-)update
+```sh
+hdfind --upgrade
+```
+
 
 ![hdfind_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.gif?raw=true)
 
 > Example usage of hdfind
 
+### hdontarget
 
+This tool is wrapper for **ssh/scp/dropbear** which can be used to
+automate scripts (and workflows) if working with remote network targets.
 
+Type to install:
+
+```sh
+export GET_THIS_TOOL=hdontarget; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+```
+
+Type to (auto-)update
+```sh
+hdontarget --upgrade
+```
