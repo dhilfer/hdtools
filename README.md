@@ -11,17 +11,26 @@ run on any \*nix like target around.
 To install a particulart tool right away type:
 
 ```sh
-    export GET_THIS_TOOL=<some_tool>; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL
+export GET_THIS_TOOL=<some_tool>; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
 ```
 
 To install them all type:
-(or replace 'curl -L <url> -o <target>' with 'wget <url> -O <target>' if curl is not available on your system)
 
 ```sh
-    export GET_THIS_TOOL=hdgrep; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL
-    export GET_THIS_TOOL=hdfind; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL
-    export GET_THIS_TOOL=hdontarget; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL
+export GET_THIS_TOOL=hdgrep; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+export GET_THIS_TOOL=hdfind; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+export GET_THIS_TOOL=hdontarget; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
 ```
+
+Try to replace *'curl -L \<url> -o \<target>'* with *'wget \<url> -O \<target>'*
+if curl is not available on your system.
+
+Due to github's URL policy you'll need a tool which is able to handle
+'*https://*' URL's, which may is not available on your tiniest
+initramfs-busybox. Beware of this constraint, or just get the tools
+somehere on your local network and host by yourself (replace
+**UPGRADE_LATEST_RELEASE_LINK** within the code).
+
 
 # DESCRIPTION
 
@@ -70,6 +79,18 @@ results with your favourite editor.
 ### hdgrep
 This tool performs (primary) a text search within files. For that it
 uses *grep* and *find*.
+
+Type to install:
+
+```sh
+export GET_THIS_TOOL=hdgrep; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+```
+
+Type to (auto-)update
+```sh
+hdgrep --upgrade
+```
+
 
 Thank to [Rust](https://www.rust-lang.org/) there is a "insanely fast"
 searching tool named *[ripgrep](https://github.com/BurntSushi/ripgrep/releases)*
