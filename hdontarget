@@ -1,25 +1,22 @@
 #!/bin/sh
-if true; then # ___srV="2.9.10"
-___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;for _e8 in 1 2 3 4 5;do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};diff=$((_Uc-_mZ));[ $diff -ne 0 ] && { [ $diff -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");___type(){ [ -n "$2" ] && eval "export $2=";local _r=;local _t=;_t=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ];then _r=$(which "${1}" 2>/dev/null);[ -z "${_r}" ] && return 1;fi;if [ -z "${_r}" ];then case "$_t" in *function*) _r=function;; *builtin*) _r=builtin;; *alias*) _r=alias;; *) _r=$(command -v ${1} 2>/dev/null);; esac;fi;[ -n "$2" ] && eval "export $2='$_r'";return 0;};___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};echo_stderr(){ echo "$@" >&2;};___sw "$(echo -e t)" "-e" || { alias echo="echo -e"; echo_stderr(){ echo -e "$@" >&2;};};__get_linenr(){ local _sd=0;[ -n "$1" ] && _sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${_sd}']''}';};_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn="$1";local nr="$2";shift 2;[ ! $nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};[ -z "${__name__}" ] &&  [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@"; exit $?; }; ___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1; __pid__=$$;__cwd__=$(pwd);__tab='	';__newline='
-';fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";
-if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip"; return; };local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/";then __cIFS 'require' ':';for __pp in $sr_PATH;do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}"; break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh"; break;};done;__rIFS 'require';[ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)"; exit 1;};fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2; __pp=;__rip=;};fi;
-if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;
+if true; then # ___srV="2.9.11"
+___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;for _e8 in 1 2 3 4 5;do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};diff=$((_Uc-_mZ));[ $diff -ne 0 ] && { [ $diff -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$CMDER_ROOT" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");___type(){ [ -n "$2" ] && eval "export $2=";local _r=;local _t=;_t=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ];then _r=$(which "${1}" 2>/dev/null);[ -z "${_r}" ] && return 1;fi;if [ -z "${_r}" ];then case "$_t" in *function*) _r=function;; *builtin*) _r=builtin;; *alias*) _r=alias;; *) _r=$(command -v ${1} 2>/dev/null);; esac;fi;[ -n "$2" ] && eval "export $2='$_r'";return 0;};___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};echo_stderr(){ echo "$@" >&2;};___sw "$(echo -e t)" "-e" || { alias echo="echo -e"; echo_stderr(){ echo -e "$@" >&2;};};__get_linenr(){ local _sd=0;[ -n "$1" ] && _sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${_sd}']''}';};_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn="$1";local nr="$2";shift 2;[ ! $nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};[ -z "${__name__}" ] &&  [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@"; exit $?; }; ___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1; __pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip"; return; };local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/";then __cIFS 'require' ':';for __pp in $sr_PATH;do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}"; break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh"; break;};done;__rIFS 'require';[ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)"; exit 1;};fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2; __pp=;__rip=;};fi;if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;__tab='	';__newline='
+';fi
+
+if true; then                                                           # escape %APPDATA% on windows
+# hacky fix %APPDATA% path on windows, escape backslashes '\\'
+# add extra level of escaping '\\\\\\\\' instead of '\\\\', will allow us to do nicier logXXX calls
+[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | sed -r  's!\\!\\\\\\\\!g' | sed -r  's!APPDATA=!!g')
+# this one works too within sh, but for evt. echo's its more convinient to use the one above
+#[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.3.4"
+VERSION="1.4.2"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
-if [ -n "${WIN_CMD_ROOT}" ] ; then
-    echo "this tool is not (fully) ported to Windows yet"
-    exit 1
-fi
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
 if [ "${__name__}" = "__main__" ]; then                                 # preface
-# upgrade links, use # for comments
-UPGRADE_LATEST_RELEASE_LINKS="
-https://raw.githubusercontent.com/dhilfer/hdtools/hdontarget-latest/hdontarget
-"
-UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
+
 
 # sr will resolve symbolic links if determine a __file__
 # if we run as __main__ assume $0 to be our real path -> resolve __real_file__
@@ -99,7 +96,7 @@ echo "
 $(echo_bold "OPTIONS")
     -h  --help              this help
     -he --help-examples     show example usages"
-if [ "${LINKED_MODE}" != "1" ] ; then
+if [ "${LINKED_MODE}" != "1" ] && [ "${__is_win__}" != "1" ] ; then
     echo "    --update-completion     update my bash completion file
     -ec --edit-config       open  local  user config: ~/.hdontarget_sets
                             for edit. Add something like:
@@ -419,18 +416,21 @@ and coloring helpers.
 # modified: explicit set of: CMD_LINE_OPT__HELP=1
 CMD_LINE_OPT__HELP="0"
 # modified: disabled options in linked mode
-#   CMD_LINE_OPT__UPDATE_COMPLETION
-#
-#   CMD_LINE_OPT__LOAD_SET
-#   CMD_LINE_OPT__LIST
-#   CMD_LINE_OPT__SET
-#   CMD_LINE_OPT__LINK_SET
-##   CMD_LINE_OPT__USER
-#   CMD_LINE_OPT__HOST
-##   CMD_LINE_OPT__PASS
-##   CMD_LINE_OPT__PORT
-#
-#   CMD_LINE_OPT__UPGRADE
+#   --update-completion
+#   --edit-config
+#   --load-set
+#   --list
+#   --set
+#   --link-set
+#   --host
+#   --upgrade
+
+# modified : disabled options on Windows
+#   --update-completion
+#   --edit-config
+#   --link-set
+#   --export-this-path
+
 
 # options
 CMD_LINE_OPT__HELP_EXAMPLES="0"  #
@@ -484,11 +484,13 @@ parse_all_options()
             #
             --update-completion)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--update-completion is disabled in linked mode" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--update-completion is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__UPDATE_COMPLETION="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
             --edit-config|-ec)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--edit-config is disabled in linked mode" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--edit-config is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__EDIT_CONFIG="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -511,11 +513,11 @@ parse_all_options()
             #
             --link-set)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--link-set is disabled in linked mode" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--link-set is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__LINK_SET="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
             --user|-u)
-                #[ "${LINKED_MODE}" = "1" ] && { echo "--user|-u is disabled in linked mode" >&2; exit 1; };
                 CMD_LINE_OPT__USER="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--user|-u needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
@@ -527,13 +529,11 @@ parse_all_options()
                 shift 2; shifted=$((shifted+2));;
             #
             --pass|-p)
-                #[ "${LINKED_MODE}" = "1" ] && { echo "--pass|-p is disabled in linked mode" >&2; exit 1; };
                 CMD_LINE_OPT__PASS="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--pass|-p needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
             #
             --port|-P)
-                #[ "${LINKED_MODE}" = "1" ] && { echo "--port|-P is disabled in linked mode" >&2; exit 1; };
                 CMD_LINE_OPT__PORT="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--port|-P needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
@@ -570,6 +570,7 @@ parse_all_options()
                 shift 2; shifted=$((shifted+2));;
             #
             --export-this-path)
+                [ "${__is_win__}" = "1" ] && { echo "--export-this-path is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__EXPORT_THIS_PATH="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--export-this-path needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
@@ -658,7 +659,7 @@ if [ "${LINKED_MODE}" = "1" ] ; then
 fi
 fi
 # base modified: echo -> echo_stderr for lognotice, loginfo
-if [ "${__name__}" = "__main__" ]; then                                 # base: 3.1.3
+if [ "${__name__}" = "__main__" ]; then                                 # base: 3.1.6
 if true; then                                                           # base:colors: 1.2.2
 # __sr_DISABLE_COLOR: 0
 # 1st: parm may be:
@@ -679,7 +680,7 @@ fi
 _csE() { [ -z "${1}" ] && return 1;[ -z "$(eval echo "$""${1}")" ] && return 1 || return 0;}
 # (c)heck var is (s)et in (e)nvironment or set to default #(env_var, def_val, !echo_var=0)
 _cse() { { [ -z "$(eval echo "$""${1}")"  ] && export "${1}=${2}";}; val=$(eval echo "$""${1}"); [ "${3}" = "1" ] && _logdebug 2 "ENV: $(echo_green "${1}")=${val}";}
-if true; then                                                           # base:log: 1.4.4       # requires: colors, _cse
+if true; then                                                           # base:log: 1.5.0       # requires: colors, _cse
 _cse __log_no_facility__ 0           # default:  0, don't show log facilities ("notice", "error", ...)
 _cse __log_no_notice_facility__ 0    # default:  0, don't show log facilities above "notice", show the rest beyond (error, warning)
 _cse __log_date__ 0                  # default:  0, show timestamp # append .%N nanoseconds if target date supports this manually below
@@ -711,15 +712,15 @@ $([ -n "${__log_remote_host__}" ] && echo "[$(echo_magenta ${__log_remote_user__
 $([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
 "$([ x${__log_no_main__} != x1 ] && echo ' ')"\
 ;}
-_logerror()  { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logwarning(){ local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logdebug()  { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logerror()  { [ "${__sr_DSBL_ERR}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logwarning(){ [ "${__sr_DSBL_WARN}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logdebug()  { [ "${__sr_DSBL_DBG}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != 1 ] ; then
-_lognotice() { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 else
-_lognotice() { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 fi
 logerror()   { _logerror   2 "$@";}
 logwarning() { _logwarning 2 "$@";}
@@ -734,7 +735,7 @@ run_e() { _lognotice 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@"; [ "${
 # no trace -> no debug
 [ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
 fi
-if true; then                                                           # base:checks: 1.1.6    # requires: log
+if true; then                                                           # base:checks: 1.1.7    # requires: log
 #(reason, !exit_code=1, !stack_depth=2)
 die() { local err=1;local _dd=2;[ -n "${2}" ] && err=${2};[ -n "${3}" ] && _dd=${3};_logerror ${_dd} "${1}";exit ${err};}
 _cca() { die "_cca() is DEPRECATED, use ___type() from ___srV>='2.9.4' instead" ; }
@@ -743,6 +744,11 @@ _cca() { die "_cca() is DEPRECATED, use ___type() from ___srV>='2.9.4' instead" 
 _cex() { [ -e "${1}"  ] || { _logwarning 2 "${1}: does not exist" ; return 1 ; } }
 # (c)heck path (ex)ists or (d)ie #(path, !add_err_txt="", !err_code)
 _cex_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'${1}': path does not exist${2}" "${err}" 3;};}
+
+# (c)heck is (Ex)ecutable #(cmd)
+_cEx() { [ -x "${1}"  ] || { _logwarning 2 "${1}: is not a executable" ; return 1 ; } }
+# (c)heck is (Ex)ecutable or (d)ie #(cmd, !add_err_txt="", !err_code)
+_cEx_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'$1': is not a executable${2}" "${err}" 3;};}
 
 # check os tools
 _cet() { local _T=;local _A=;_T=$(echo "${1}" | cut -d":" -f1);_A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_T})"  ] || { logwarning "required tool: '${_T}': was not found. try to install it with: 'sudo apt install ${_A}', or so"; return 1 ; } ; }
@@ -777,8 +783,11 @@ if [ "${__sr_REMOTE_SSH_IS_DROPBEAR}" = "1" ] ; then
     _cse __sr_REMOTE_SCP_OPTS ""
 else
     # assume classic openssh
-    _cse __sr_REMOTE_SSH_OPTS "-o LogLevel=ERROR -o ConnectTimeout=10 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-    _cse __sr_REMOTE_SCP_OPTS "-o LogLevel=ERROR -o ConnectTimeout=10 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+    # skip ConnectTimeout on Windows, ssh waits there that time for whatever reason
+    [ "${__is_win__}" != "1" ] && _to="-o ConnectTimeout=10"
+    _cse __sr_REMOTE_SSH_OPTS "-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${to}"
+    _cse __sr_REMOTE_SCP_OPTS "-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${to}"
+    unset _to
 fi
 [ "${CMD_LINE_OPT__FORWARD_X}" = "1" ] && __sr_REMOTE_SSH_OPTS="${__sr_REMOTE_SSH_OPTS} -X"
 [ "${CMD_LINE_OPT__PSEUDO_TTY}" = "1" ] && __sr_REMOTE_SSH_OPTS="${__sr_REMOTE_SSH_OPTS} -t"
@@ -1584,7 +1593,12 @@ EOF
     lognotice "try it right now: . /etc/bash_completion , or start a new shell"
 }
 fi
-if [ "${__name__}" = "__main__" ]; then                                 # upgrade: 2.0.0 # requires lognotice, logwarning, echo_red
+# upgrade links, use # for comments
+_cse UPGRADE_LATEST_RELEASE_LINKS "
+https://raw.githubusercontent.com/dhilfer/hdtools/hdontarget-latest/hdontarget
+"
+UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
+if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -1592,9 +1606,16 @@ check_ip_with_ping() #(host)
     local host=
     host="${1}"
 
-    if ping -W 1 -c 1 ${host}  >/dev/null 2>&1 ; then
-        return 0
+    if [ "${__is_win__}" = "1" ] ; then
+        if ping -w 1 -n 1 ${host}; then
+            return 0
+        fi
+    else
+        if ping -W 1 -c 1 ${host}  >/dev/null 2>&1 ; then
+            return 0
+        fi
     fi
+
     return 1
 }
 download_file_with_wget() #(src_url, dst_file)
@@ -1652,7 +1673,7 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
         if ! download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"; then
             # broken multiline colored on stderr on windows
             #logerror "${err_msg}"
-            >&2 echo_red "[error]: ${err_msg}"
+            >&2 echo_red "  [error]: ${err_msg}"
             exit 1
         else
             download_ok=1
@@ -1662,7 +1683,7 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
     __rIFS "${__fn}"
 
     if [ "${download_ok}" != "1" ] ; then
-         >&2 echo_red "[error]: ${err_msg}"
+         >&2 echo_red "  [error]: ${err_msg}"
         exit 1
     fi
 
@@ -1674,7 +1695,7 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
         cmd="rm -f '${target_tmp_file}'"
         run "${cmd}"
         # broken multiline colored on stderr on windows
-        >&2 echo_red "[error]: ${err_msg}"
+        >&2 echo_red "  [error]: ${err_msg}"
         exit 1
     fi
 
@@ -1682,17 +1703,26 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
     local new_version_str=
     new_version_str=$(cat "${target_tmp_file}" | sed -nr "${version_regex}")
 
+    # check old vs new version
+    if [ $(___cvs $VERSION $new_version_str ) = 1 ]; then
+        >&2 echo_red "  [error]: NEW version: $new_version_str <= CURRENT version: $VERSION, skip upgrade"
+        cmd="rm -f '${target_tmp_file}'"
+        run "${cmd}"
+        exit 1
+    fi
+
+
     lognotice "replace old version ..."
     cmd="mv '${target_tmp_file}' '${target_path}/${target_file}'"
     run "${cmd}"
     ret=$?
     if [ "${ret}" != "0" ]; then
         # broken multiline colored on stderr on windows
-        >&2 echo_red "[error]: ${err_msg}"
+        >&2 echo_red "  [error]: ${err_msg}"
         exit 1
     fi
 
-    if [ -z "${WIN_CMD_ROOT}" ] ; then
+    if [ "${__is_win__}" != "1" ] ; then
         # chmod in linux only
         cmd="chmod +x '${target_path}/${target_file}'"
         run "${cmd}"
@@ -1734,9 +1764,14 @@ load_hdontarget_sets() #(!user_file=)
 
     [ -n "${user_file}" ] && _cex_d "${user_file}"
 
-    # try load files
-    load_setfile "/etc/hdontarget_sets"
-    load_setfile "${HOME}/.hdontarget_sets"
+    # try load setup files
+    if [ "${__is_win__}" = "1" ] ; then
+        load_setfile "${PUBLIC}\\hdontarget_sets"   # e.g.: C:\Users\Public\hdontarget_sets
+        load_setfile "${APPDATA}\\hdontarget_sets"  # e.g.: C:\Users\<yourname>\AppData\Roaming\hdontarget_sets
+    else
+        load_setfile "/etc/hdontarget_sets"
+        load_setfile "${HOME}/.hdontarget_sets"
+    fi
     load_setfile "${user_file}"
     # read ENV
     if _csE HDONTARGET_SETS ; then
@@ -1780,6 +1815,7 @@ $(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_r
 fi
 main()
 {
+    [ "${__is_win__}" = "1" ] && logdebug "run on Windows, which is HIGHLY EXPEREMENTAL"
     # parse_all_options (global above)
     if [ "${LINKED_MODE}" = "1" ] ; then
         logdebug "run in linked mode using set: ${CMD_LINE_OPT__SET}"
