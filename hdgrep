@@ -2,7 +2,7 @@
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License 3 as published
 # by the Free Software Foundation.
-# THERE IS NO ANY WARRANTY AT ALL
+# THERE IS NO ANY WARRANTY AT ALL.
 
 __sr_RUN_STRICT=1
 if true; then # ___srV="2.9.12"
