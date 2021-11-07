@@ -11,7 +11,7 @@ if true; then                                                           # escape
 #[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.4.2"
+VERSION="1.4.3"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -1595,7 +1595,7 @@ EOF
 fi
 # upgrade links, use # for comments
 _cse UPGRADE_LATEST_RELEASE_LINKS "
-https://raw.githubusercontent.com/dhilfer/hdtools/hdontarget-latest/hdontarget
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
 "
 UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
 if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red

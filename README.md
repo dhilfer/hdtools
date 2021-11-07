@@ -16,7 +16,7 @@ To install a particulart tool right away type:
 
 ```sh
 export GET_THIS_TOOL=<some_tool>;
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL};
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL};
 sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
 ```
 
@@ -82,11 +82,11 @@ uses **grep** and **find**.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdgrep-latest/hdgrep -o /usr/local/bin/hdgrep;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -o /usr/local/bin/hdgrep;
 sudo chmod a+rx /usr/local/bin/hdgrep;
 ```
 
-Type to (auto-)update
+Type to update
 ```sh
 hdgrep --upgrade
 ```
@@ -127,11 +127,11 @@ This is basically a wrapper to **find** command, increasing its usability.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdfind-latest/hdfind -o /usr/local/bin/hdfind;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind -o /usr/local/bin/hdfind;
 sudo chmod a+rx /usr/local/bin/hdfind;
 ```
 
-Type to (auto-)update
+Type to update
 ```sh
 hdfind --upgrade
 ```
@@ -148,16 +148,16 @@ automate scripts (and workflows) if working with remote network targets.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdontarget-latest/hdontarget -o /usr/local/bin/hdontarget;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -o /usr/local/bin/hdontarget;
 sudo chmod a+rx /usr/local/bin/hdontarget;
 ```
 
-Type to (auto-)update
+Type to update
 ```sh
 hdontarget --upgrade
 ```
 
-Read availble examples
+Look at availble usage examples
 ```sh
 hdontarget --help-examples
 ```

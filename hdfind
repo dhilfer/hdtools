@@ -32,7 +32,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.21"
+__VERSION__="7.9.22"
 
 BASIC_USAGE="(${__VERSION__}): hdfind [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [PATTERN PATTERN ...]"
 
@@ -574,7 +574,7 @@ fi
 fi
 # upgrade stuff, using _cse, so it can be overriden by user via ENV
 _cse UPGRADE_LATEST_RELEASE_LINKS "
-https://raw.githubusercontent.com/dhilfer/hdtools/hdfind-latest/hdfind
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind
 "
 UPGRADE_UNIQUE_TOKEN="bba20c00-f039-45ec-affa-6be03c698135"
 if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__

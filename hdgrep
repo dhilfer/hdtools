@@ -2,7 +2,7 @@
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License 3 as published
 # by the Free Software Foundation.
-# THERE IS NO ANY WARRANTY AT ALL.
+# THERE IS NO ANY WARRANTY AT ALL
 
 __sr_RUN_STRICT=1
 if true; then # ___srV="2.9.12"
@@ -32,7 +32,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.21"
+__VERSION__="7.9.22"
 
 BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
 
@@ -689,7 +689,7 @@ _ctso "bingrep" "--context" BINGREP_AVAILABLE
 fi
 # upgrade stuff, using _cse, so it can be overriden by user via ENV
 _cse UPGRADE_LATEST_RELEASE_LINKS "
-https://raw.githubusercontent.com/dhilfer/hdtools/hdgrep-latest/hdgrep
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep
 "
 UPGRADE_UNIQUE_TOKEN="5c159128-8a2c-46ca-b044-c1c82476b174"
 if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
