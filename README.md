@@ -9,21 +9,15 @@ hdtools: some sort of useful command line tools
 
 # INSTALLATION
 
-hdtools are pure sh-scripts (not even bash is required), so they shall
+hdtools are pure sh-scripts (bash is not required), so they shall
 run on any \*nix like target around.
 
 To install a particulart tool right away type:
 
 ```sh
-export GET_THIS_TOOL=<some_tool>; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
-```
-
-To install them all type:
-
-```sh
-export GET_THIS_TOOL=hdgrep; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
-export GET_THIS_TOOL=hdfind; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
-export GET_THIS_TOOL=hdontarget; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+export GET_THIS_TOOL=<some_tool>;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL};
+sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
 ```
 
 Try to replace *'curl -L \<url> -o \<target>'* with *'wget \<url> -O \<target>'*
@@ -32,8 +26,9 @@ if curl is not available on your system.
 Due to github's URL policy you'll need a tool which is able to handle
 *https://* URL's. This is may not available on some of your tiniest
 initramfs-busybox. Beware of this constraint, or just get the tools
-somewhere on your local network and host by yourself (replace
-**UPGRADE_LATEST_RELEASE_LINK** within the code).
+somewhere on your local network and host by yourself (ajust
+**UPGRADE_LATEST_RELEASE_LINK** within the code, or control it trough
+ENV var).
 
 
 # DESCRIPTION
@@ -87,7 +82,8 @@ uses **grep** and **find**.
 Type to install:
 
 ```sh
-export GET_THIS_TOOL=hdgrep; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdgrep-latest/hdgrep -o /usr/local/bin/hdgrep;
+sudo chmod a+rx /usr/local/bin/hdgrep;
 ```
 
 Type to (auto-)update
@@ -131,14 +127,14 @@ This is basically a wrapper to **find** command, increasing its usability.
 Type to install:
 
 ```sh
-export GET_THIS_TOOL=hdfind; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdfind-latest/hdfind -o /usr/local/bin/hdfind;
+sudo chmod a+rx /usr/local/bin/hdfind;
 ```
 
 Type to (auto-)update
 ```sh
 hdfind --upgrade
 ```
-
 
 ![hdfind_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.gif?raw=true)
 
@@ -152,10 +148,16 @@ automate scripts (and workflows) if working with remote network targets.
 Type to install:
 
 ```sh
-export GET_THIS_TOOL=hdontarget; sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/${GET_THIS_TOOL}-latest/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL}; sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/hdontarget-latest/hdontarget -o /usr/local/bin/hdontarget;
+sudo chmod a+rx /usr/local/bin/hdontarget;
 ```
 
 Type to (auto-)update
 ```sh
 hdontarget --upgrade
+```
+
+Read availble examples
+```sh
+hdontarget --help-examples
 ```
