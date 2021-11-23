@@ -11,10 +11,12 @@ if true; then                                                           # escape
 #[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.4.3"
+VERSION="1.4.4"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
+
+
 if [ "${__name__}" = "__main__" ]; then                                 # preface
 
 
@@ -35,6 +37,122 @@ if [ "${__real_file__}" != "hdontarget" ] && [ "${__is_dbg__}" != "1" ]; then
     fi
 fi
 fi
+# base modified: echo -> echo_stderr for lognotice, loginfo
+if [ "${__name__}" = "__main__" ]; then                                 # base: 3.1.6
+if true; then                                                           # base:colors: 1.2.2
+# __sr_DISABLE_COLOR: 0
+# 1st: parm may be:
+#    <b>: bold
+#   <bg>: background+bold
+__echo_col() { local _clr=; _clr=${1}; shift 1; local _bld=; local _grd=3; [ "${1}" = "<b>" ] && { _bld="1;"; shift 1; }; [ "${1}" = "<bg>" ] && { _bld="1;";_grd=4; shift 1; }; [ "${__sr_DISABLE_COLOR}" = "1" ] && echo "${@}" || echo "\033[${_bld}${_grd}${_clr}m${@}\033[0m" ; }
+echo_red()      { __echo_col 1 "${@}"; }
+echo_green()    { __echo_col 2 "${@}"; }
+echo_yellow()   { __echo_col 3 "${@}"; }
+echo_magenta()  { __echo_col 5 "${@}"; }
+echo_grey()     { __echo_col 0 "<b>" "${@}"; }
+
+echo_blue()      { __echo_col 4 "${@}"; }
+echo_lightblue() { __echo_col 6 "${@}"; }
+echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
+fi
+# (c)heck var is (s)et in (e)nvironment
+_csE() { [ -z "${1}" ] && return 1;[ -z "$(eval echo "$""${1}")" ] && return 1 || return 0;}
+# (c)heck var is (s)et in (e)nvironment or set to default #(env_var, def_val, !echo_var=0)
+_cse() { { [ -z "$(eval echo "$""${1}")"  ] && export "${1}=${2}";}; val=$(eval echo "$""${1}"); [ "${3}" = "1" ] && _logdebug 2 "ENV: $(echo_green "${1}")=${val}";}
+if true; then                                                           # base:log: 1.5.0       # requires: colors, _cse
+_cse __log_no_facility__ 0           # default:  0, don't show log facilities ("notice", "error", ...)
+_cse __log_no_notice_facility__ 0    # default:  0, don't show log facilities above "notice", show the rest beyond (error, warning)
+_cse __log_date__ 0                  # default:  0, show timestamp # append .%N nanoseconds if target date supports this manually below
+_cse __log_trace__ 0                 # default:  0, show logdebug(), real file:line [ base bash capability required ] (bash, sh->bash)
+_cse __log_pid__ 0                   # default:  0, show process pid(as set by _sr to __pid__)
+_cse __log_no_main__ 0               # default:  0, don't show __main__ tool name
+_cse __log_to_logfile__ 0            # default:  0, don't use logger to log to logfiles
+_cse __log_logger_options__ ""       # default: "", pass these additional options to logger
+
+_cse __log_script_line_offset__ 0    # default:  0, passed by run_script_ontarget, run_script_in_chroot
+_cse __log_remote_host__    ""       # default: "", passed by run_script_ontarget/hdontarget (if set, show additional 'remote' facility)
+_cse __log_remote_user__    ""       # default: "", passed by run_script_ontarget/hdontarget
+
+[ "${__is_bbash__}" != "1" ] && [ "${__log_trace__}" = "1" ] && echo_stderr $(echo_grey "___sr: __log_trace__ is active, to see line numbers you must run in 'bash' or 'sh->bash'")
+__log_preface(){
+echo \
+$([ x${__log_date__} = x1 ] && date +'%Y-%m-%d %H:%M:%S:')\
+"$([ x${__log_no_facility__} != x1 ] && [ -n "${2}" ] && echo "${2} ")"\
+$([ x${__log_no_main__} != x1 ] && echo_magenta ${__main__})\
+$([ x${__log_no_main__} != x1 ] && echo :)\
+$([ x${__is_bbash__} = x1 ] && [ x${__log_trace__} = x1 ] && {\
+    [ "$(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')" != "${__main__}" ] && {\
+            echo "($(echo_magenta $(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')):$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__})))):";\
+        } || {\
+            echo "$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__}))):";\
+        };\
+})\
+$([ -n "${__log_remote_host__}" ] && echo "[$(echo_magenta ${__log_remote_user__}@${__log_remote_host__})]:")\
+$([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
+"$([ x${__log_no_main__} != x1 ] && echo ' ')"\
+;}
+_logerror()  { [ "${__sr_DSBL_ERR}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logwarning(){ [ "${__sr_DSBL_WARN}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logdebug()  { [ "${__sr_DSBL_DBG}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != 1 ] ; then
+_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+else
+_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+fi
+logerror()   { _logerror   2 "$@";}
+logwarning() { _logwarning 2 "$@";}
+logdebug()   { _logdebug   2 "$@";}
+loginfo()    { _loginfo    2 "$@";}
+lognotice()  { _lognotice  2 "$@";}
+
+# redefine run, for fancier backtrace logging
+[ "${__log_trace__}" = "1" ] && run() { [ "${DBG_RUN}" = "1" ] && { _logdebug  2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@" ;}; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
+# always redefine run_e, if log is available
+run_e() { _lognotice 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@"; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
+# no trace -> no debug
+[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
+fi
+if true; then                                                           # base:checks: 1.1.7    # requires: log
+#(reason, !exit_code=1, !stack_depth=2)
+die() { local err=1;local _dd=2;[ -n "${2}" ] && err=${2};[ -n "${3}" ] && _dd=${3};_logerror ${_dd} "${1}";exit ${err};}
+_cca() { die "_cca() is DEPRECATED, use ___type() from ___srV>='2.9.4' instead" ; }
+
+# (c)heck (ex)ists #(path)
+_cex() { [ -e "${1}"  ] || { _logwarning 2 "${1}: does not exist" ; return 1 ; } }
+# (c)heck path (ex)ists or (d)ie #(path, !add_err_txt="", !err_code)
+_cex_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'${1}': path does not exist${2}" "${err}" 3;};}
+
+# (c)heck is (Ex)ecutable #(cmd)
+_cEx() { [ -x "${1}"  ] || { _logwarning 2 "${1}: is not a executable" ; return 1 ; } }
+# (c)heck is (Ex)ecutable or (d)ie #(cmd, !add_err_txt="", !err_code)
+_cEx_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'$1': is not a executable${2}" "${err}" 3;};}
+
+# check os tools
+_cet() { local _T=;local _A=;_T=$(echo "${1}" | cut -d":" -f1);_A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_T})"  ] || { logwarning "required tool: '${_T}': was not found. try to install it with: 'sudo apt install ${_A}', or so"; return 1 ; } ; }
+_ct() { local ret=; local i; ret=0; for i in ${1} ; do _cet "${i}"; ret=$?; if [ "${ret}" != "0" ]; then ret=${ret}; fi; done; if [ "${ret}" != "0" ]; then  die "-" 1 3; fi; }
+#_tools='convert:imagemagick
+#ppmquant:netpbm'
+#_ct "${_tools}"
+
+# (e)cho (e)nvironment (v)ar  #(env_var, !add_txt="")
+_eev() { local val=; val=$(eval echo "$""${1}"); _lognotice 2 "ENV: $(echo_green "${1}")=${val}${2}";}
+# (s)et (e)nvironment with (e)cho  #(env_var, val)
+_see() { export "${1}=${2}"; _lognotice 2 "ENV: $(echo_green "${1}")=${2}";}
+# (c)heck var (s)et in (e)nvironment or (d)ie #(env_var, !add_err_txt="", !echo_var_if_ok=0, !err_code)
+_cse_d() { local err=; [ -n "${4}" ] && err=${4}; [ -z "$(eval echo "$""${1}")"  ] && { die "${1}: is not set in env${2}" "${err}" 3;} || { [ "${3}" = "1" ] && { val=$(eval echo "$""${1}"); _logdebug 2 "ENV: $(echo_green "${1}")=${val}";};};}
+
+# (c)heck (i)s (r)oot or (d)ie #()
+_cir_d() { if [ "$(id -u)" != "0" ] ; then die "You must be root to proceed" "" 3; fi;}
+# (c)heck (n)ot (r)oot or (d)ie #()
+_cnr_d() { if [ "$(id -u)" = "0" ] ; then die "You must NOT be root to proceed" "" 3; fi;}
+fi
+fi
+# upgrade links, use # for comments
+_cse UPGRADE_LATEST_RELEASE_LINKS "
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
+"
 if [ "${__name__}" = "__main__" ]; then                                 # options
 print_usage()
 {
@@ -66,27 +184,40 @@ $(echo_bold "pass") and $(echo_bold "target host name(or ip address)"). A set wo
   $(echo_bold "zynq:root,10.42.0.44,root")
 
 The set syntax is defined as following:
-  $(echo_bold "name:username,host,pass")
-$(echo_bold "pass") can be a string or a path to a identity file (private key file)
+  $(echo_bold "name:username,host,password")
+$(echo_bold "password") can be a string or a path to a identity file (private key file)
 
-A collection of target sets can be specified in four different ways:
-  via global file which is loaded by default: $(echo_bold "/etc/hdontarget_sets"),
+A collection of target sets can be specified via different ways:"
+if [ "${__is_win__}" = "1" ] ; then
+echo "  via global file which is loaded by default: $(echo_bold "%PUBLIC%\\hdontarget_sets"),
+  via local user file which is loaded by default: $(echo_bold "%APPDATA%\\hdontarget_sets"),
+  via user specified file with: $(echo_bold "--load-set/-L") option,
+  via envirironment variable: $(echo_bold "HDONTARGET_SETS")
+
+It is possible to use all of them at the same time, with following
+precendece hierarchy:
+  $(echo_bold "HDONTARGET_SETS")(highest priority) -> $(echo_bold "--load-set/-L") -> $(echo_bold "%APPDATA%\\hdontarget_sets") -> $(echo_bold "%PUBLIC%\\hdontarget_sets")
+"
+else
+echo "  via global file which is loaded by default: $(echo_bold "/etc/hdontarget_sets"),
   via local user file which is loaded by default: $(echo_bold "~/.hdontarget_sets"),
-  via user specified file with: $(echo_bold "--load-set/-L") option
-  via envirironment variable: $(echo_bold "HDONTARGET_SETS"),
+  via user specified file with: $(echo_bold "--load-set/-L") option,
+  via envirironment variable: $(echo_bold "HDONTARGET_SETS")
 
 It is possible to use all of them at the same time, with following
 precendece hierarchy:
   $(echo_bold "HDONTARGET_SETS")(highest priority) -> $(echo_bold "--load-set/-L") -> $(echo_bold "~/.hdontarget_sets") -> $(echo_bold "/etc/hdontarget_sets")
-
-This is a example content of a set file (use '#' for comments):
+"
+fi
+echo "This is a example content of a set file (use '#' for comments):
     zynq:root,10.42.0.44,root
     nas1:nas_user,192.168.13.123,${HOME}/secret_keys/very_secret_key
-    # currently disabled
-    # ws_test:username,webserver.local
+    # ws_test:username,webserver.local # currently disabled
     ws_test2:,webserver2.local
 
 To list known sets use $(echo_bold "--list/-L") option.
+To quick edit sets use $(echo_bold "--edit-config/-ec") option.
+
 Particular  credential  options $(echo_bold "--user/-u"), $(echo_bold "--host/-H") and $(echo_bold "--pass/-p")  have
 precedence over sets,  and can be used  to override or  complete related
 entity.
@@ -98,9 +229,16 @@ $(echo_bold "OPTIONS")
     -he --help-examples     show example usages"
 if [ "${LINKED_MODE}" != "1" ] && [ "${__is_win__}" != "1" ] ; then
     echo "    --update-completion     update my bash completion file
-    -ec --edit-config       open  local  user config: ~/.hdontarget_sets
+"
+fi
+if [ "${LINKED_MODE}" != "1" ] ; then
+    echo "    -ec --edit-config       open  local  user config:
+                              on linux: ~/.hdontarget_sets
+                              on windows: %APPDATA%\\hdontarget_sets
                             for edit. Add something like:
                                 $(echo_bold "name:username,host,pass")
+                            env var EDITOR will be used, or if not set
+                            fallback to 'nano'
 "
 else
     echo ""
@@ -490,7 +628,7 @@ parse_all_options()
             #
             --edit-config|-ec)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--edit-config is disabled in linked mode" >&2; exit 1; };
-                [ "${__is_win__}" = "1" ] && { echo "--edit-config is disabled on Windows" >&2; exit 1; };
+                #[ "${__is_win__}" = "1" ] && { echo "--edit-config is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__EDIT_CONFIG="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -656,118 +794,6 @@ shift $?
 # fake set, strip prepended on_
 if [ "${LINKED_MODE}" = "1" ] ; then
     CMD_LINE_OPT__SET=${__real_file__#*on_}
-fi
-fi
-# base modified: echo -> echo_stderr for lognotice, loginfo
-if [ "${__name__}" = "__main__" ]; then                                 # base: 3.1.6
-if true; then                                                           # base:colors: 1.2.2
-# __sr_DISABLE_COLOR: 0
-# 1st: parm may be:
-#    <b>: bold
-#   <bg>: background+bold
-__echo_col() { local _clr=; _clr=${1}; shift 1; local _bld=; local _grd=3; [ "${1}" = "<b>" ] && { _bld="1;"; shift 1; }; [ "${1}" = "<bg>" ] && { _bld="1;";_grd=4; shift 1; }; [ "${__sr_DISABLE_COLOR}" = "1" ] && echo "${@}" || echo "\033[${_bld}${_grd}${_clr}m${@}\033[0m" ; }
-echo_red()      { __echo_col 1 "${@}"; }
-echo_green()    { __echo_col 2 "${@}"; }
-echo_yellow()   { __echo_col 3 "${@}"; }
-echo_magenta()  { __echo_col 5 "${@}"; }
-echo_grey()     { __echo_col 0 "<b>" "${@}"; }
-
-echo_blue()      { __echo_col 4 "${@}"; }
-echo_lightblue() { __echo_col 6 "${@}"; }
-echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
-fi
-# (c)heck var is (s)et in (e)nvironment
-_csE() { [ -z "${1}" ] && return 1;[ -z "$(eval echo "$""${1}")" ] && return 1 || return 0;}
-# (c)heck var is (s)et in (e)nvironment or set to default #(env_var, def_val, !echo_var=0)
-_cse() { { [ -z "$(eval echo "$""${1}")"  ] && export "${1}=${2}";}; val=$(eval echo "$""${1}"); [ "${3}" = "1" ] && _logdebug 2 "ENV: $(echo_green "${1}")=${val}";}
-if true; then                                                           # base:log: 1.5.0       # requires: colors, _cse
-_cse __log_no_facility__ 0           # default:  0, don't show log facilities ("notice", "error", ...)
-_cse __log_no_notice_facility__ 0    # default:  0, don't show log facilities above "notice", show the rest beyond (error, warning)
-_cse __log_date__ 0                  # default:  0, show timestamp # append .%N nanoseconds if target date supports this manually below
-_cse __log_trace__ 0                 # default:  0, show logdebug(), real file:line [ base bash capability required ] (bash, sh->bash)
-_cse __log_pid__ 0                   # default:  0, show process pid(as set by _sr to __pid__)
-_cse __log_no_main__ 0               # default:  0, don't show __main__ tool name
-_cse __log_to_logfile__ 0            # default:  0, don't use logger to log to logfiles
-_cse __log_logger_options__ ""       # default: "", pass these additional options to logger
-
-_cse __log_script_line_offset__ 0    # default:  0, passed by run_script_ontarget, run_script_in_chroot
-_cse __log_remote_host__    ""       # default: "", passed by run_script_ontarget/hdontarget (if set, show additional 'remote' facility)
-_cse __log_remote_user__    ""       # default: "", passed by run_script_ontarget/hdontarget
-
-[ "${__is_bbash__}" != "1" ] && [ "${__log_trace__}" = "1" ] && echo_stderr $(echo_grey "___sr: __log_trace__ is active, to see line numbers you must run in 'bash' or 'sh->bash'")
-__log_preface(){
-echo \
-$([ x${__log_date__} = x1 ] && date +'%Y-%m-%d %H:%M:%S:')\
-"$([ x${__log_no_facility__} != x1 ] && [ -n "${2}" ] && echo "${2} ")"\
-$([ x${__log_no_main__} != x1 ] && echo_magenta ${__main__})\
-$([ x${__log_no_main__} != x1 ] && echo :)\
-$([ x${__is_bbash__} = x1 ] && [ x${__log_trace__} = x1 ] && {\
-    [ "$(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')" != "${__main__}" ] && {\
-            echo "($(echo_magenta $(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')):$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__})))):";\
-        } || {\
-            echo "$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__}))):";\
-        };\
-})\
-$([ -n "${__log_remote_host__}" ] && echo "[$(echo_magenta ${__log_remote_user__}@${__log_remote_host__})]:")\
-$([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
-"$([ x${__log_no_main__} != x1 ] && echo ' ')"\
-;}
-_logerror()  { [ "${__sr_DSBL_ERR}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logwarning(){ [ "${__sr_DSBL_WARN}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logdebug()  { [ "${__sr_DSBL_DBG}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != 1 ] ; then
-_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-else
-_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-fi
-logerror()   { _logerror   2 "$@";}
-logwarning() { _logwarning 2 "$@";}
-logdebug()   { _logdebug   2 "$@";}
-loginfo()    { _loginfo    2 "$@";}
-lognotice()  { _lognotice  2 "$@";}
-
-# redefine run, for fancier backtrace logging
-[ "${__log_trace__}" = "1" ] && run() { [ "${DBG_RUN}" = "1" ] && { _logdebug  2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@" ;}; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
-# always redefine run_e, if log is available
-run_e() { _lognotice 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@"; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
-# no trace -> no debug
-[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
-fi
-if true; then                                                           # base:checks: 1.1.7    # requires: log
-#(reason, !exit_code=1, !stack_depth=2)
-die() { local err=1;local _dd=2;[ -n "${2}" ] && err=${2};[ -n "${3}" ] && _dd=${3};_logerror ${_dd} "${1}";exit ${err};}
-_cca() { die "_cca() is DEPRECATED, use ___type() from ___srV>='2.9.4' instead" ; }
-
-# (c)heck (ex)ists #(path)
-_cex() { [ -e "${1}"  ] || { _logwarning 2 "${1}: does not exist" ; return 1 ; } }
-# (c)heck path (ex)ists or (d)ie #(path, !add_err_txt="", !err_code)
-_cex_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'${1}': path does not exist${2}" "${err}" 3;};}
-
-# (c)heck is (Ex)ecutable #(cmd)
-_cEx() { [ -x "${1}"  ] || { _logwarning 2 "${1}: is not a executable" ; return 1 ; } }
-# (c)heck is (Ex)ecutable or (d)ie #(cmd, !add_err_txt="", !err_code)
-_cEx_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'$1': is not a executable${2}" "${err}" 3;};}
-
-# check os tools
-_cet() { local _T=;local _A=;_T=$(echo "${1}" | cut -d":" -f1);_A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_T})"  ] || { logwarning "required tool: '${_T}': was not found. try to install it with: 'sudo apt install ${_A}', or so"; return 1 ; } ; }
-_ct() { local ret=; local i; ret=0; for i in ${1} ; do _cet "${i}"; ret=$?; if [ "${ret}" != "0" ]; then ret=${ret}; fi; done; if [ "${ret}" != "0" ]; then  die "-" 1 3; fi; }
-#_tools='convert:imagemagick
-#ppmquant:netpbm'
-#_ct "${_tools}"
-
-# (e)cho (e)nvironment (v)ar  #(env_var, !add_txt="")
-_eev() { local val=; val=$(eval echo "$""${1}"); _lognotice 2 "ENV: $(echo_green "${1}")=${val}${2}";}
-# (s)et (e)nvironment with (e)cho  #(env_var, val)
-_see() { export "${1}=${2}"; _lognotice 2 "ENV: $(echo_green "${1}")=${2}";}
-# (c)heck var (s)et in (e)nvironment or (d)ie #(env_var, !add_err_txt="", !echo_var_if_ok=0, !err_code)
-_cse_d() { local err=; [ -n "${4}" ] && err=${4}; [ -z "$(eval echo "$""${1}")"  ] && { die "${1}: is not set in env${2}" "${err}" 3;} || { [ "${3}" = "1" ] && { val=$(eval echo "$""${1}"); _logdebug 2 "ENV: $(echo_green "${1}")=${val}";};};}
-
-# (c)heck (i)s (r)oot or (d)ie #()
-_cir_d() { if [ "$(id -u)" != "0" ] ; then die "You must be root to proceed" "" 3; fi;}
-# (c)heck (n)ot (r)oot or (d)ie #()
-_cnr_d() { if [ "$(id -u)" = "0" ] ; then die "You must NOT be root to proceed" "" 3; fi;}
 fi
 fi
 if true; then                                                           # remote: 2.5.2 # requires ___sr>=2.9.6, logerror, lognotice, logdebug, _cse
@@ -1593,10 +1619,6 @@ EOF
     lognotice "try it right now: . /etc/bash_completion , or start a new shell"
 }
 fi
-# upgrade links, use # for comments
-_cse UPGRADE_LATEST_RELEASE_LINKS "
-https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
-"
 UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
 if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
 check_ip_with_ping() #(host)
@@ -1824,10 +1846,15 @@ main()
     local real_editor="${EDITOR}"
     if [ "${CMD_LINE_OPT__EDIT_CONFIG}" = "1" ] ; then
         if [ -z "${real_editor}" ] ; then
-            logwarning "EDITOR is not set in ENV, fallback to vi"
-            real_editor="vi"
+            logwarning "EDITOR is not set in ENV, fallback to nano"
+            real_editor="nano"
         fi
-        cmd="${real_editor} '${HOME}/.hdontarget_sets'"
+        if [ "${__is_win__}" = "1" ] ; then
+            load_setfile "${APPDATA}\\hdontarget_sets"  # e.g.: C:\Users\<yourname>\AppData\Roaming\hdontarget_sets
+            cmd="${real_editor} \"${APPDATA}\\hdontarget_sets\""
+        else
+            cmd="${real_editor} '${HOME}/.hdontarget_sets'"
+        fi
         run "${cmd}" || die '-'
         return 0
     fi
