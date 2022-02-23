@@ -22,7 +22,7 @@ if true; then                                                           # escape
 fi
 
 # this is hdgrep: grep for stuff with increased usability
-# 2008-2021: Dieter Hilfer
+# 2008-2022: Dieter Hilfer
 # the zen of hdgrep:
 #   - be one file-tool
 #   - run on sh, bash, busybox-sh, windows mingw/git-like environments
@@ -32,7 +32,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.22"
+__VERSION__="7.9.23"
 
 BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
 
@@ -1291,7 +1291,7 @@ main()
             [ "${CMD_LINE_OPT__IGNORE_CASE}" = "1" ]      && grep_options="${grep_options} -i";
             [ "${CMD_LINE_OPT__WHOLE_WORDS_ONLY}" = "1" ] && grep_options="${grep_options} -w";
             #[ "${GREP_CAN_EXPLICIT_PATTERN}" = "1" ] && grep_options="${grep_options} -e";
-            xargs_options="${xargs_options} -I '_p1' sh -c '_f(){ i=\$1; val=\$(nm -C \"\$i\" 2>/dev/null | grep ${color_txt} ${grep_options} '${grep_for_this}' ${stderr_txt}); [ -n \"\$val\" ] && ${echo_cmd};}; _f \"_p1\"'${filt_more}"
+            xargs_options="${xargs_options} -I '_p1' sh -c '_f(){ i=\$1; val=\$(nm -C -s -D \"\$i\" 2>/dev/null | grep ${color_txt} ${grep_options} '${grep_for_this}' ${stderr_txt}); [ -n \"\$val\" ] && ${echo_cmd};}; _f \"_p1\"'${filt_more}"
         fi
     fi
     if [ "${grep_cmd}" != "nm" ] && [ -n "${xargs_options}" ] ; then
