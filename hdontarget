@@ -1,8 +1,12 @@
 #!/bin/sh
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License 3 as published
+# by the Free Software Foundation.
+# THERE IS NO ANY WARRANTY AT ALL
+
 if true; then # ___srV="2.9.12"
 ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;for _e8 in 1 2 3 4 5;do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};diff=$((_Uc-_mZ));[ $diff -ne 0 ] && { [ $diff -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");___type(){ [ -n "$2" ] && eval "export $2=";local _r=;local _t=;_t=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ];then _r=$(which "${1}" 2>/dev/null);[ -z "${_r}" ] && return 1;fi;if [ -z "${_r}" ];then case "$_t" in *function*) _r=function;; *builtin*) _r=builtin;; *alias*) _r=alias;; *) _r=$(command -v ${1} 2>/dev/null);; esac;fi;[ -n "$2" ] && eval "export $2='$_r'";return 0;};___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};echo_stderr(){ echo "$@" >&2;};___sw "$(echo -e t)" "-e" || { alias echo="echo -e"; echo_stderr(){ echo -e "$@" >&2;};};__get_linenr(){ local _sd=0;[ -n "$1" ] && _sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${_sd}']''}';};_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn="$1";local nr="$2";shift 2;[ ! $nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};[ -z "${__name__}" ] &&  [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@"; exit $?; }; ___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1; __pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip"; return; };local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/";then __cIFS 'require' ':';for __pp in $sr_PATH;do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}"; break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh"; break;};done;__rIFS 'require';[ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)"; exit 1;};fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2; __pp=;__rip=;};fi;if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;__tab='	';__newline='
 ';fi
-
 
 if true; then                                                           # escape %APPDATA% on windows
 # hacky fix %APPDATA% path on windows, escape backslashes '\\'
@@ -12,7 +16,7 @@ if true; then                                                           # escape
 #[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.4.5"
+VERSION="1.5.3"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -38,13 +42,13 @@ if [ "${__real_file__}" != "hdontarget" ] && [ "${__is_dbg__}" != "1" ]; then
     fi
 fi
 fi
-# base modified: echo -> echo_stderr for lognotice, loginfo
-if [ "${__name__}" = "__main__" ]; then                                 # base: 3.1.6
-if true; then                                                           # base:colors: 1.2.2
+# MODIFIED: disable __log_trace__ eval in log
+if [ "${__name__}" = "__main__" ]; then                                 # base: 3.2.0
+if true; then                                                           # base:colors: 1.2.3
 # __sr_DISABLE_COLOR: 0
 # 1st: parm may be:
 #    <b>: bold
-#   <bg>: background+bold
+#   <bg>: background
 __echo_col() { local _clr=; _clr=${1}; shift 1; local _bld=; local _grd=3; [ "${1}" = "<b>" ] && { _bld="1;"; shift 1; }; [ "${1}" = "<bg>" ] && { _bld="1;";_grd=4; shift 1; }; [ "${__sr_DISABLE_COLOR}" = "1" ] && echo "${@}" || echo "\033[${_bld}${_grd}${_clr}m${@}\033[0m" ; }
 echo_red()      { __echo_col 1 "${@}"; }
 echo_green()    { __echo_col 2 "${@}"; }
@@ -60,7 +64,7 @@ fi
 _csE() { [ -z "${1}" ] && return 1;[ -z "$(eval echo "$""${1}")" ] && return 1 || return 0;}
 # (c)heck var is (s)et in (e)nvironment or set to default #(env_var, def_val, !echo_var=0)
 _cse() { { [ -z "$(eval echo "$""${1}")"  ] && export "${1}=${2}";}; val=$(eval echo "$""${1}"); [ "${3}" = "1" ] && _logdebug 2 "ENV: $(echo_green "${1}")=${val}";}
-if true; then                                                           # base:log: 1.5.0       # requires: colors, _cse
+if true; then                                                           # base:log: 1.5.1       # requires: colors, _cse
 _cse __log_no_facility__ 0           # default:  0, don't show log facilities ("notice", "error", ...)
 _cse __log_no_notice_facility__ 0    # default:  0, don't show log facilities above "notice", show the rest beyond (error, warning)
 _cse __log_date__ 0                  # default:  0, show timestamp # append .%N nanoseconds if target date supports this manually below
@@ -92,15 +96,15 @@ $([ -n "${__log_remote_host__}" ] && echo "[$(echo_magenta ${__log_remote_user__
 $([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
 "$([ x${__log_no_main__} != x1 ] && echo ' ')"\
 ;}
-_logerror()  { [ "${__sr_DSBL_ERR}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logwarning(){ [ "${__sr_DSBL_WARN}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_logdebug()  { [ "${__sr_DSBL_DBG}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != 1 ] ; then
-_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logerror()  { [ "${__sr_DSBL_ERR}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logwarning(){ [ "${__sr_DSBL_WARN}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logdebug()  { [ "${__sr_DSBL_DBG}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != "1" ] ; then
+_lognotice() { [ "${__sr_DSBL_NTCE}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 else
-_lognotice() { [ "${__sr_DSBL_NTCE}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-_loginfo()   { [ "${__sr_DSBL_INFO}" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_lognotice() { [ "${__sr_DSBL_NTCE}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 fi
 logerror()   { _logerror   2 "$@";}
 logwarning() { _logwarning 2 "$@";}
@@ -108,12 +112,13 @@ logdebug()   { _logdebug   2 "$@";}
 loginfo()    { _loginfo    2 "$@";}
 lognotice()  { _lognotice  2 "$@";}
 
-# redefine run, for fancier backtrace logging
-[ "${__log_trace__}" = "1" ] && run() { [ "${DBG_RUN}" = "1" ] && { _logdebug  2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@" ;}; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
 # always redefine run_e, if log is available
 run_e() { _lognotice 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@"; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
-# no trace -> no debug
-[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
+# MODIFIED: disable __log_trace__ eval here, eval later
+## redefine run, for fancier backtrace logging
+#[ "${__log_trace__}" = "1" ] && run() { [ "${DBG_RUN}" = "1" ] && { _logdebug  2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@" ;}; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
+## no trace -> no debug
+#[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
 fi
 if true; then                                                           # base:checks: 1.1.7    # requires: log
 #(reason, !exit_code=1, !stack_depth=2)
@@ -128,7 +133,7 @@ _cex_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'${1
 # (c)heck is (Ex)ecutable #(cmd)
 _cEx() { [ -x "${1}"  ] || { _logwarning 2 "${1}: is not a executable" ; return 1 ; } }
 # (c)heck is (Ex)ecutable or (d)ie #(cmd, !add_err_txt="", !err_code)
-_cEx_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'$1': is not a executable${2}" "${err}" 3;};}
+_cEx_d() { local err=; [ -n "${3}" ] && err=${3}; [ ! -e "${1}" ] && { die "'${1}': is not a executable${2}" "${err}" 3;};}
 
 # check os tools
 _cet() { local _T=;local _A=;_T=$(echo "${1}" | cut -d":" -f1);_A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_T})"  ] || { logwarning "required tool: '${_T}': was not found. try to install it with: 'sudo apt install ${_A}', or so"; return 1 ; } ; }
@@ -150,6 +155,7 @@ _cir_d() { if [ "$(id -u)" != "0" ] ; then die "You must be root to proceed" "" 
 _cnr_d() { if [ "$(id -u)" = "0" ] ; then die "You must NOT be root to proceed" "" 3; fi;}
 fi
 fi
+
 # upgrade links, use # for comments
 _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
@@ -181,11 +187,11 @@ if [ "${LINKED_MODE}" != "1" ] ; then
 Ta be able  to quick  access  different  remote machines hdontarget uses
 special formatted strings which are called $(echo_bold "sets"). A set is  a data record
 which contains at least a $(echo_bold "name")(unique token), and optionally $(echo_bold "users name"),
-$(echo_bold "pass") and $(echo_bold "target host name(or ip address)"). A set would look like this:
+$(echo_bold "pass"), $(echo_bold "target host"), $(echo_bold "ssh server port"). A set would look like this:
   $(echo_bold "zynq:root,10.42.0.44,root")
 
 The set syntax is defined as following:
-  $(echo_bold "name:username,host,password")
+  $(echo_bold "name:username,host,password,port")
 $(echo_bold "password") can be a string or a path to a identity file (private key file)
 
 A collection of target sets can be specified via different ways:"
@@ -214,14 +220,14 @@ echo "This is a example content of a set file (use '#' for comments):
     zynq:root,10.42.0.44,root
     nas1:nas_user,192.168.13.123,${HOME}/secret_keys/very_secret_key
     # ws_test:username,webserver.local # currently disabled
-    ws_test2:,webserver2.local
+    ws_test2:,webserver2.local,,22044
 
 To list known sets use $(echo_bold "--list/-L") option.
 To quick edit sets use $(echo_bold "--edit-config/-ec") option.
 
-Particular  credential  options $(echo_bold "--user/-u"), $(echo_bold "--host/-H") and $(echo_bold "--pass/-p")  have
-precedence over sets,  and can be used  to override or  complete related
-entity.
+Particular credential options $(echo_bold "--user/-u"), $(echo_bold "--host/-H"), $(echo_bold "--pass/-p"), $(echo_bold "--port/-P")
+have precedence  over  sets,  and can be used  to  override  or complete
+related entity.
 "
 fi
 echo "
@@ -249,12 +255,12 @@ if [ "${LINKED_MODE}" != "1" ] ; then
   $(echo_bold "using sets")
     -L  --load-set PATH     load this set file
     -l  --list              list known sets
-    -s  --set NAME          use set by NAME
-
+    -s  --set NAME          use set by NAME"
+    [ "${__is_win__}" != "1" ] && echo "
         --link-set          create a ~/bin/on_<SET_NAME> link.
                             Invoke this  link will switch  hdontarget to
-                            $(echo_bold "linked mode")
-
+                            $(echo_bold "linked mode")"
+    echo "
   $(echo_bold "using particular credentials (preceed $(echo_bold "--set/-s") options)")
     -u  --user USER         remote user
     -H  --host HOST         remote host
@@ -570,12 +576,13 @@ CMD_LINE_OPT__HELP="0"
 #   --link-set
 #   --export-this-path
 
-
 # options
 CMD_LINE_OPT__HELP_EXAMPLES="0"  #
 CMD_LINE_OPT__UPDATE_COMPLETION="0"  #
+CMD_LINE_OPT__EDIT_CONFIG="0"  #
 CMD_LINE_OPT__LOAD_SET=""  #
 CMD_LINE_OPT__LIST="0"  #
+CMD_LINE_OPT__LIST_PASS="0"  #
 CMD_LINE_OPT__SET=""  #
 CMD_LINE_OPT__LINK_SET="0"  #
 CMD_LINE_OPT__USER=""  #
@@ -591,7 +598,7 @@ CMD_LINE_OPT__GENERATE_KEYPAIR=""  #
 CMD_LINE_OPT__INSTALL_KEYHOLE=""  #
 CMD_LINE_OPT__EXPORT_THIS_PATH=""  #
 CMD_LINE_OPT__FORWARD_X="0"  #
-CMD_LINE_OPT__PSEUDO_TTY="0" #
+CMD_LINE_OPT__PSEUDO_TTY="0"  #
 CMD_LINE_OPT__CHANGE_DIR=""  #
 CMD_LINE_OPT__REMOTE_TMP="/tmp"  #
 CMD_LINE_OPT__USE_SH_SCRIPT_EXT="0"  #
@@ -629,7 +636,6 @@ parse_all_options()
             #
             --edit-config|-ec)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--edit-config is disabled in linked mode" >&2; exit 1; };
-                #[ "${__is_win__}" = "1" ] && { echo "--edit-config is disabled on Windows" >&2; exit 1; };
                 CMD_LINE_OPT__EDIT_CONFIG="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -642,6 +648,11 @@ parse_all_options()
             --list|-l)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--list|-l is disabled in linked mode" >&2; exit 1; };
                 CMD_LINE_OPT__LIST="1"
+                shift 1 ; shifted=$((shifted+1));;
+            #
+            --list-pass|-lp)
+                [ "${LINKED_MODE}" = "1" ] && { echo "--list-pass|-lp is disabled in linked mode" >&2; exit 1; };
+                CMD_LINE_OPT__LIST_PASS="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
             --set|-s)
@@ -778,6 +789,7 @@ parse_all_options()
 
     return ${shifted}
 }
+
 fi
 # early parse options (distinguish my own --verbose, --dry from (remote) COMMAND-OPTIONS)
 # handle linked mode
@@ -791,6 +803,11 @@ shift $?
 
 [ "${CMD_LINE_OPT__VERBOSE_SHOW_FULL_CMD}" = "1" ] || [ "${CMD_LINE_OPT__VERBOSE}" = "1" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __log_no_notice_facility__=0; export __log_no_main__=0;} # ___srD=1; # verbose: 1.1.9
 [ "${CMD_LINE_OPT__DRY}" = "1" ] && { export DRY_RUN=1;}
+
+# redefine run, for fancier backtrace logging
+[ "${__log_trace__}" = "1" ] && run() { [ "${DBG_RUN}" = "1" ] && { _logdebug  2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@" ;}; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
+# no trace -> no debug
+[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
 
 # fake set, strip prepended on_
 if [ "${LINKED_MODE}" = "1" ] ; then
@@ -897,13 +914,14 @@ __check_all_local__paths_exist() # (src_paths...)
     done
     return 0
 }
+check_path_is_absolute_win(){ case "$1" in [cCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZaAbB]:[/\\]*)return 0;;esac;return 1;}
 __check_all_remote__paths_absolute() #(src_paths...)
 {
     local __fn="__check_all_remote__paths_absolute"; _chkargsm "${__fn}" 1 "$@"
 
     while [ $# -gt 0 ]; do
         # win cheap
-        if ___sw "${1}" "/" || ___sw "${1}" "C:" || ___sw "${1}" "c:"  || ___sw "${1}" "D:" || ___sw "${1}" "d:"; then
+        if ___sw "${1}" "/" || check_path_is_absolute_win "${1}" ; then
             true # pass
         else
             logerror "remote source path(s) must be absolute: '${1}'"
@@ -946,7 +964,7 @@ cp_to_target() #(host, user, pass, dst_path, src_paths...)
     # if using sshpass with scp, we'll not be able to see any progress
     # using identity files will work
     local cmd=
-    local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-p ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
+    local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-P ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
     cmd="${__sr_REMOTE_SCP} ${__sr_REMOTE_SCP_OPTS}"
     __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
 
@@ -984,7 +1002,7 @@ cp_from_target() #(host, user, pass, dst_path, src_paths...)
     # using identity files will work
     local cmd=
     local ret=
-    local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-p ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
+    local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-P ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
 
     # copy more than 1 entity from remote using scp requires separate calls
     local done_once=
@@ -1130,7 +1148,7 @@ $([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
 _logerror()  { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 _logwarning(){ local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 _logdebug()  { local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
-if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != 1 ] ; then
+if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != "1" ] ; then
 _lognotice() { local __d=; __d=${1}; shift 1; echo "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 _loginfo()   { local __d=; __d=${1}; shift 1; echo "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
 else
@@ -1624,7 +1642,7 @@ EOF
 }
 fi
 UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
-if true; then                                                           # upgrade: 2.1.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
+if true; then                                                           # upgrade: 2.1.1 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -1673,6 +1691,7 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
     err_msg="something went wrong
 * check write access to: ${target_path},
 * check upgrade link(s): ${upgrade_links}
+* or specify alternative link(s) using env var: UPGRADE_LATEST_RELEASE_LINKS
 "
 
     lognotice "run upgrade for ${name_info} ..."
@@ -1816,18 +1835,33 @@ list_known_sets() #()
     local one_key=
 
     #lognotice "following sets are known:"
+    if [ "${CMD_LINE_OPT__LIST_PASS}" != "1" ] ; then
+        lognotice "to show passwords re-run with: -lp/--list-pass"
+    fi
     dict_keys "${__HDONTARGET_SETS}" ALL_KEYS
     for one_key in ${ALL_KEYS}; do
         dict_get "${__HDONTARGET_SETS}" "${one_key}" "" ACCESS_CREDENTIALS
         list_get "${ACCESS_CREDENTIALS}" 0 USER ","
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
+        list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
 
         # use sr ___type to check whether there is a on_XXX existing on PATH
         ___type "on_${one_key}" QUICK_LINK
 
-        final_txt="${final_txt}
+        if [ "${CMD_LINE_OPT__LIST_PASS}" = "1" ] ; then
+            true #pass
+        else
+            PASS="xxxx"
+        fi
+
+        if [ -n "${PORT}" ] ; then
+            final_txt="${final_txt}
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):$(echo_lightblue ${PORT})|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
+        else
+            final_txt="${final_txt}
 $(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
+        fi
     done
 
     if [ -z "$(which column)" ] ; then
@@ -1902,7 +1936,7 @@ main()
     # load sets
     load_hdontarget_sets "${CMD_LINE_OPT__LOAD_SET}"
 
-    if [ "${CMD_LINE_OPT__LIST}" = "1" ]; then
+    if [ "${CMD_LINE_OPT__LIST}" = "1" ] || [ "${CMD_LINE_OPT__LIST_PASS}" = "1" ]; then
         list_known_sets
         return 0
     fi
@@ -1924,6 +1958,7 @@ main()
         list_get "${ACCESS_CREDENTIALS}" 0 USER ","
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
+        list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
 
         if [ "${CMD_LINE_OPT__LINK_SET}" = "1" ] ; then
             lognotice "create a set link: $(echo_lightblue '<b>' "on_${CMD_LINE_OPT__SET}") in ~/bin"
@@ -1954,6 +1989,12 @@ main()
             fi
             HOST=${CMD_LINE_OPT__HOST}
         fi
+        if [ -n "${CMD_LINE_OPT__PORT}" ]; then
+            if [ -n "${PORT}" ] ; then
+                logwarning "override set port '${PORT}' with one specified by --port/-P: ${CMD_LINE_OPT__PORT}"
+            fi
+            PORT=${CMD_LINE_OPT__PORT}
+        fi
         if [ -n "${CMD_LINE_OPT__USER}" ]; then
             if [ -n "${USER}" ] ; then
                 logwarning "override set user '${USER}' with one specified by --user/-u: ${CMD_LINE_OPT__USER}"
@@ -1974,6 +2015,9 @@ main()
         target_host=${HOST}
         target_user=${USER}
         target_pass=${PASS}
+
+        # FIXME: port handling is currently done via global cmd-opt
+        CMD_LINE_OPT__PORT=${PORT}
     else
         target_host=${CMD_LINE_OPT__HOST}
         target_user=${CMD_LINE_OPT__USER}
