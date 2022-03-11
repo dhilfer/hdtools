@@ -32,7 +32,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.23"
+__VERSION__="7.9.24"
 
 BASIC_USAGE="(${__VERSION__}): hdfind [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [PATTERN PATTERN ...]"
 
@@ -577,7 +577,7 @@ _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind
 "
 UPGRADE_UNIQUE_TOKEN="bba20c00-f039-45ec-affa-6be03c698135"
-if true; then                                                           # upgrade: 2.1.1 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
+if true; then                                                           # upgrade: 2.2.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -586,10 +586,12 @@ check_ip_with_ping() #(host)
     host="${1}"
 
     if [ "${__is_win__}" = "1" ] ; then
+        logdebug "(run): ping -w 1 -n 1 ${host}"
         if ping -w 1 -n 1 ${host}; then
             return 0
         fi
     else
+        logdebug "(run): ping -W 1 -c 1 ${host}  >/dev/null 2>&1"
         if ping -W 1 -c 1 ${host}  >/dev/null 2>&1 ; then
             return 0
         fi
@@ -623,10 +625,16 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
     local ret=
     local cmd=
     local err_msg=
-    err_msg="something went wrong
-* check write access to: ${target_path},
+    err_msg="upgrade failed
+
+Try following:
+
 * check upgrade link(s): ${upgrade_links}
-* or specify alternative link(s) using env var: UPGRADE_LATEST_RELEASE_LINKS
+* specify alternative link(s) using env var: UPGRADE_LATEST_RELEASE_LINKS
+* check write access to: ${target_path}
+* if you see wget error: The certificate of 'xxx' is not trusted, you can
+  (re-)run with --verbose flag, copy/paste real wget command, then run it
+  manually using --no-check-certificate flag.
 "
 
     lognotice "run upgrade for ${name_info} ..."
@@ -685,7 +693,7 @@ run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_pat
 
     # check old vs new version
     if [ $(___cvs $__VERSION__ $new_version_str ) = 1 ]; then
-        >&2 echo_red "  [error]: NEW version: $new_version_str <= CURRENT version: $__VERSION__, skip upgrade"
+        >&2 echo_red "  [error]: NEW version: $new_version_str < CURRENT version: $__VERSION__, skip upgrade"
         cmd="rm -f '${target_tmp_file}'"
         run "${cmd}"
         exit 1
