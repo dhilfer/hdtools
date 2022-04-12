@@ -16,7 +16,7 @@ if true; then                                                           # escape
 #[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.5.4"
+VERSION="1.5.5"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -329,20 +329,31 @@ $(echo_bold "Tools/Helpers")
     --generate-keypair NAME quickly generate a rsa keypair  and store it
                             under  NAME and NAME.pub  in current working
                             directory
-    --install-keyhole PUB   put specified PUB keyfile on target to users
-                            ~/.ssh/authorized_keys
+
+    --install-keyhole PUB   put specified PUB  keyfile  on remote target
+                            to users ~/.ssh/authorized_keys
+
                             WITH BIG POWER COMES BIG RESPONSIBILITY
                             Please consider that the content of PUB file
                             will NOT  be checked. It will  be just added
-                            to authorized_keys file
+                            to authorized_keys file.
 
-    --export-this-path CLIENT-IP
-                            Export  current  working directory  via NFS,
-                            via  exportfs-tool to CLIENT-IP/24  network.
-                            Then login on remote target and try to mount
+    --export-this-path SERVER-IP [1] Export  current  working  directory
+                            via NFS using exportfs-tool  to SERVER-IP/24
+                            network.
+                            [2] Login  on   remote  target, try to mount
                             the  exported  path  to  mount  point  which
-                            corresponds to  current  working  dir  using
-                            CLIENT-IP
+                            corresponds to  current  working  directory.
+
+                            SERVER-IP is basically the IP address of
+                            THIS machine as seen by remote target.
+
+                            You can try to find your SERVER-IP using:
+                            ip -h route get <remote target IP> | sed 's/^.*src \([^ ]*\).*$/\1/;q'
+
+                            If  SERVER-IP is set  to 'auto',  hdontarget
+                            will  run the  command above and try to find
+                            SERVER-IP for you.
 
 $(echo_bold "Miscellaneous")
     -X  --forward-x         enable X11 forwarding (pass -X to ssh)
@@ -1318,7 +1329,7 @@ EOF
     return $?
 }
 fi
-if true; then                                                           # remote: tools: 2.1.0 # requires remote
+if true; then                                                           # remote: tools: 2.2.0 # requires remote
 generate_keypair() #(name, type, target_dir)
 {
     local __fn="generate_keypair"; _chkargs "${__fn}" 3 "$@"
@@ -1414,8 +1425,9 @@ export_and_mount_nfs_to_remote_target() #(host, user, pass, export_this_src_path
     [ -z "${remote_mp}" ] && remote_mp="${export_this_src_path}";
 
     local cmd=
+    local tmp_srv_ip=
 
-    lognotice "local path: $(echo_lightblue ${export_this_src_path}) via NFS to $(echo_lightblue "<b>" ${host}:${remote_mp})"
+    lognotice "export local path: $(echo_lightblue ${export_this_src_path}) via NFS to: $(echo_lightblue "<b>" ${host}:${remote_mp})"
     # check existing
     if [ ! -d "${export_this_src_path}" ]; then
         logerror "requested export local path is not a directory: $(echo_lightblue ${export_this_src_path})"
@@ -1433,6 +1445,16 @@ export_and_mount_nfs_to_remote_target() #(host, user, pass, export_this_src_path
     local current_export=
     current_export=$(echo "${nfs_exports}" | grep ${export_this_src_path})
     if [ -z "$(echo "${nfs_exports}" | grep ${export_this_src_path})" ]; then
+        if [ "${export_this_src_ip}" = "auto" ]; then
+            logwarning "you specified --export-this-path SERVER-IP: auto, I'll try to determine it for you"
+            cmd="ip -h route get ${host} | sed 's/^.*src \([^ ]*\).*$/\1/;q'"
+            tmp_srv_ip=$(run "${cmd}")
+            if [ -z "${tmp_srv_ip}" ] ; then
+                die "I couldn't find it, sorry. You must specify it explicitely."
+            fi
+            export_this_src_ip=${tmp_srv_ip}
+            logwarning "found SERVER-IP $(echo_yellow '<b>' ${export_this_src_ip})$(echo_yellow \(this machine IP as seen by remote\) host: ${host})"
+        fi
         lognotice "export local path: $(echo_lightblue ${export_this_src_path}) via NFS (using: exportfs): $(echo_lightblue ${export_this_src_ip}/24:${export_this_src_path})"
         cmd="${as_root} /usr/sbin/exportfs -i -o rw,sync,no_subtree_check,no_root_squash ${export_this_src_ip}/24:${export_this_src_path}"
         run "${cmd}" || die '-'
