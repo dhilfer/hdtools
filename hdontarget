@@ -17,7 +17,7 @@ if true; then                                                           # escape
 #[ "$__is_win__" = "1" ] && APPDATA=$(env | grep ^APPDATA= | tr '\\' '//' | sed -r  's!APPDATA=!!g')
 fi
 
-VERSION="1.5.6"
+VERSION="1.5.7"
 SHORT_DESCRIPTION="a cheap ssh/scp wrapper, for automation of ~stupid~ things"
 
 echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -1666,7 +1666,7 @@ EOF
 }
 fi
 UPGRADE_UNIQUE_TOKEN="4351e653-f581-4782-a109-71d01f6ccfc2"
-if true; then                                                           # upgrade: 2.2.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
+if true; then                                                           # upgrade: 2.3.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -1734,6 +1734,7 @@ Try following:
     local one_upgrade_link=
     local remote_host=
     local download_ok=0
+    local ping_ok=0
     __cIFS "${__fn}" "${__newline}"
     for one_upgrade_link in ${upgrade_links}; do
         if ___sw "${one_upgrade_link}" "#"; then
@@ -1742,16 +1743,22 @@ Try following:
         # https://stackoverflow.com/questions/2497215/how-to-extract-domain-name-from-url
         remote_host=$(echo "${one_upgrade_link}" | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/')
         lognotice "check update url: ${one_upgrade_link} (host: ${remote_host})"
-        if ! check_ip_with_ping "${remote_host}"; then
-            logwarning "update url: ${one_upgrade_link} (host: ${remote_host}) seems not be accessible"
-            continue
+
+        # on "newer" distros, ping requires sudo by default, try to work around
+        check_ip_with_ping "${remote_host}"
+        ping_ok=$?
+        if [ "${ping_ok}" != "0" ] ; then
+            logwarning "update url: ${one_upgrade_link} (host: ${remote_host}) seems not be accessible (ping failed)"
+            logwarning "I'll try to proceed anyway"
         fi
-        lognotice "download data to ${target_tmp_file}"
-        if ! download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"; then
+        lognotice "download data to: ${target_tmp_file}"
+
+        download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"
+        download_ok=$?
+        if [ "${download_ok}" != "0" ] ; then
             # broken multiline colored on stderr on windows
-            #logerror "${err_msg}"
-            >&2 echo_red "  [error]: ${err_msg}"
-            exit 1
+            >&2 echo_red "  [error]: download failed"
+            continue
         else
             download_ok=1
             break
