@@ -5,8 +5,8 @@
 # THERE IS NO ANY WARRANTY AT ALL
 
 __sr_RUN_STRICT=1
-if true; then # ___srV="2.9.12"
-___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;for _e8 in 1 2 3 4 5;do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};diff=$((_Uc-_mZ));[ $diff -ne 0 ] && { [ $diff -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");___type(){ [ -n "$2" ] && eval "export $2=";local _r=;local _t=;_t=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ];then _r=$(which "${1}" 2>/dev/null);[ -z "${_r}" ] && return 1;fi;if [ -z "${_r}" ];then case "$_t" in *function*) _r=function;; *builtin*) _r=builtin;; *alias*) _r=alias;; *) _r=$(command -v ${1} 2>/dev/null);; esac;fi;[ -n "$2" ] && eval "export $2='$_r'";return 0;};___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};echo_stderr(){ echo "$@" >&2;};___sw "$(echo -e t)" "-e" || { alias echo="echo -e"; echo_stderr(){ echo -e "$@" >&2;};};__get_linenr(){ local _sd=0;[ -n "$1" ] && _sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${_sd}']''}';};_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn="$1";local nr="$2";shift 2;[ ! $nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};[ -z "${__name__}" ] &&  [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@"; exit $?; }; ___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1; __pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip"; return; };local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/";then __cIFS 'require' ':';for __pp in $sr_PATH;do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}"; break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh"; break;};done;__rIFS 'require';[ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)"; exit 1;};fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2; __pp=;__rip=;};fi;if [ "$(___cvs 2.9.10 $___srV )" = 1 ]; then ___srV="2.9.10";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.10): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;__tab='	';__newline='
+if true; then # ___srV="2.9.13"
+___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;for _e8 in 1 2 3 4 5;do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};diff=$((_Uc-_mZ));[ $diff -ne 0 ] && { [ $diff -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.9.13 $___srV )" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(___rp "${CMDER_ROOT}");___type(){ [ -n "$2" ] && eval "export $2=";local _r=;local _t=;_t=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ];then _r=$(which "${1}" 2>/dev/null);[ -z "${_r}" ] && return 1;fi;if [ -z "${_r}" ];then case "$_t" in *function*) _r=function;; *builtin*) _r=builtin;; *alias*) _r=alias;; *) _r=$(command -v ${1} 2>/dev/null);; esac;fi;[ -n "$2" ] && eval "export $2='$_r'";return 0;};___sw(){ case "$1" in "$2"*) return 0;;esac;return 1;};___ew(){ case "$1" in *"$2") return 0;;esac;return 1;};echo_stderr(){ echo "$@" >&2;};___sw "$(echo -e t)" "-e" || { alias echo="echo -e"; echo_stderr(){ echo -e "$@" >&2;};};__get_linenr(){ local _sd=0;[ -n "$1" ] && _sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${_sd}']''}';};_chkargs(){ local fn=;local nr=;fn="$1";nr="$2";shift 2;[ ! $# -eq $nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs $nr arg(s), $# given";exit 1;};};_chkargsm(){ local fn="$1";local nr="$2";shift 2;[ ! $nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $fn(): needs at least $nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=; __oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=; __oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2;do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@"; [ "$DRY_RUN" = "1" ] && return 0; eval "$@";return $?;};add_sr_PATH(){ ! IN "$1" "${sr_PATH}" ":" && export sr_PATH="${1}:${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1; shopt -s expand_aliases;};[ -z "${__name__}" ] &&  [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@"; exit $?; }; ___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1; __pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ];then _az=$__sr_inc_rp; unset __sr_inc_rp;else if [ -z "$__main__" ];then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_; export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__; __main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.9.13 $___srV )" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip"; return; };local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/";then __cIFS 'require' ':';for __pp in $sr_PATH;do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}"; break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh"; break;};done;__rIFS 'require';[ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)"; exit 1;};fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2; __pp=;__rip=;};fi;if [ "$(___cvs 2.9.13 $___srV )" = 1 ]; then ___srV="2.9.13";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.9.13): current ___srV: $___srV env has higher/equal version than I, skip redefine"; fi;__tab='	';__newline='
 ';fi
 
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1; export __log_no_main__=0; export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;} # ___srD=1; # verbose: 1.1.9, dry implies verbose
@@ -32,7 +32,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.25"
+__VERSION__="7.9.26"
 
 BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
 
@@ -692,7 +692,7 @@ _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep
 "
 UPGRADE_UNIQUE_TOKEN="5c159128-8a2c-46ca-b044-c1c82476b174"
-if true; then                                                           # upgrade: 2.2.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
+if true; then                                                           # upgrade: 2.3.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -760,6 +760,7 @@ Try following:
     local one_upgrade_link=
     local remote_host=
     local download_ok=0
+    local ping_ok=0
     __cIFS "${__fn}" "${__newline}"
     for one_upgrade_link in ${upgrade_links}; do
         if ___sw "${one_upgrade_link}" "#"; then
@@ -768,16 +769,22 @@ Try following:
         # https://stackoverflow.com/questions/2497215/how-to-extract-domain-name-from-url
         remote_host=$(echo "${one_upgrade_link}" | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/')
         lognotice "check update url: ${one_upgrade_link} (host: ${remote_host})"
-        if ! check_ip_with_ping "${remote_host}"; then
-            logwarning "update url: ${one_upgrade_link} (host: ${remote_host}) seems not be accessible"
-            continue
+
+        # on "newer" distros, ping requires sudo by default, try to work around
+        check_ip_with_ping "${remote_host}"
+        ping_ok=$?
+        if [ "${ping_ok}" != "0" ] ; then
+            logwarning "update url: ${one_upgrade_link} (host: ${remote_host}) seems not be accessible (ping failed)"
+            logwarning "I'll try to proceed anyway"
         fi
-        lognotice "download data to ${target_tmp_file}"
-        if ! download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"; then
+        lognotice "download data to: ${target_tmp_file}"
+
+        download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"
+        download_ok=$?
+        if [ "${download_ok}" != "0" ] ; then
             # broken multiline colored on stderr on windows
-            #logerror "${err_msg}"
-            >&2 echo_red "  [error]: ${err_msg}"
-            exit 1
+            >&2 echo_red "  [error]: download failed"
+            continue
         else
             download_ok=1
             break
@@ -1363,9 +1370,9 @@ main()
             cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \\\1 | !1' | sed -nr 's!(.*)PID: ([0-9]+).*!\\\2!p'"
         else
             if [ "${CMD_LINE_OPT__DISABLE_COLOR}" = "1" ] || [ "${SED_SUPPORTS_BINARY_PATTERNS}" != "1" ]; then
-                cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \\\1 | !1'"
+                cmd_post="${cmd_post} | sed -r  's! ([0-9]+) !PID: \\\1 | !1'"
             else
-                cmd_post="${cmd_post} | sed -r  's!([0-9]+) !PID: \x1b[32m\\\1\x1b[0m | !1'"
+                cmd_post="${cmd_post} | sed -r  's! ([0-9]+) !PID: \x1b[32m\\\1\x1b[0m | !1'"
             fi
             # use only nl on ps
             [ "${NL_EXISTING}" = "1" ] && [ -n "${cmd_pesistence_redirect}" ] && [ "${DO_I_RUN_INTERACTIVELY}" != "1" ] && cmd_post="${cmd_post} | ${nl_cmd} ${nl_options}"
