@@ -27,7 +27,7 @@ fi
 VERSION="1.6.1"
 SHORT_DESCRIPTION="cheap ssh wrapper, for automation of ~stupid~ things"
 
-echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
+echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
 
 
 if [ "${__name__}" = "__main__" ]; then                                 # preface
