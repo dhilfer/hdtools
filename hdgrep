@@ -33,7 +33,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.33"
+__VERSION__="7.9.34"
 
 BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
 
@@ -675,7 +675,7 @@ fi
 # nl
 _cet "nl" && NL_EXISTING="1";
 # no nl, no sense for last search
-[ "${NL_EXISTING}" != "1" ] && { logwarning "no nl: disable results persistence" ; HDGREP_LAST_RESULT_TMP_FILE=;}
+[ "${NL_EXISTING}" != "1" ] && { logdebug "no nl: disable results persistence" ; HDGREP_LAST_RESULT_TMP_FILE=;}
 if [ "${NL_EXISTING}" = "1" ]; then
     _ctso "nl" "-b" NL_CAN_BODY_NUMBERING
     _ctso "nl" "pBRE" NL_CAN_STYLE_REGEX
@@ -870,8 +870,8 @@ main()
         FIND_IGNORE_PATTTERNS=
     fi
 
-    [ "${HDGREP_ENABLE_KEEP_LAST_RESULT}" != "1" ] && logwarning "keep last search result is disabled"
-    [ "${HDGREP_ENABLE_TOOL_FEATURE_CACHE}" != "1" ] && logwarning "'tool supports option' cache is disabled"
+    [ "${HDGREP_ENABLE_KEEP_LAST_RESULT}" != "1" ] && logdebug "keep last search result is disabled"
+    [ "${HDGREP_ENABLE_TOOL_FEATURE_CACHE}" != "1" ] && logdebug "'tool supports option' cache is disabled"
 
     [ "${CMD_LINE_OPT__DRY}" = "1" ] && {
         logwarning "This is a DRY run. No real search is performed";
@@ -933,7 +933,7 @@ main()
     else
         logdebug "grep for '""$(echo_red "${grep_for_this}")""' in list given via ""$(echo_red stdin)"""
         if [ "${SED_SUPPORTS_BINARY_PATTERNS}" != "1" ] ; then
-            logwarning "your 'sed' does not support binary patterns, I'll not be able to strip colors from stdin"
+            logdebug "your 'sed' does not support binary patterns, I'll not be able to strip colors from stdin"
         fi
     fi
 
@@ -1044,7 +1044,7 @@ main()
                 done
                 __rIFS '_find_ign_'
             else
-                logwarning "'find' does not support '-not -wholename', therefore no search paths can be ignored"
+                logdebug "'find' does not support '-not -wholename', therefore no search paths can be ignored"
                 logdebug "    these would be desired paths: ${FIND_IGNORE_PATTTERNS}"
             fi
             find_options="${find_options} -name '${find_files_pattern}'";
@@ -1135,7 +1135,7 @@ main()
         if [ "${GREP_CAN_COLOR}" = "1" ] ; then
             true # pass
         else
-            logwarning "'grep' does not support colors"
+            logdebug "'grep' does not support colors"
             color_txt=
         fi
 
