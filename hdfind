@@ -33,7 +33,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.33"
+__VERSION__="7.9.34"
 
 BASIC_USAGE="(${__VERSION__}): hdfind [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [(or)PATTERN] [(or)PATTERN] ..."
 
@@ -584,7 +584,7 @@ _ctso "xargs" "-I" XARGS_CAN_STRING_REPLACE
 # nl
 _cet "nl" && NL_EXISTING="1";
 # no nl, no sense for last search
-[ "${NL_EXISTING}" != "1" ] && { logwarning "no nl: disable results persistence" ; HDGREP_LAST_RESULT_TMP_FILE=;}
+[ "${NL_EXISTING}" != "1" ] && { logdebug "no nl: disable results persistence" ; HDGREP_LAST_RESULT_TMP_FILE=;}
 if [ "${NL_EXISTING}" = "1" ]; then
     _ctso "nl" "-w" NL_CAN_NUMBER_WIDTH
     _ctso "nl" "-s" NL_CAN_NUMBER_SEPARATOR
@@ -1170,7 +1170,7 @@ main()
             color_txt=
         fi
     else
-        logwarning "'grep' does not support colors"
+        logdebug "'grep' does not support colors"
     fi
 
     # print some info for user
@@ -1179,7 +1179,7 @@ main()
     else
         logdebug "search for ${md5_txt}: ""$(echo_red "${find_file_pattern_info}")"" in LIST OF PATHS given via ""$(echo_red stdin)"""
         if [ "${SED_SUPPORTS_BINARY_PATTERNS}" != "1" ] ; then
-            logwarning "your 'sed' does not support binary patterns, I'll not be able to strip colors from stdin"
+            logdebug "your 'sed' does not support binary patterns, I'll not be able to strip colors from stdin"
         fi
     fi
 
@@ -1216,8 +1216,8 @@ main()
         __rIFS '_find_ign_'
 
     else
-        logwarning "'find' does not support '-not -wholename', therefore no search paths can be ignored"
-        logwarning "    desired paths to skip: ${FIND_IGNORE_PATTTERNS}"
+        logdebug "'find' does not support '-not -wholename', therefore no search paths can be ignored"
+        logdebug "    desired paths to skip: ${FIND_IGNORE_PATTTERNS}"
     fi
     #if [ "${CMD_LINE_OPT__MD5}" != "1" ] ; then
         find_options="${find_options} ${find_file_pattern}";
