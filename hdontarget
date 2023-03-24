@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.4"
+VERSION="1.6.5"
 SHORT_DESCRIPTION="cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -203,8 +203,8 @@ information about $(echo_bold "linked mode")
 ${linked_description}
 hdontarget will log on stderr. Use $(echo_bold "--verbose")  option to see more output.
 For usage examples run: $(echo_bold "${__real_file__} --help-examples")
-As a  pure sh-script, it  is  difficult for  hdontarget to  handle paths
-containing spaces.
+As a pure sh-script, it's (sometimes) difficult for hdontarget to handle
+paths containing spaces.
 "
 if [ "${LINKED_MODE}" != "1" ] ; then
     echo "$(echo_bold Target Sets)
@@ -346,6 +346,8 @@ $(echo_bold "Copy Files/Dirs To/From Remote Target")
                             path.
                             Due to  nature or scp, this  will be done in
                             one call.
+                            If $(echo_bold "self") is given as command,
+                            hdontarget will copy itself to remote.
 
     -cf --copy-from-target  treat COMMAND and COMMAND-OPTIONS  as remote
                             absolute  paths to  copy to current  working
@@ -1000,7 +1002,9 @@ __check_all_local__paths_exist() # (src_paths...)
 {
     local __fn="__check_all_local__paths_exist"; _chkargsm "${__fn}" 1 "$@"
     while [ $# -gt 0 ]; do
-        if [ ! -e "${1}" ] ; then
+        if [ "${1}" = "self" ]; then
+            true # pass
+        elif [ ! -e "${1}" ] ; then
             logerror "local source path does not exist: '${1}'"
             return 1
         fi
@@ -1053,7 +1057,17 @@ cp_to_target() #(host, user, pass, dst_path, src_paths...)
         return 1
     fi
     # check all source files exist
-    __check_all_local__paths_exist $@ || return 1
+    __check_all_local__paths_exist "$@" || return 1
+
+    local all_paths_prepared=
+    while [ $# -gt 0 ]; do
+        if [ "${1}" = "self" ]; then
+            all_paths_prepared="${all_paths_prepared} \"${__f_path__}\""
+        else
+            all_paths_prepared="${all_paths_prepared} \"${1}\""
+        fi
+        shift 1
+    done
 
     # if using sshpass with scp, we'll not be able to see any progress
     # using identity files will work
@@ -1062,7 +1076,7 @@ cp_to_target() #(host, user, pass, dst_path, src_paths...)
     cmd="${__sr_REMOTE_SCP} ${__sr_REMOTE_SCP_OPTS}"
     __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
 
-    cmd="${cmd} ${port_opt} -r ""$@"" '${user}@${host}:${dst_path}'"
+    cmd="${cmd} ${port_opt} -r ${all_paths_prepared} '${user}@${host}:${dst_path}'"
     if ___sw "${cmd}" "sshpass" ; then
         _lognotice 2 "sshpass is used. You'll not be able to see any scp progress."
     fi
@@ -1090,7 +1104,7 @@ cp_from_target() #(host, user, pass, dst_path, src_paths...)
         return 1
     fi
 
-    __check_all_remote__paths_absolute $@ || return 1
+    __check_all_remote__paths_absolute "$@" || return 1
 
     # if using sshpass with scp, we'll not be able to see any progress
     # using identity files will work
@@ -1105,7 +1119,7 @@ cp_from_target() #(host, user, pass, dst_path, src_paths...)
         cmd="${__sr_REMOTE_SCP} ${__sr_REMOTE_SCP_OPTS}"
         __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
 
-        cmd="${cmd} ${port_opt} -r '${user}@${host}:${1}' '${dst_path}'"
+        cmd="${cmd} ${port_opt} -r '${user}@${host}:\"${1}\"' '${dst_path}'"
         if [ -z "${done_once}" ] && ___sw "${cmd}" "sshpass" ; then
             _lognotice 2 "sshpass is used. You'll not be able to see any scp progress."
             done_once=1
@@ -1311,11 +1325,14 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
 
     shift 4
 
-
     #[ "${run_with_sudo}" = 1 ] && run_with_sudo="sudo " || run_with_sudo=
 
     local exec_name=
     exec_name=${src_path##*/}
+
+    if [ "${exec_name}" = "self" ]; then
+        exec_name="hdontarget"
+    fi
 
     if ___ew "${dst_path}" "/" ; then
         dst_path="${dst_path}${exec_name}"
@@ -1326,7 +1343,7 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
         return 1
     fi
     # copy first
-    _lognotice 2 "[1/3] copy: ${src_path} , to: ${user}@${host}:${dst_path}"
+    _lognotice 2 "[1/3] copy: '${src_path}', to: ${user}@${host}:${dst_path}"
     if ! cp_to_target "${host}" "${user}" "${pass}" "${dst_path}" "${src_path}"; then
         logerror "${__fn}(): copy ${src_path} to ${user}@${host}:${dst_path} failed"
         return 1
@@ -1344,7 +1361,7 @@ fi
 exit \$?
 EOF
 )
-    #(host, user, pass, script, !script_line_ofset=0, !run_with_sudo=0, !interpreter="/bin/sh", !disable_sh_like_extensions=0)
+                         #(host,     user,     pass,     script,    !script_line_ofset=0, !run_with_sudo=0, !interpreter="/bin/sh", !disable_sh_like_extensions=0)
     run_script_ontarget "${host}" "${user}" "${pass}" "${script}" "${script_line_ofset}" "${run_with_sudo}" "/bin/sh" 1
     ret=$?
     local done_t=
@@ -2177,7 +2194,7 @@ main()
             die "you must specify local file(s)/dir(s) which shall be copied"
         fi
         lognotice "copy ${#} item(s) to: ${target_user}@${target_host}:${CMD_LINE_OPT__REMOTE_TMP}"
-        cp_to_target "${target_host}" "${target_user}" "${target_pass}" "${CMD_LINE_OPT__REMOTE_TMP}" $@
+        cp_to_target "${target_host}" "${target_user}" "${target_pass}" "${CMD_LINE_OPT__REMOTE_TMP}" "$@"
         ret=$?
         [ "${ret}" != "0" ] && die "-"
     elif [ "${CMD_LINE_OPT__COPY_FROM_TARGET}" = "1" ] ; then
@@ -2185,7 +2202,7 @@ main()
             die "you must specify remote file(s)/dir(s) which shall be copied"
         fi
         lognotice "copy ${#} item(s) from: ${target_user}@${target_host}, to: ${cwd}/"
-        cp_from_target "${target_host}" "${target_user}" "${target_pass}" "${cwd}" $@
+        cp_from_target "${target_host}" "${target_user}" "${target_pass}" "${cwd}" "$@"
         ret=$?
         [ "${ret}" != "0" ] && die "-"
     elif [ -n "${CMD_LINE_OPT__INSTALL_KEYHOLE}" ] ; then
@@ -2233,6 +2250,6 @@ main()
     return ${ret}
 }
 if [ "${__name__}" = "__main__" ] ; then
-    main "$@"
+    [ -n "${_ARGV}" ] && main ${_ARGV} || main "$@"
     exit $?
 fi
