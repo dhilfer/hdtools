@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.3"
+VERSION="1.6.4"
 SHORT_DESCRIPTION="cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -249,7 +249,8 @@ echo "Example set file (use '#' for comments):
     tun_1:,127.0.0.1,,44101
 
 
-To list known sets use $(echo_bold "--list/-L") option.
+To list known sets use $(echo_bold "--list/-l") option.
+Use $(echo_bold "-lp") option, to see known sets with clean passwords.
 To quick edit sets use $(echo_bold "--edit-config/-ec") option.
 
 Particular credential options $(echo_bold "--user/-u"), $(echo_bold "--host/-H"), $(echo_bold "--pass/-p"), $(echo_bold "--port/-P")
@@ -282,6 +283,7 @@ if [ "${LINKED_MODE}" != "1" ] ; then
   $(echo_bold "using sets")
     -L  --load-set PATH     load this set file
     -l  --list              list known sets
+    -lp --list-pass         list known sets, show known passwords
     -s  --set NAME          use set by NAME"
     [ "${__is_win__}" != "1" ] && echo "
         --link-set          create a ~/bin/on_<SET_NAME> link.
@@ -645,6 +647,7 @@ CMD_LINE_OPT__HELP="0"
 #   --edit-config
 #   --load-set
 #   --list
+#   --list-pass
 #   --set
 #   --link-set
 #   --host
@@ -1956,12 +1959,16 @@ list_known_sets() #()
         if [ "${CMD_LINE_OPT__LIST_PASS}" = "1" ] ; then
             true #pass
         else
-            PASS="xxxx"
+            PASS="xxxxx"
         fi
+        [ -z "${USER}" ] && USER="?"
+        [ -z "${HOST}" ] && HOST="?"
+        [ -z "${PASS}" ] && PASS="?"
+        [ -z "${QUICK_LINK}" ] && QUICK_LINK="-"
 
         if [ -n "${PORT}" ] ; then
             final_txt="${final_txt}
-$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):$(echo_lightblue ${PORT})|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):${PORT}|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
         else
             final_txt="${final_txt}
 $(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
@@ -2053,7 +2060,7 @@ main()
         dict_get "${__HDONTARGET_SETS}" "${CMD_LINE_OPT__SET}" "" ACCESS_CREDENTIALS
         if [ -z "${ACCESS_CREDENTIALS}" ] ; then
             if [ "${LINKED_MODE}" = "0" ] ; then
-                die "--set/-s: $(echo_bold ${CMD_LINE_OPT__SET}) $(echo_red is unknown. You can see known sets with --list option)"
+                die "--set/-s: $(echo_bold ${CMD_LINE_OPT__SET}) $(echo_red is unknown. You can see known sets with --list/-l option)"
             else
                 die "target set: $(echo_bold ${CMD_LINE_OPT__SET})$(echo_red \(on_${CMD_LINE_OPT__SET}\) is unknown. Re-run with --verbose to see which set files were loaded)"
             fi
