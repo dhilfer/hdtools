@@ -4,6 +4,8 @@
 # by the Free Software Foundation.
 # THERE IS NO ANY WARRANTY AT ALL
 
+
+
 if true; then # ___srV="2.10.2"
 ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;local _6d=;for _e8 in 1 2 3 4 5; do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};_6d=$((_Uc - _mZ));[ $_6d -ne 0 ] && { [ $_6d -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.10.2 $___srV)" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(readlink -f "${CMDER_ROOT}");___type() { [ -n "$2" ] && eval "export $2=";local _rR=;local _tj=;_tj=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ]; then _rR=$(which "${1}" 2>/dev/null);[ -z "${_rR}" ] && return 1;fi;if [ -z "${_rR}" ]; then case "$_tj" in *function*) _rR=function ;; *builtin*) _rR=builtin ;; *alias*) _rR=alias ;; *) _rR=$(command -v ${1} 2>/dev/null);;esac;fi;[ -n "$2" ] && eval "export $2='$_rR'";return 0;};___sw(){ case "$1" in "$2"*) return 0 ;; esac;return 1;};___ew(){ case "$1" in *"$2") return 0 ;; esac;return 1;};echo_stderr(){ echo "$@" >&2; };___sw "$(echo -e t)" "-e" || { alias echo="echo -e";echo_stderr(){ echo -e "$@" >&2; };};__get_linenr(){ local __sd=0;[ -n "$1" ] && __sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${__sd}']''}';};_chkargs() { local __fn=$1;local __nr=$2;shift 2;[ ! $# -eq $__nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $__fn(): needs $__nr arg(s), $# given";exit 1;};};_chkargsm(){ local __fn=$1;local __nr=$2;shift 2;[ ! $__nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $__fn(): needs at least $__nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=;__oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=;__oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2; do [ "$1" = "$__i" ] && { __r=0;break;}; done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@";[ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@";[ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};_sr_p_sep=":";[ $__is_win__ = 1 ] && _sr_p_sep=";";add_sr_PATH(){ ! IN "$1" "${sr_PATH}" $_sr_p_sep && export sr_PATH="${1}${_sr_p_sep}${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1;shopt -s expand_aliases;};[ -z "${__name__}" ] && [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@";exit $?;};___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ]; then _az=$__sr_inc_rp;unset __sr_inc_rp;else if [ -z "$__main__" ]; then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_;export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__;__main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.10.2 $___srV)" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip";return;};local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/"; then __cIFS 'require' "$_sr_p_sep";for __pp in $sr_PATH; do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}";break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh";break;};done;__rIFS 'require';[ "$3" != "1" ] && [ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ "$3" != "1" ] && [ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)";exit 1;};fi;if [ "$3" = "1" ];then __pp=;[ -z "$__rip" ] && return 1;__rip=;return 0;fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2;__pp=;__rip=;return 0;};fi;if [ "$(___cvs 2.10.2 $___srV)" = 1 ];then ___srV="2.10.2";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.10.2): current ___srV: $___srV env has higher/equal version than I, skip redefine";fi;__tab='	';__newline='
 ';fi
@@ -24,8 +26,8 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.5"
-SHORT_DESCRIPTION="cheap ssh wrapper, for automation of ~stupid~ things"
+VERSION="1.6.9"
+SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
 
@@ -180,6 +182,17 @@ fi
 fi
 string_isnumber() { [ -z "${1}" ] && return 1 ; case ${1} in ''*[!0-9]*) return 1 ;; esac; return 0; }
 
+__debug_call()
+{
+    logdebug "hdontarget: v${VERSION}"
+    logdebug "      argv:"
+    while [ $# -gt 0 ]; do
+        logdebug "          :  \"${1}\""
+        shift 1
+    done
+}
+__debug_call "$@"
+
 # upgrade links, use # for comments
 _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
@@ -215,8 +228,11 @@ $(echo_bold "pass"), $(echo_bold "target host"), $(echo_bold "ssh server port").
   N17-main:root,142.251.37.14,root_pass
 
 The set syntax is defined as following:
-  $(echo_bold "name:username,host,password,port")
+$(echo_bold "name:username,host,password,port,is_win")
+
 $(echo_bold "password") can be a string or a path to a identity file (private key file)
+if $(echo_bold  "is_win") is set to: 1, target is assumed to be a windows machine (same
+as --is-win/-W)
 
 A collection of target sets can be specified via different ways:"
 if [ "${__is_win__}" = "1" ] ; then
@@ -241,7 +257,7 @@ precendece hierarchy:
 "
 fi
 echo "Example set file (use '#' for comments):
-    N17-main:root,142.251.37.14,root_pass
+    N17-main:root,142.251.37.14,root_pass,,1
     nas1:nas_user,192.168.13.123,/home/user/secret_keys/very_secret_key
 
     # ws_test:username,webserver.local # currently disabled
@@ -284,7 +300,7 @@ if [ "${LINKED_MODE}" != "1" ] ; then
     -L  --load-set PATH     load this set file
     -l  --list              list known sets
     -lp --list-pass         list known sets, show known passwords
-    -s  --set NAME          use set by NAME"
+    -s  --set SET_NAME      use set by SET_NAME"
     [ "${__is_win__}" != "1" ] && echo "
         --link-set          create a ~/bin/on_<SET_NAME> link.
                             Invoke this  link will switch  hdontarget to
@@ -335,6 +351,7 @@ $(echo_bold "Execute CMD's On Remote Target")
                             See $(echo_bold "--save-inline-script") option for more.
 
     --run-local-cmd-ontarget
+    --run-local-cmd-ontarget-win
                             treat COMMAND as path to local file, copy it
                             to  target (--remote-tmp),  then run it with
                             COMMAND-OPTIONS
@@ -361,6 +378,7 @@ $(echo_bold "Tools/Helpers")
                             under  NAME and NAME.pub  in current working
                             directory
 
+
     --install-keyhole PUB   put specified PUB  keyfile  on remote target
                             to users ~/.ssh/authorized_keys
 
@@ -368,6 +386,7 @@ $(echo_bold "Tools/Helpers")
                             Please consider that the content of PUB file
                             will NOT  be checked. It will  be just added
                             to authorized_keys file.
+
 
     --export-this-path SERVER-IP run local and remote scripts doing:
 
@@ -388,6 +407,7 @@ $(echo_bold "Tools/Helpers")
                             If  SERVER-IP is set  to 'auto',  hdontarget
                             will  run the  command above and try to find
                             SERVER-IP for you.
+
 
     -cT --create-tunnel REMOTE-LOCAL-PORT[,GOTO_BACKGROUND=0]  create  a
                             \"reverse\" ssh-tunnel  to remote host (remote
@@ -419,6 +439,28 @@ $(echo_bold "Tools/Helpers")
                             ps aux | grep 'ssh'
 
 
+    -CF  --chain-forward SET_NAME chain hdontarget calls to login to
+                            devices specified by SET_NAME.
+                            [can be multiple]
+
+                            Basically you'll get following structure:
+                            on_some_host -t "'\'"
+                            --run-local-cmd-ontarget -- self -t -H H1 -u u1 -p p2 "'\'"
+                            --run-local-cmd-ontarget -- self -t -H H2 -u u2 -p p1 "'\'"
+                            --run-local-cmd-ontarget -- self -t -H H3 -u u3 -p p3 --is-win "'\'"
+
+                            If your SET_NAME is non existing or you lack
+                            some of credentials like user or pass in
+                            your hdontarget_sets, it's probably better
+                            to pick structure shown above, since you got
+                            maximal freedom to specify things.
+
+                            Please consider, that these simple type of
+                            chaining will just allow you to login on
+                            last host and maybe run some simple command
+                            after login.
+
+
 
 $(echo_bold "Miscellaneous")
     -X  --forward-x         enable X11 forwarding (pass -X to ssh)
@@ -435,6 +477,9 @@ $(echo_bold "Miscellaneous")
                             more details.
 
     -dc --disable-color     disable colored output
+
+    -W  --is-win            give hdontarget an hint about target, to be
+                            an windows os
 
     --verbose               be verbose
     --verbose-show-full-cmd dont cut multiline commands to 3 lines. This
@@ -655,9 +700,8 @@ CMD_LINE_OPT__HELP="0"
 #   --host
 #   --upgrade
 
-# modified : disabled options on Windows
+# modified : disabled options on windows
 #   --update-completion
-#   --edit-config
 #   --link-set
 #   --export-this-path
 
@@ -683,6 +727,7 @@ CMD_LINE_OPT__GENERATE_KEYPAIR=""  #
 CMD_LINE_OPT__INSTALL_KEYHOLE=""  #
 CMD_LINE_OPT__EXPORT_THIS_PATH=""  #
 CMD_LINE_OPT__CREATE_TUNNEL=""  #
+CMD_LINE_OPT__CHAIN_FORWARD=""
 CMD_LINE_OPT__FORWARD_X="0"  #
 CMD_LINE_OPT__PSEUDO_TTY="0"  #
 CMD_LINE_OPT__CHANGE_DIR=""  #
@@ -696,6 +741,7 @@ CMD_LINE_OPT__QUIET="0"
 CMD_LINE_OPT__DRY="0"  #
 CMD_LINE_OPT__VERSION="0"  #
 CMD_LINE_OPT__UPGRADE="0"  #
+CMD_LINE_OPT__IS_WIN="0"  #
 parse_all_options()
 {
     local shifted=
@@ -711,13 +757,17 @@ parse_all_options()
                 CMD_LINE_OPT__HELP=1
                 shift 1 ; shifted=$((shifted+1));;
             #
+            --is-win|-W)
+                CMD_LINE_OPT__IS_WIN="1"
+                shift 1 ; shifted=$((shifted+1));;
+            #
             --help-examples|-he)
                 CMD_LINE_OPT__HELP_EXAMPLES="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
             --update-completion)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--update-completion is disabled in linked mode" >&2; exit 1; };
-                [ "${__is_win__}" = "1" ] && { echo "--update-completion is disabled on Windows" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--update-completion is disabled on windows" >&2; exit 1; };
                 CMD_LINE_OPT__UPDATE_COMPLETION="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -750,7 +800,7 @@ parse_all_options()
             #
             --link-set)
                 [ "${LINKED_MODE}" = "1" ] && { echo "--link-set is disabled in linked mode" >&2; exit 1; };
-                [ "${__is_win__}" = "1" ] && { echo "--link-set is disabled on Windows" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--link-set is disabled on windows" >&2; exit 1; };
                 CMD_LINE_OPT__LINK_SET="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -807,7 +857,7 @@ parse_all_options()
                 shift 2; shifted=$((shifted+2));;
             #
             --export-this-path)
-                [ "${__is_win__}" = "1" ] && { echo "--export-this-path is disabled on Windows" >&2; exit 1; };
+                [ "${__is_win__}" = "1" ] && { echo "--export-this-path is disabled on windows" >&2; exit 1; };
                 CMD_LINE_OPT__EXPORT_THIS_PATH="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--export-this-path needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
@@ -815,6 +865,12 @@ parse_all_options()
             --create-tunnel|-cT)
                 CMD_LINE_OPT__CREATE_TUNNEL="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--create-tunnel|-cT needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            #
+            --chain-forward|-CF)
+                CMD_LINE_OPT__CHAIN_FORWARD="${CMD_LINE_OPT__CHAIN_FORWARD}
+$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--chain-forward|-CF needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
             #
             --forward-x|-X)
@@ -923,7 +979,7 @@ if [ "${__sr_REMOTE_SSH_IS_DROPBEAR}" = "1" ] ; then
     _cse __sr_REMOTE_SCP_OPTS ""
 else
     # assume classic openssh
-    # skip ConnectTimeout on Windows, ssh waits there that time for whatever reason
+    # skip ConnectTimeout on windows, ssh waits there that time for whatever reason
     [ "${__is_win__}" != "1" ] && _to="-o ConnectTimeout=10"
     _cse __sr_REMOTE_SSH_OPTS "-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${to}"
     _cse __sr_REMOTE_SCP_OPTS "-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${to}"
@@ -983,7 +1039,11 @@ ontarget() #(host, user, !pass=, !cmd=, !args...)
 
     if [ $# -gt 3 ]; then
         shift 3
-        cmd="${cmd} ${port_opt} ${user}@${host} ${sep} 'export __log_remote_host__=\"${host}\"; export __log_remote_user__=\"${user}\"; $@'"
+        if [ "${CMD_LINE_OPT__IS_WIN}" = "0" ]; then
+            cmd="${cmd} ${port_opt} ${user}@${host} ${sep} 'export __log_remote_host__=\"${host}\"; export __log_remote_user__=\"${user}\"; $@'"
+        else
+            cmd="${cmd} ${port_opt} ${user}@${host} ${sep} 'set __log_remote_host__=\"${host}\" & set __log_remote_user__=\"${user}\" & $@'"
+        fi
         nr_lines=$(echo "${cmd}" | wc -l)
     else
         cmd="${cmd} ${port_opt} ${user}@${host}"
@@ -1160,9 +1220,16 @@ run_script_ontarget() #(host, user, pass, script, !script_line_ofset=0, !run_wit
     local ontarget_script_preface=
 
     local sh_like=
+    local cmd_like=
     case "${interpreter}" in
         */sh|*/ash|*/dash|*/bash|sh|ash|dash|bash)
           sh_like=1;;
+    esac
+
+
+    case "${interpreter}" in
+        */cmd.exe|cmd.exe)
+          cmd_like=1;;
     esac
 
     if [ "${disable_sh_like_extensions}" = "1" ] ; then
@@ -1230,6 +1297,13 @@ EOF
     else
         ontarget_script_preface="#!${interpreter}"
     fi
+
+    local interpreter_str_caller=
+    interpreter_str_caller="-c"
+    if [ "${cmd_like}" = "1" ]; then
+        ontarget_script_preface=
+        interpreter_str_caller="/s /c"
+    fi
     __sr_REMOTE_script_ontarget_log_pref_add= # reset on each call
     local ontarget_script_preface_size=0
     local remote_line_ofset=0
@@ -1244,6 +1318,9 @@ EOF
         ontarget_real_script="${ontarget_script_preface}
 __log_script_line_offset__=${remote_line_ofset}
 ${script}"
+    elif [ "${cmd_like}" = "1" ] ; then
+        #only oneliner for cmd.exe
+        ontarget_real_script="${script}"
     else
         # bare copy of user content
         ontarget_real_script="${ontarget_script_preface}
@@ -1284,28 +1361,39 @@ EOF
     local sep=; [ "${__sr_REMOTE_SSH_IS_DROPBEAR}" != "1" ] && sep="--" # dropbear doesnt know '--'
     local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-p ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
     if [ "${DBG_RUN}" = "1" ]; then
+
+    if [ "${cmd_like}" = "1" ]; then
+         _logdebug 2
+         logdebug "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: ${cmd} ${port_opt} ${user}@${host} ${sep} \"${run_with_sudo}${interpreter}\" ${interpreter_str_caller} \"""${ontarget_real_script}""\""
+    else
         if [ "${CMD_LINE_OPT__VERBOSE_SHOW_FULL_CMD}" != "1" ]; then
             # cut output to max 3 lines
 #            _logdebug 2 "run: $(echo "${ontarget_real_script}" | head -n 3)
 #... only first 3 lines are shown, show all with: --verbose-show-full-cmd";};
-            _logdebug 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: ${cmd} ${port_opt} ${user}@${host} ${sep} \"${run_with_sudo}${interpreter}\" -c '$(head -n 3 <<EOF
+            _logdebug 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: ${cmd} ${port_opt} ${user}@${host} ${sep} \"${run_with_sudo}${interpreter}\" ${interpreter_str_caller} '$(head -n 3 <<EOF
 ${ontarget_real_script}
 EOF
 )
 ... only first 3 lines are shown, show all with: --verbose-show-full-cmd"
         else
             # echo full
-            _logdebug 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: ${cmd} ${port_opt} ${user}@${host} ${sep} \"${run_with_sudo}${interpreter}\" -c '""$(cat <<EOF
+            _logdebug 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: ${cmd} ${port_opt} ${user}@${host} ${sep} \"${run_with_sudo}${interpreter}\" ${interpreter_str_caller} '""$(cat <<EOF
 ${ontarget_real_script}
 EOF
 )""'"
         fi
     fi
+    fi
 
-    [ "${DRY_RUN}" = "1" ] || ${cmd} ${port_opt} ${user}@${host} ${sep} "${run_with_sudo}${interpreter}" -c "'$(cat <<EOF
+    if [ "${cmd_like}" = "1" ]; then
+        [ "${DRY_RUN}" = "1" ] || ${cmd} ${port_opt} ${user}@${host} ${sep} "${run_with_sudo}${interpreter}" ${interpreter_str_caller} "${ontarget_real_script}"
+    else
+        [ "${DRY_RUN}" = "1" ] || ${cmd} ${port_opt} ${user}@${host} ${sep} "${run_with_sudo}${interpreter}" ${interpreter_str_caller} "'$(cat <<EOF
 ${ontarget_real_script}
 EOF
 )'"
+    fi
+
     ret=$?
     return ${ret}
 }
@@ -1349,11 +1437,17 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
         return 1
     fi
     _lognotice 2 "[2/3] run: ${user}@${host}:${dst_path} $@"
+
+    local remote_interpreter=
+
     local ret=
     local script=
     local script_line_ofset=
-    script_line_ofset=$(__get_linenr)
-    script=$(cat <<EOF
+    if [ "${CMD_LINE_OPT__IS_WIN}" = "0" ]; then
+        remote_interpreter="/bin/sh"
+        script_line_ofset=$(__get_linenr)
+        script=$(cat <<EOF
+export __log_remote_host__="${host}"; export __log_remote_user__="${user}"
 if [ ! -x "${dst_path}" ]; then
     chmod +x "${dst_path}" || { echo "  [error]: failed to set e(x)ecutable flag on: ${user}@${host}:${dst_path}"; exit 1;}
 fi
@@ -1361,8 +1455,13 @@ fi
 exit \$?
 EOF
 )
+    else
+        remote_interpreter="cmd.exe"
+        script_line_ofset=$(__get_linenr)
+        script="set __log_remote_host__=${host} & set __log_remote_user__=${user} & \"${dst_path}\" $@"
+    fi
                          #(host,     user,     pass,     script,    !script_line_ofset=0, !run_with_sudo=0, !interpreter="/bin/sh", !disable_sh_like_extensions=0)
-    run_script_ontarget "${host}" "${user}" "${pass}" "${script}" "${script_line_ofset}" "${run_with_sudo}" "/bin/sh" 1
+    run_script_ontarget "${host}" "${user}" "${pass}" "${script}" "${script_line_ofset}" "${run_with_sudo}" "${remote_interpreter}" 1
     ret=$?
     local done_t=
     done_t="[3/3] ${user}@${host}:${dst_path}: finished with exit code: ${ret}"
@@ -1567,7 +1666,7 @@ create_tunnel_to_remote_target() #(host, user, pass, remote_local_port, goto_bac
     local add_txt=
 
     if [ "${goto_background}" = "1" ] ; then
-        [ "${__is_win__}" = "1" ] && add_txt=" (may not work on Windows)"
+        [ "${__is_win__}" = "1" ] && add_txt=" (may not work on windows)"
         logwarning "related ssh process on THIS machine will goto background${add_txt}"
         logwarning "find it using: ps aux | grep ssh | grep ${remote_local_port}"
         bg_opt="-f "
@@ -1964,11 +2063,16 @@ list_known_sets() #()
     fi
     dict_keys "${__HDONTARGET_SETS}" ALL_KEYS
     for one_key in ${ALL_KEYS}; do
+        if [ "${one_key}" = "tun_1" ]; then
+            local a=
+            a=1
+        fi
         dict_get "${__HDONTARGET_SETS}" "${one_key}" "" ACCESS_CREDENTIALS
         list_get "${ACCESS_CREDENTIALS}" 0 USER ","
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
         list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
+        list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
 
         # use sr ___type to check whether there is a on_XXX existing on PATH
         ___type "on_${one_key}" QUICK_LINK
@@ -1978,17 +2082,24 @@ list_known_sets() #()
         else
             PASS="xxxxx"
         fi
-        [ -z "${USER}" ] && USER="?"
-        [ -z "${HOST}" ] && HOST="?"
-        [ -z "${PASS}" ] && PASS="?"
+        [ -z "${USER}" ] && USER="-"
+        [ -z "${HOST}" ] && HOST="-"
+        [ -z "${PASS}" ] && PASS="-"
+        [ -z "${IS_WIN}" ] && IS_WIN="0"
         [ -z "${QUICK_LINK}" ] && QUICK_LINK="-"
+
+        if [ "${IS_WIN}" = "1" ]; then
+            IS_WIN="win"
+        else
+            IS_WIN="-"
+        fi
 
         if [ -n "${PORT}" ] ; then
             final_txt="${final_txt}
-$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):${PORT}|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):${PORT}|$(echo_red ${PASS})|$(echo_lightblue ${IS_WIN})|$(echo_magenta ${QUICK_LINK})"
         else
             final_txt="${final_txt}
-$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_magenta ${QUICK_LINK})"
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_lightblue ${IS_WIN})|$(echo_magenta ${QUICK_LINK})"
         fi
     done
 
@@ -2003,7 +2114,9 @@ $(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_r
 fi
 main()
 {
-    [ "${__is_win__}" = "1" ] && logdebug "run on Windows, which is HIGHLY EXPEREMENTAL"
+    local __fn='main';
+
+    [ "${__is_win__}" = "1" ] && logdebug "run on windows, which is HIGHLY EXPEREMENTAL"
     # parse_all_options (global above)
     if [ "${LINKED_MODE}" = "1" ] ; then
         logdebug "run in linked mode using set: ${CMD_LINE_OPT__SET}"
@@ -2081,12 +2194,12 @@ main()
             else
                 die "target set: $(echo_bold ${CMD_LINE_OPT__SET})$(echo_red \(on_${CMD_LINE_OPT__SET}\) is unknown. Re-run with --verbose to see which set files were loaded)"
             fi
-
         fi
         list_get "${ACCESS_CREDENTIALS}" 0 USER ","
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
         list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
+        list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
 
         if [ "${CMD_LINE_OPT__LINK_SET}" = "1" ] ; then
             lognotice "create a set link: $(echo_lightblue '<b>' "on_${CMD_LINE_OPT__SET}") in ~/bin"
@@ -2108,8 +2221,6 @@ main()
 
             return 0
         fi
-
-
 
         if [ -n "${CMD_LINE_OPT__HOST}" ]; then
             if [ -n "${HOST}" ] ; then
@@ -2144,6 +2255,10 @@ main()
         target_user=${USER}
         target_pass=${PASS}
 
+        if [ "${IS_WIN}" = "1" ]; then
+            CMD_LINE_OPT__IS_WIN=1
+        fi
+
         # FIXME: port handling is currently done via global cmd-opt
         CMD_LINE_OPT__PORT=${PORT}
     else
@@ -2157,6 +2272,55 @@ main()
     if [ -z "${target_user}" ] ; then
         die "target user is unset. Specify it with --user/-u or select an existing --set/-s"
     fi
+
+    if [ -n "${CMD_LINE_OPT__CHAIN_FORWARD}" ]; then
+
+        local forward_cmd=
+
+        forward_cmd="'${__f_path__}' --pseudo-tty --host '${target_host}' --user '${target_user}' --pass '${target_pass}'"
+
+        # check whether we knew all user given sets, ans build forward command
+        __cIFS "${__fn}" "${__newline}"
+        local one_fwd_set=
+        for one_fwd_set in ${CMD_LINE_OPT__CHAIN_FORWARD}; do
+            dict_get "${__HDONTARGET_SETS}" "${one_fwd_set}" "" ACCESS_CREDENTIALS
+            if [ -z "${ACCESS_CREDENTIALS}" ] ; then
+                if [ "${LINKED_MODE}" = "0" ] ; then
+                    die "--set/-s: $(echo_bold ${CMD_LINE_OPT__SET}) $(echo_red is unknown. You can see known sets with --list/-l option)"
+                else
+                    die "target set: $(echo_bold ${CMD_LINE_OPT__SET})$(echo_red \(on_${CMD_LINE_OPT__SET}\) is unknown. Re-run with --verbose to see which set files were loaded)"
+                fi
+            fi
+            list_get "${ACCESS_CREDENTIALS}" 0 USER ","
+            list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
+            list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
+            list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
+            list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
+
+
+            forward_cmd="${forward_cmd} --run-local-cmd-ontarget -- self --pseudo-tty --host '${HOST}' --user '${USER}' --pass '${PASS}'"
+
+            if [ -n "${PORT}" ]; then
+                forward_cmd="${forward_cmd} --port ${PORT}"
+            fi
+            if [ "${IS_WIN}" = "1" ]; then
+                forward_cmd="${forward_cmd} --is-win" # this can be at the end of the chain only, otherwise it wouldn't work
+            fi
+        done
+        __rIFS "${__fn}"
+
+        # push all given argv to end of forward command
+        while [ $# -gt 0 ]; do
+            forward_cmd="${forward_cmd} \"${1}\""
+            shift 1
+        done
+
+        logdebug "run: forward_cmd: ${forward_cmd}"
+
+        eval "${forward_cmd}"
+        return $?
+    fi
+
 
     if [ -n "${target_pass}" ] && [ ! -f "${target_pass}" ] && [ "${__sr_REMOTE_sshpass_exists}" != 1 ] ; then
         logwarning "your environment seems not to have 'sshpass'. You'll need to type password manually"
