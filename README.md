@@ -15,8 +15,8 @@ run on any \*nix like target around.
 For example to install hdgrep type:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep;
-sudo chmod a+rx /usr/local/bin/hdgrep;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep
+sudo chmod a+rx /usr/local/bin/hdgrep
 ```
 
 Due to github's URL policy you'll need a tool which is able to handle
@@ -81,8 +81,8 @@ uses **grep** and **find**.
 Type to install:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep;
-sudo chmod a+rx /usr/local/bin/hdgrep;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep
+sudo chmod a+rx /usr/local/bin/hdgrep
 ```
 
 Type to update:
@@ -149,8 +149,8 @@ automate scripts (and workflows) if working with remote network targets.
 Type to install:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -O /usr/local/bin/hdontarget;
-sudo chmod a+rx /usr/local/bin/hdontarget;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -O /usr/local/bin/hdontarget
+sudo chmod a+rx /usr/local/bin/hdontarget
 ```
 
 Read the detailed help to see, what hdontarget can do for you:
