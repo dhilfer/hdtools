@@ -157,7 +157,7 @@ Type to update
 hdontarget --upgrade
 ```
 
-Look at availble usage examples
+Look at available usage examples
 ```sh
 hdontarget --help-examples
 ```
