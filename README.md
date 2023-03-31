@@ -1,4 +1,4 @@
-hdtools: some sort of useful command line tools
+# hdtools: some sort of useful command line tools
 
 - [INSTALLATION](#installation)
 - [DESCRIPTION](#description)
