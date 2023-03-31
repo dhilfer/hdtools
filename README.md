@@ -12,16 +12,12 @@ hdtools: some sort of useful command line tools
 hdtools are pure sh-scripts (bash is not required), so they shall
 run on any \*nix like target around.
 
-To install a particulart tool right away type:
+For example to install hdgrep type:
 
 ```sh
-export GET_THIS_TOOL=<some_tool>;
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/${GET_THIS_TOOL} -o /usr/local/bin/${GET_THIS_TOOL};
-sudo chmod a+rx /usr/local/bin/${GET_THIS_TOOL}; unset GET_THIS_TOOL;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep;
+sudo chmod a+rx /usr/local/bin/hdgrep;
 ```
-
-Try to replace *'curl -L \<url> -o \<target>'* with *'wget \<url> -O \<target>'*
-if curl is not available on your system.
 
 Due to github's URL policy you'll need a tool which is able to handle
 *https://* URL's. This is may not available on some of your tiniest
@@ -29,6 +25,9 @@ initramfs-busybox. Beware of this constraint, or just get the tools
 somewhere on your local network and host by yourself (ajust
 **UPGRADE_LATEST_RELEASE_LINKS** within the code, or control it trough
 ENV var).
+
+Try to replace *'wget \<url> -O \<target>'* with *'curl -L \<url> -o \<target>'*
+if wget does not support https on your system.
 
 
 # DESCRIPTION
@@ -82,11 +81,12 @@ uses **grep** and **find**.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -o /usr/local/bin/hdgrep;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep;
 sudo chmod a+rx /usr/local/bin/hdgrep;
 ```
 
-Type to update
+Type to update:
+
 ```sh
 hdgrep --upgrade
 ```
@@ -127,11 +127,12 @@ This is basically a wrapper to **find** command, increasing its usability.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind -o /usr/local/bin/hdfind;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind -O /usr/local/bin/hdfind;
 sudo chmod a+rx /usr/local/bin/hdfind;
 ```
 
-Type to update
+Type to update:
+
 ```sh
 hdfind --upgrade
 ```
@@ -148,16 +149,24 @@ automate scripts (and workflows) if working with remote network targets.
 Type to install:
 
 ```sh
-sudo curl -L https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -o /usr/local/bin/hdontarget;
+sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -O /usr/local/bin/hdontarget;
 sudo chmod a+rx /usr/local/bin/hdontarget;
 ```
 
-Type to update
+Read the detailed help to see, what hdontarget can do for you:
+
+```sh
+hdontarget --help
+```
+
+Type to update:
+
 ```sh
 hdontarget --upgrade
 ```
 
 Look at available usage examples
+
 ```sh
 hdontarget --help-examples
 ```
