@@ -27,7 +27,7 @@ somewhere on your local network and host by yourself (ajust
 ENV var).
 
 Try to replace *'wget \<url> -O \<target>'* with *'curl -L \<url> -o \<target>'*
-if wget does not support https on your system.
+if wget does not support https:// on your system.
 
 
 # DESCRIPTION
