@@ -57,13 +57,13 @@ platform, as well as on Cygwin/git-like environments on Windows.
 Please read the related **--help/-h** of particular tool to learn more
 about its special dependencies and needs.
 
-Nearly every tool will have a **--verbose** option to show the real
-executed commands and related annotations.
+Use the **--verbose** option to show the real executed commands and related 
+annotations.
 
-Some tools have a **--dry** option, which will just show the real
-commands without execution. This one is useful to add some more
-~~unsupported~~ user-specific options or just to copy-/paste commands to
-another machine, or custom scripts.
+Use **--dry** option, which will just show the real commands without 
+execution. This one is useful to add some more ~~unsupported~~ user-specific 
+options or just to copy-/paste commands to another machine, or custom scripts.
+
 
 ## Short overview for available tools and features
 
@@ -73,6 +73,7 @@ Both tools will store last search results in a file, named
 **hdgrep.$(whoami).last_result**. By default either in '*/tmp/*' or (on X11 env)
 '*/run/user/<user_id>/*'. This can be used to quick sync your search
 results with your favourite editor.
+
 
 ### hdgrep
 This tool performs (primary) a text search within files. For that it
@@ -140,6 +141,7 @@ hdfind --upgrade
 ![hdfind_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdfind_example.gif?raw=true)
 
 > Example usage of hdfind
+
 
 ### hdontarget
 
