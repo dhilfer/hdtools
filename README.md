@@ -27,7 +27,7 @@ Due to github's URL policy you'll need a tool which is able to handle
 *https://* URL's. This is may not available on some of your tiniest
 initramfs-busybox. Beware of this constraint, or just get the tools
 somewhere on your local network and host by yourself (ajust
-**UPGRADE_LATEST_RELEASE_LINK** within the code, or control it trough
+**UPGRADE_LATEST_RELEASE_LINKS** within the code, or control it trough
 ENV var).
 
 
