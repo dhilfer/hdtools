@@ -26,7 +26,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.9"
+VERSION="1.6.10"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -204,6 +204,7 @@ print_usage()
     if [ "${LINKED_MODE}" = "1" ] ; then
         linked_description="
 $(echo_bold "hdontarget") started as: $(echo_bold "${__real_file__}")
+real path: ${__f_path__}
 This implies the: $(echo_bold "linked mode")
 Some options will not be available.
 Please  run:  $(echo_bold "hdontarget") to see all available  options, as  well as more
@@ -214,24 +215,39 @@ information about $(echo_bold "linked mode")
     echo_bold "hdontarget v${VERSION}: ${SHORT_DESCRIPTION}"
     echo "${__real_file__} [OPTIONS(--help/-h to show)] [--] [COMMAND [COMMAND-OPTIONS]]
 ${linked_description}
+Visit hdontarget on github: https://github.com/dhilfer/hdtools
+
 hdontarget will log on stderr. Use $(echo_bold "--verbose")  option to see more output.
+
 For usage examples run: $(echo_bold "${__real_file__} --help-examples")
+
 As a pure sh-script, it's (sometimes) difficult for hdontarget to handle
 paths containing spaces.
+
+hdontarget can  run on windows, if  your environment  provides following
+tools: sh, pwd, readlink, cut, env, sed, grep, tr, wc, sort, uniq
+Which is basically a subset of 'coreutils'.
+This is usually given on git-like, mssys, etc. environments.
+For --upgrade you'll additionaly need: wget, mv, rm
 "
 if [ "${LINKED_MODE}" != "1" ] ; then
     echo "$(echo_bold Target Sets)
 Ta be able  to quick  access  different  remote machines hdontarget uses
-special formatted strings which are called $(echo_bold "sets"). A set is  a data record
-which contains at least a $(echo_bold "name")(unique token), and optionally $(echo_bold "users name"),
-$(echo_bold "pass"), $(echo_bold "target host"), $(echo_bold "ssh server port"). A set would look like this:
-  N17-main:root,142.251.37.14,root_pass
+special formatted strings which are called: '$(echo_bold "sets")'.
+A set is a data record which contains at least a $(echo_bold "name")(unique token), and
+optionally: $(echo_bold "user"), $(echo_bold "pass"), $(echo_bold "target host"), $(echo_bold "ssh port"), $(echo_bold "is target a windows os")
+A set looks like this:
+  N17-main:root,142.251.37.14,rootpass
 
 The set syntax is defined as following:
-$(echo_bold "name:username,host,password,port,is_win")
+  $(echo_bold "set_name:username,host,password,port,is_win")
 
 $(echo_bold "password") can be a string or a path to a identity file (private key file)
-if $(echo_bold  "is_win") is set to: 1, target is assumed to be a windows machine (same
+
+Alternative $(echo_bold "port") can be specified if  target ssh does not run on default
+port: 22
+
+If $(echo_bold  "is_win") is set to: 1, target is  assumed to be a windows machine (same
 as --is-win/-W)
 
 A collection of target sets can be specified via different ways:"
@@ -257,8 +273,11 @@ precendece hierarchy:
 "
 fi
 echo "Example set file (use '#' for comments):
-    N17-main:root,142.251.37.14,root_pass,,1
+    N17-main:root,142.251.37.14,rootpass
     nas1:nas_user,192.168.13.123,/home/user/secret_keys/very_secret_key
+
+    # this one is accessibly daily: 08:00 - 12:00
+    win_test:testuser,142.251.37.145,testpass,,1
 
     # ws_test:username,webserver.local # currently disabled
     ws_test2:,webserver2.local,,22044
@@ -320,7 +339,8 @@ if [ "${LINKED_MODE}" != "1" ] ; then
   $(echo_bold "additional access options")
     -P  --port PORT         ssh server PORT if differs from 22"
 else
-    echo "$(echo_bold "Remote Target Access (linked mode)")
+    echo "
+$(echo_bold "Remote Target Access (linked mode)")
 (override or complete set settings)
     -u  --user USER         remote user
     -p  --pass VALUE        VALUE can be $(echo_bold "--user")(s) password,  or path to
@@ -335,6 +355,7 @@ else
     -P  --port PORT         ssh server PORT if differs from 22"
 fi
 echo "
+
 $(echo_bold "Execute CMD's On Remote Target")
     --use-sudo              run COMMAND with prepended 'sudo'
 
@@ -357,6 +378,7 @@ $(echo_bold "Execute CMD's On Remote Target")
                             COMMAND-OPTIONS
                             copied COMMAND will not be removed after run
 
+
 $(echo_bold "Copy Files/Dirs To/From Remote Target")
     -ct --copy-to-target    treat COMMAND  and  COMMAND-OPTIONS as local
                             paths which shall be  copied to $(echo_bold "--remote-tmp")
@@ -372,6 +394,7 @@ $(echo_bold "Copy Files/Dirs To/From Remote Target")
 
                             Due to  nature or scp, this  will be done in
                             N separate calls.
+
 
 $(echo_bold "Tools/Helpers")
     --generate-keypair NAME quickly generate a rsa keypair  and store it
@@ -443,16 +466,20 @@ $(echo_bold "Tools/Helpers")
                             devices specified by SET_NAME.
                             [can be multiple]
 
+                            \"The chain\", is supposed to work like this:
+                            on_server -CF sub_node1 -CF sub_sub_node1.1
+
                             Basically you'll get following structure:
                             on_some_host -t "'\'"
                             --run-local-cmd-ontarget -- self -t -H H1 -u u1 -p p2 "'\'"
                             --run-local-cmd-ontarget -- self -t -H H2 -u u2 -p p1 "'\'"
                             --run-local-cmd-ontarget -- self -t -H H3 -u u3 -p p3 --is-win "'\'"
+                            -- some_startup_script.bat
 
                             If your SET_NAME is non existing or you lack
                             some of credentials like user or pass in
                             your hdontarget_sets, it's probably better
-                            to pick structure shown above, since you got
+                            to pick structure shown above, hence you get
                             maximal freedom to specify things.
 
                             Please consider, that these simple type of
@@ -460,6 +487,8 @@ $(echo_bold "Tools/Helpers")
                             last host and maybe run some simple command
                             after login.
 
+                            Windows targets can be the last in chain.
+                            Other variants will highly likely not work.
 
 
 $(echo_bold "Miscellaneous")
