@@ -33,7 +33,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.34"
+__VERSION__="7.9.35"
 
 BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
 
@@ -190,7 +190,11 @@ _handle_pers_setup()
         HDGREP_CTSO_CACHE_CTRL_TMP_FILE="${APPDATA}\\hdgrep.ctrl.ctso"
     else
         local _xpref="/tmp/"
-        if [ -n "${XDG_RUNTIME_DIR}" ] ; then
+        if [ -d "${TMPDIR}" ] ; then
+            _xpref="${TMPDIR}"
+        elif [ -n "${TERMUX_VERSION}" ] && [ -n "${PREFIX}" ]; then
+            _xpref="${TERMUX_VERSION}/${PREFIX}"
+        elif [ -n "${XDG_RUNTIME_DIR}" ] ; then
             # try work with XDG tmpfs
             _xpref="${XDG_RUNTIME_DIR}"
         fi
