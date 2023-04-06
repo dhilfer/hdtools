@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.11"
+VERSION="1.6.13"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -239,15 +239,16 @@ A set looks like this:
   N17-main:root,142.251.37.14,rootpass
 
 The set syntax is defined as following:
-  $(echo_bold "set_name:username,host,password,port,is_win")
+  $(echo_bold "set_name:username,host,password,port,target_hint")
 
 $(echo_bold "password") can be a string or a path to a identity file (private key file)
 
 Alternative $(echo_bold "port") can be specified if  target ssh does not run on default
 port: 22
 
-If $(echo_bold  "is_win") is set to: 1, target is  assumed to be a windows machine (same
-as --is-win/-W)
+If $(echo_bold  "target_hint") is set to:
+  win: target is assumed to be a windows machine (same as --is-win/-W)
+  termux: target is assumed to a termux(android) env (same as --is-termux/-T)
 
 A collection of target sets can be specified via different ways:"
 if [ "${__is_win__}" = "1" ] ; then
@@ -370,12 +371,10 @@ $(echo_bold "Execute CMD's On Remote Target")
 
                             See $(echo_bold "--save-inline-script") option for more.
 
-    --run-local-cmd-ontarget
-    --run-local-cmd-ontarget-win
-                            treat COMMAND as path to local file, copy it
-                            to  target (--remote-tmp),  then run it with
-                            COMMAND-OPTIONS
-                            copied COMMAND will not be removed after run
+    --run-local-cmd-ontarget treat COMMAND as path to local file, copy
+                            it to  target (--remote-tmp),  then run it
+                            with COMMAND-OPTIONS.
+                            Copied COMMAND will not be removed after run
 
 
 $(echo_bold "Copy Files/Dirs To/From Remote Target")
@@ -481,7 +480,7 @@ $(echo_bold "Tools/Helpers")
                             to pick structure shown above, hence you get
                             maximal freedom to specify things.
 
-                            Please consider, that these simple type of
+                            Please consider, that this simple type of
                             chaining will just allow you to login on
                             last host and maybe run some simple command
                             after login.
@@ -506,8 +505,8 @@ $(echo_bold "Miscellaneous")
 
     -dc --disable-color     disable colored output
 
-    -W  --is-win            give hdontarget an hint about target, to be
-                            an windows os
+    -W  --is-win            target is a windows os
+    -T  --is-termux         target is a termux(android) environment
 
     --verbose               be verbose
     --verbose-show-full-cmd dont cut multiline commands to 3 lines. This
@@ -760,6 +759,7 @@ CMD_LINE_OPT__FORWARD_X="0"  #
 CMD_LINE_OPT__PSEUDO_TTY="0"  #
 CMD_LINE_OPT__CHANGE_DIR=""  #
 CMD_LINE_OPT__REMOTE_TMP="/tmp"  #
+CMD_LINE_OPT__REMOTE_TMP__is_set=0
 CMD_LINE_OPT__USE_SH_SCRIPT_EXT="0"  #
 CMD_LINE_OPT__DISABLE_COLOR="0"  #
 CMD_LINE_OPT__VERBOSE="0"  #
@@ -770,6 +770,7 @@ CMD_LINE_OPT__DRY="0"  #
 CMD_LINE_OPT__VERSION="0"  #
 CMD_LINE_OPT__UPGRADE="0"  #
 CMD_LINE_OPT__IS_WIN="0"  #
+CMD_LINE_OPT__IS_TERMUX="0"  #
 parse_all_options()
 {
     local shifted=
@@ -787,6 +788,10 @@ parse_all_options()
             #
             --is-win|-W)
                 CMD_LINE_OPT__IS_WIN="1"
+                shift 1 ; shifted=$((shifted+1));;
+            #
+            --is-termux|-T)
+                CMD_LINE_OPT__IS_TERMUX="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
             --help-examples|-he)
@@ -915,6 +920,7 @@ $2"
                 shift 2; shifted=$((shifted+2));;
             #
             --remote-tmp)
+                CMD_LINE_OPT__REMOTE_TMP__is_set=1
                 CMD_LINE_OPT__REMOTE_TMP="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--remote-tmp needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
@@ -994,7 +1000,7 @@ if [ "${LINKED_MODE}" = "1" ] ; then
     CMD_LINE_OPT__SET=${__real_file__#*on_}
 fi
 fi
-if true; then                                                           # remote: 2.5.2 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
+if true; then                                                           # remote: 2.6.0.2 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
 __sr_REMOTE_SSH_IS_DROPBEAR=0
 [ -n "$(ssh 2>&1 | grep -i dropbear)" ] && __sr_REMOTE_SSH_IS_DROPBEAR=1
 
@@ -1164,6 +1170,13 @@ cp_to_target() #(host, user, pass, dst_path, src_paths...)
     cmd="${__sr_REMOTE_SCP} ${__sr_REMOTE_SCP_OPTS}"
     __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
 
+    if [ "${CMD_LINE_OPT__IS_TERMUX}" = "1" ] && [ "${CMD_LINE_OPT__REMOTE_TMP__is_set}" = "0" ] ; then
+        local termux_prefix=
+        termux_prefix="/data/data/com.termux/files/usr"
+        lognotice "fix path for termux env: '${dst_path}' -> '${termux_prefix}${dst_path}'"
+        dst_path="${termux_prefix}${dst_path}"
+    fi
+
     cmd="${cmd} ${port_opt} -r ${all_paths_prepared} '${user}@${host}:${dst_path}'"
     if ___sw "${cmd}" "sshpass" ; then
         _lognotice 2 "sshpass is used. You'll not be able to see any scp progress."
@@ -1287,7 +1300,11 @@ __log_to_logfile__="${__log_to_logfile__}"
 __log_logger_options__="${__log_logger_options__}"
 EOF
 cat <<'EOF'
-PATH=${HOME}/bin:${HOME}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:${PATH}
+if [ -n "${TERMUX_VERSION}" ] && [ -n "${PREFIX}" ]; then
+    PATH=${HOME}/bin:${HOME}/.local/bin:${PREFIX}/local/sbin:${PREFIX}/local/bin:${PREFIX}/sbin:${PREFIX}/bin:${PREFIX}/games:${PREFIX}/local/games:${PATH}
+else
+    PATH=${HOME}/bin:${HOME}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:${PATH}
+fi
 export PATH
 
 # ---
@@ -1357,7 +1374,13 @@ ${script}"
 
     if [ "${CMD_LINE_OPT__SAVE_INLINE_SCRIPT}" = "1" ] ; then
         local target_tmp=
-        target_tmp="/tmp/${__real_file__}.${__pid__}.inline"
+
+        target_tmp="/tmp"
+        if [ -n "${TMPDIR}" ]; then
+            target_tmp="${TMPDIR}"
+        fi
+        target_tmp="${target_tmp}/${__real_file__}.${__pid__}.inline"
+
         logwarning "--save-inline-script is set. Save inline script to: ${target_tmp}"
         cat << EOF > "${target_tmp}"
 ${ontarget_real_script}
@@ -1459,12 +1482,12 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
         return 1
     fi
     # copy first
-    _lognotice 2 "[1/3] copy: '${src_path}', to: ${user}@${host}:${dst_path}"
+    _lognotice 3 "[1/3] copy: '${src_path}', to: ${user}@${host}:${dst_path}"
     if ! cp_to_target "${host}" "${user}" "${pass}" "${dst_path}" "${src_path}"; then
         logerror "${__fn}(): copy ${src_path} to ${user}@${host}:${dst_path} failed"
         return 1
     fi
-    _lognotice 2 "[2/3] run: ${user}@${host}:${dst_path} $@"
+    _lognotice 3 "[2/3] run: ${user}@${host}:${dst_path} $@"
 
     local remote_interpreter=
 
@@ -1472,6 +1495,13 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
     local script=
     local script_line_ofset=
     if [ "${CMD_LINE_OPT__IS_WIN}" = "0" ]; then
+        if [ "${CMD_LINE_OPT__IS_TERMUX}" = "1" ] && [ "${CMD_LINE_OPT__REMOTE_TMP__is_set}" = "0" ] ; then
+            local termux_prefix=
+            termux_prefix="/data/data/com.termux/files/usr"
+            lognotice "fix path for termux env: '${dst_path}' -> '${termux_prefix}${dst_path}'"
+            dst_path="${termux_prefix}${dst_path}"
+        fi
+
         remote_interpreter="/bin/sh"
         script_line_ofset=$(__get_linenr)
         script=$(cat <<EOF
@@ -1494,9 +1524,9 @@ EOF
     local done_t=
     done_t="[3/3] ${user}@${host}:${dst_path}: finished with exit code: ${ret}"
     if [ "${ret}" != "0" ] ; then
-        _logerror 2 "${done_t}"
+        _logerror 3 "${done_t}"
     else
-        _lognotice 2 "${done_t}"
+        _lognotice 3 "${done_t}"
     fi
 
     return $?
@@ -1688,8 +1718,8 @@ create_tunnel_to_remote_target() #(host, user, pass, remote_local_port, goto_bac
     local goto_background=; goto_background="${5}";
 
     lognotice "create ssh tunnel to:" $(echo_blue '<bg>' " ${host} ") "${remote_local_port}:127.0.0.1:22"
-    lognotice "$(echo_yellow '<bg>' hint): check remote tunnel on remote target:" $(echo_lightblue "(sudo) lsof -i -n | grep 'ssh'")
-    lognotice "$(echo_yellow '<bg>' hint): connect from remote target to THIS machine: $(echo_lightblue ssh user@127.0.0.1 -p ${remote_local_port})"
+    lognotice "$(echo_yellow '<bg>' hint): check remote tunnel on remote target:" $(echo_lightblue "(sudo) lsof -i -n | grep 'ssh' | grep ${remote_local_port}")
+    lognotice "$(echo_yellow '<bg>' hint): connect from remote target to THIS machine: $(echo_lightblue ssh \<user\>@127.0.0.1 -p ${remote_local_port})"
     local bg_opt=
     local add_txt=
 
@@ -2100,7 +2130,7 @@ list_known_sets() #()
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
         list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
-        list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
+        list_get "${ACCESS_CREDENTIALS}" 4 REMOTE_HINT ","
 
         # use sr ___type to check whether there is a on_XXX existing on PATH
         ___type "on_${one_key}" QUICK_LINK
@@ -2113,21 +2143,15 @@ list_known_sets() #()
         [ -z "${USER}" ] && USER="-"
         [ -z "${HOST}" ] && HOST="-"
         [ -z "${PASS}" ] && PASS="-"
-        [ -z "${IS_WIN}" ] && IS_WIN="0"
+        [ -z "${REMOTE_HINT}" ] && REMOTE_HINT="-"
         [ -z "${QUICK_LINK}" ] && QUICK_LINK="-"
-
-        if [ "${IS_WIN}" = "1" ]; then
-            IS_WIN="win"
-        else
-            IS_WIN="-"
-        fi
 
         if [ -n "${PORT}" ] ; then
             final_txt="${final_txt}
-$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):${PORT}|$(echo_red ${PASS})|$(echo_lightblue ${IS_WIN})|$(echo_magenta ${QUICK_LINK})"
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST}):${PORT}|$(echo_red ${PASS})|$(echo_lightblue ${REMOTE_HINT})|$(echo_magenta ${QUICK_LINK})"
         else
             final_txt="${final_txt}
-$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_lightblue ${IS_WIN})|$(echo_magenta ${QUICK_LINK})"
+$(echo_bold ${one_key})|$(echo_green ${USER})@$(echo_lightblue ${HOST})|$(echo_red ${PASS})|$(echo_lightblue ${REMOTE_HINT})|$(echo_magenta ${QUICK_LINK})"
         fi
     done
 
@@ -2227,7 +2251,7 @@ main()
         list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
         list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
         list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
-        list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
+        list_get "${ACCESS_CREDENTIALS}" 4 REMOTE_HINT ","
 
         if [ "${CMD_LINE_OPT__LINK_SET}" = "1" ] ; then
             lognotice "create a set link: $(echo_lightblue '<b>' "on_${CMD_LINE_OPT__SET}") in ~/bin"
@@ -2283,8 +2307,12 @@ main()
         target_user=${USER}
         target_pass=${PASS}
 
-        if [ "${IS_WIN}" = "1" ]; then
+        if [ "${REMOTE_HINT}" = "win" ]; then
             CMD_LINE_OPT__IS_WIN=1
+        elif [ "${REMOTE_HINT}" = "termux" ]; then
+            CMD_LINE_OPT__IS_TERMUX=1
+        else
+            [ -n "${REMOTE_HINT}" ] && logwarning "remote hint: '${REMOTE_HINT}' is unknown. Please read --help/-h to see available options"
         fi
 
         # FIXME: port handling is currently done via global cmd-opt
@@ -2323,7 +2351,7 @@ main()
             list_get "${ACCESS_CREDENTIALS}" 1 HOST ","
             list_get "${ACCESS_CREDENTIALS}" 2 PASS ","
             list_get "${ACCESS_CREDENTIALS}" 3 PORT ","
-            list_get "${ACCESS_CREDENTIALS}" 4 IS_WIN ","
+            list_get "${ACCESS_CREDENTIALS}" 4 REMOTE_HINT ","
 
 
             forward_cmd="${forward_cmd} --run-local-cmd-ontarget -- self --pseudo-tty --host '${HOST}' --user '${USER}' --pass '${PASS}'"
@@ -2331,8 +2359,10 @@ main()
             if [ -n "${PORT}" ]; then
                 forward_cmd="${forward_cmd} --port ${PORT}"
             fi
-            if [ "${IS_WIN}" = "1" ]; then
+            if [ "${REMOTE_HINT}" = "win" ]; then
                 forward_cmd="${forward_cmd} --is-win" # this can be at the end of the chain only, otherwise it wouldn't work
+            elif [ "${REMOTE_HINT}" = "termux" ]; then
+                forward_cmd="${forward_cmd} --is-termux"
             fi
         done
         __rIFS "${__fn}"
