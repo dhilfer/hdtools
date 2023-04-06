@@ -33,7 +33,7 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.9.35"
+__VERSION__="7.9.36"
 
 BASIC_USAGE="(${__VERSION__}): hdfind [-C search_dir] [OPTIONS(--help to show)] [--] PATTERN [(or)PATTERN] [(or)PATTERN] ..."
 
@@ -191,7 +191,7 @@ _handle_pers_setup()
         if [ -d "${TMPDIR}" ] ; then
             _xpref="${TMPDIR}"
         elif [ -n "${TERMUX_VERSION}" ] && [ -n "${PREFIX}" ]; then
-            _xpref="${TERMUX_VERSION}/${PREFIX}"
+            _xpref="${PREFIX}/tmp"
         elif [ -n "${XDG_RUNTIME_DIR}" ] ; then
             # try work with XDG tmpfs
             _xpref="${XDG_RUNTIME_DIR}"
