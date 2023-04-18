@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.13"
+VERSION="1.6.14"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -409,6 +409,92 @@ $(echo_bold "Tools/Helpers")
                             to authorized_keys file.
 
 
+    -pF --port-forwarding LOCAL-PORT,REMOTE-LOCAL-PORT[,REVERSE=0][,GOTO_BACKGROUND=0]
+                            do  an  ssh port forwarding  to remote host.
+
+                            Specify an LOCAL_PORT to forward  to  remote
+                            host. On  remote  it  will be  accessible on
+                            REMOTE-LOCAL-PORT.
+
+                            LOCAL-PORT  and REMOTE-LOCAL-PORT  may  have
+                            the same value.
+
+                            The general use case of this is to provide
+                            some $(echo_bold remote server port) to THIS machine.
+
+                            Use optional  REVERSE: 0|1 parameter, to do
+                            an reverse port forwarding (pass -R to ssh).
+                            The general use case of this is to provide
+                            some $(echo_bold local server port) to remote machine.
+                            See also $(echo_bold "--create-tunnel/-cT") option.
+
+                            Use optional  GOTO_BACKGROUND: 0|1 parameter
+                            to put  related ssh  process to  background.
+                            Be careful with this  one. Once process runs
+                            in  background you'll need  to find  its PID
+                            manually to stop it again.
+
+                            List current ssh connections/processes:
+                            (sudo) lsof -i -n | grep 'ssh'  , or
+                            ps aux | grep 'ssh'
+
+                            If you do REVERSE forwarding and you want to
+                            use REMOTE-LOCAL-PORT from other machines on
+                            network (not only connecting via remote
+                            machine localhost). You'll need to tweak
+                            sshd config on remote machine.
+
+                            Add to /etc/ssh/sshd_config:
+                                Match User <remote_machine_user>
+                                    GatewayPorts yes
+                            Then restart sshd service, something like:
+                                service ssh restart
+
+                            Look here for more details:
+                            https://askubuntu.com/questions/50064/reverse-port-tunnelling/50075#50075
+
+                            If your ssh server is dropbear, you'll need
+                            to start it with option: -a
+                            See:
+                            https://manpages.debian.org/unstable/dropbear-bin/dropbear.8.en.html
+
+
+    -cT --create-tunnel REMOTE-LOCAL-PORT[,GOTO_BACKGROUND=0]  create  a
+                            \"reverse\" tunnel to local sshd on remote
+                            host.
+
+                            run: --create-tunnel/-cT 1234, is basically
+                            the same as: --port-forwarding/-pF 22,1234,1
+
+                            Use  REMOTE-LOCAL-PORT  on  remote  host  to
+                            connect to THIS machine afterwards.
+                            run this on remote:
+                            ssh -p REMOTE-LOCAL-PORT this-user@127.0.0.1
+
+                            If REMOTE-LOCAL-PORT is specified as number:
+                            1-10. hdontarget will set  REMOTE-LOCAL-PORT
+                            to 44101-44110. This  can  be  used as quick
+                            shortcut to create tunnels.
+                            On remote host add something like:
+                                tun_1:,127.0.0.1,,44101
+                                tun_2:,127.0.0.1,,44102
+                                tun_3:,127.0.0.1,,44103
+                                tun_4:,127.0.0.1,,44104
+                                ...
+                                tun_10:,127.0.0.1,,44110
+                            to hdontarget_sets (use $(echo_bold "-ec") option).
+
+                            Use optional  GOTO_BACKGROUND: 0|1 parameter
+                            to put  related ssh  process to  background.
+                            Be careful with this  one. Once process runs
+                            in  background you'll need  to find  its PID
+                            manually to stop it again.
+
+                            List current ssh connections/processes:
+                            (sudo) lsof -i -n | grep 'ssh'  , or
+                            ps aux | grep 'ssh'
+
+
     --export-this-path SERVER-IP run local and remote scripts doing:
 
                             [1] Export  current  working  directory
@@ -428,36 +514,6 @@ $(echo_bold "Tools/Helpers")
                             If  SERVER-IP is set  to 'auto',  hdontarget
                             will  run the  command above and try to find
                             SERVER-IP for you.
-
-
-    -cT --create-tunnel REMOTE-LOCAL-PORT[,GOTO_BACKGROUND=0]  create  a
-                            \"reverse\" ssh-tunnel  to remote host (remote
-                            port forwarding) (using ssh -R).
-
-                            Use  REMOTE-LOCAL-PORT  on  remote  host  to
-                            connect to THIS machine afterwards.    E.g.:
-                            ssh -p REMOTE-LOCAL-PORT this-user@127.0.0.1
-
-                            If REMOTE-LOCAL-PORT is specified as number:
-                            1-10. hdontarget will set  REMOTE-LOCAL-PORT
-                            to 44101-44110. This  can  be  used as quick
-                            shortcut to create tunnels.
-                            On remote host add something like:
-                                tun_1:,127.0.0.1,,44101
-                                tun_2:,127.0.0.1,,44102
-                                ...
-                                tun_10:,127.0.0.1,,44110
-                            to hdontarget_sets (use $(echo_bold "-ec") option).
-
-                            Use optional  GOTO_BACKGROUND: 0|1 parameter
-                            to put  related ssh  process to  background.
-                            Be careful with this  one. Once process runs
-                            in  background you'll need  to find  its PID
-                            manually to stop it again.
-
-                            List  available  ssh  connections/processes:
-                            (sudo) lsof -i -n | grep 'ssh'  , or
-                            ps aux | grep 'ssh'
 
 
     -CF  --chain-forward SET_NAME chain hdontarget calls to login to
@@ -753,6 +809,7 @@ CMD_LINE_OPT__COPY_FROM_TARGET="0"  #
 CMD_LINE_OPT__GENERATE_KEYPAIR=""  #
 CMD_LINE_OPT__INSTALL_KEYHOLE=""  #
 CMD_LINE_OPT__EXPORT_THIS_PATH=""  #
+CMD_LINE_OPT__PORT_FORWARDING=""  #
 CMD_LINE_OPT__CREATE_TUNNEL=""  #
 CMD_LINE_OPT__CHAIN_FORWARD=""
 CMD_LINE_OPT__FORWARD_X="0"  #
@@ -899,6 +956,10 @@ parse_all_options()
                 CMD_LINE_OPT__CREATE_TUNNEL="$2"
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--create-tunnel|-cT needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
+            --port-forwarding|-pF)
+                CMD_LINE_OPT__PORT_FORWARDING="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--port-forwarding|-pF needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
             #
             --chain-forward|-CF)
                 CMD_LINE_OPT__CHAIN_FORWARD="${CMD_LINE_OPT__CHAIN_FORWARD}
@@ -1000,7 +1061,7 @@ if [ "${LINKED_MODE}" = "1" ] ; then
     CMD_LINE_OPT__SET=${__real_file__#*on_}
 fi
 fi
-if true; then                                                           # remote: 2.6.0.2 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
+if true; then                                                           # remote: 2.6.2 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
 __sr_REMOTE_SSH_IS_DROPBEAR=0
 [ -n "$(ssh 2>&1 | grep -i dropbear)" ] && __sr_REMOTE_SSH_IS_DROPBEAR=1
 
@@ -1707,19 +1768,35 @@ EOF
     ret=$?
     return $ret
 }
-create_tunnel_to_remote_target() #(host, user, pass, remote_local_port, goto_background)
+do_port_forwarding() #(host, user, pass, local_port, remote_local_port, reverse, goto_background, show_tunnel_hint)
 {
-    local __fn="create_tunnel_to_remote_target"; _chkargs "${__fn}" 5 "$@"
+    local __fn="do_port_forwarding"; _chkargs "${__fn}" 8 "$@"
 
     local host=; host="${1}";
     local user=; user="${2}";
     local pass=; pass="${3}";
-    local remote_local_port=; remote_local_port="${4}";
-    local goto_background=; goto_background="${5}";
+    local local_port=; local_port="${4}";
+    local remote_local_port=; remote_local_port="${5}";
+    local reverse=; reverse="${6}";
+    local goto_background=; goto_background="${7}";
+    local show_tunnel_hint=; show_tunnel_hint="${8}";
 
-    lognotice "create ssh tunnel to:" $(echo_blue '<bg>' " ${host} ") "${remote_local_port}:127.0.0.1:22"
-    lognotice "$(echo_yellow '<bg>' hint): check remote tunnel on remote target:" $(echo_lightblue "(sudo) lsof -i -n | grep 'ssh' | grep ${remote_local_port}")
-    lognotice "$(echo_yellow '<bg>' hint): connect from remote target to THIS machine: $(echo_lightblue ssh \<user\>@127.0.0.1 -p ${remote_local_port})"
+    local ri_txt=
+    if [ "${reverse}" = "1" ]; then
+        ri_txt="$(echo_bold reverse) "
+    fi
+
+    lognotice "do ssh ${ri_txt}port forwarding for local port:" $(echo_red '<bg>' " ${local_port} ")", to:" $(echo_blue '<bg>' " ${host} ") $(echo_red '<bg>' " ${remote_local_port} ")
+    if [ "${reverse}" = "1" ]; then
+        lognotice "$(echo_yellow '<bg>' hint): reverse port forwarding means: you want to connect from remote machine as client to server port: ${local_port} on THIS machine"
+    else
+        lognotice "$(echo_yellow '<bg>' hint): port forwarding means: you want to connect as client on THIS machine to remote server's port: ${remote_local_port}"
+    fi
+    lognotice "$(echo_yellow '<bg>' hint): check open connections on remote target:" $(echo_lightblue "(sudo) lsof -i -n | grep 'ssh' | grep ${remote_local_port}")
+    if [ "${show_tunnel_hint}" = "1" ]; then
+        lognotice "$(echo_yellow '<bg>' hint): connect from remote target to THIS machine: $(echo_lightblue ssh \<user\>@127.0.0.1 -p ${remote_local_port})"
+    fi
+
     local bg_opt=
     local add_txt=
 
@@ -1732,7 +1809,16 @@ create_tunnel_to_remote_target() #(host, user, pass, remote_local_port, goto_bac
 
     local cmd=
     local ret=0
-    cmd="${__sr_REMOTE_SSH} ${__sr_REMOTE_SSH_OPTS} -N ${bg_opt}-R ${remote_local_port}:127.0.0.1:22"
+    cmd="${__sr_REMOTE_SSH} ${__sr_REMOTE_SSH_OPTS} -N ${bg_opt}"
+    if [ "${reverse}" = "1" ]; then
+        #https://askubuntu.com/questions/50064/reverse-port-tunnelling/50075#50075
+        cmd="${cmd} -R :${remote_local_port}:*:${local_port}"
+    else
+        #https://manpages.debian.org/unstable/openssh-server/sshd_config.5.en.html
+        #https://stackoverflow.com/questions/23781488/how-to-make-ssh-remote-port-forward-that-listens-0-0-0-0
+        #-o GatewayPorts=yes # I bet dropbear will not be able to handle this, but '*' works well, so keep it for now
+        cmd="${cmd} -L :${local_port}:*:${remote_local_port}"
+    fi
     __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
     local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-p ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
 
@@ -2449,15 +2535,43 @@ main()
         [ ${cT_REMOTE_LOCAL_PORT} -gt 65535 ] && die "${err_txt}"
 
         err_txt="-cT/--create-tunnel GOTO_BACKGROUND value: must be: 0|1"
-        string_isnumber "${cT_REMOTE_LOCAL_PORT}" || die "${err_txt}"
         ! IN ${cT_GOTO_BACKGROUND} "0,1" "," && die "${err_txt}"
 
         if [ ${cT_REMOTE_LOCAL_PORT} -ge 1 ] && [ ${cT_REMOTE_LOCAL_PORT} -le 10 ]; then
             cT_REMOTE_LOCAL_PORT=$((44100+cT_REMOTE_LOCAL_PORT))
         fi
 
-        #(host, user, pass, remote_local_port)
-        create_tunnel_to_remote_target "${target_host}" "${target_user}" "${target_pass}" "${cT_REMOTE_LOCAL_PORT}" "${cT_GOTO_BACKGROUND}"
+        #(host, user, pass, local_port, remote_local_port, reverse, goto_background)
+        do_port_forwarding "${target_host}" "${target_user}" "${target_pass}" 22 "${cT_REMOTE_LOCAL_PORT}" 1 "${cT_GOTO_BACKGROUND}" 1
+        ret=$?
+        [ "${ret}" != "0" ] && die "-"
+    elif [ -n "${CMD_LINE_OPT__PORT_FORWARDING}" ] ; then
+        list_get "${CMD_LINE_OPT__PORT_FORWARDING}" 0 pF_LOCAL_PORT ","
+        list_get "${CMD_LINE_OPT__PORT_FORWARDING}" 1 pF_REMOTE_LOCAL_PORT ","
+        list_get "${CMD_LINE_OPT__PORT_FORWARDING}" 2 pF_REVERSE ","
+        list_get "${CMD_LINE_OPT__PORT_FORWARDING}" 3 pF_GOTO_BACKGROUND ","
+        [ -z "${pF_REVERSE}" ] && pF_REVERSE=0
+        [ -z "${pF_GOTO_BACKGROUND}" ] && pF_GOTO_BACKGROUND=0
+
+        local err_txt=
+        err_txt="-pF/--port-forwarding LOCAL-PORT value: must be a number: 1-65535"
+        string_isnumber "${pF_LOCAL_PORT}" || die "${err_txt}"
+        [ ${pF_LOCAL_PORT} -lt 1 ] && die "${err_txt}"
+        [ ${pF_LOCAL_PORT} -gt 65535 ] && die "${err_txt}"
+
+        err_txt="-pF/--port-forwarding REMOTE-LOCAL-PORT value: must be a number: 1-65535"
+        string_isnumber "${pF_REMOTE_LOCAL_PORT}" || die "${err_txt}"
+        [ ${pF_REMOTE_LOCAL_PORT} -lt 1 ] && die "${err_txt}"
+        [ ${pF_REMOTE_LOCAL_PORT} -gt 65535 ] && die "${err_txt}"
+
+        err_txt="-cT/--create-tunnel REVERSE value: must be: 0|1"
+        ! IN ${pF_REVERSE} "0,1" "," && die "${err_txt}"
+
+        err_txt="-cT/--create-tunnel GOTO_BACKGROUND value: must be: 0|1"
+        ! IN ${pF_GOTO_BACKGROUND} "0,1" "," && die "${err_txt}"
+
+        #(host, user, pass, local_port, remote_local_port, reverse, goto_background)
+        do_port_forwarding "${target_host}" "${target_user}" "${target_pass}" "${pF_LOCAL_PORT}" "${pF_REMOTE_LOCAL_PORT}" "${pF_REVERSE}" "${pF_GOTO_BACKGROUND}" 0
         ret=$?
         [ "${ret}" != "0" ] && die "-"
     else
