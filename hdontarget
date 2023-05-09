@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.14"
+VERSION="1.6.15"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -1061,7 +1061,7 @@ if [ "${LINKED_MODE}" = "1" ] ; then
     CMD_LINE_OPT__SET=${__real_file__#*on_}
 fi
 fi
-if true; then                                                           # remote: 2.6.2 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
+if true; then                                                           # remote: 2.6.3 # requires ___srV>=2.9.6, logerror, lognotice, logdebug, _cse
 __sr_REMOTE_SSH_IS_DROPBEAR=0
 [ -n "$(ssh 2>&1 | grep -i dropbear)" ] && __sr_REMOTE_SSH_IS_DROPBEAR=1
 
@@ -1238,7 +1238,7 @@ cp_to_target() #(host, user, pass, dst_path, src_paths...)
         dst_path="${termux_prefix}${dst_path}"
     fi
 
-    cmd="${cmd} ${port_opt} -r ${all_paths_prepared} '${user}@${host}:${dst_path}'"
+    cmd="${cmd} ${port_opt} -r ${all_paths_prepared} ${user}@${host}:\"${dst_path}\""
     if ___sw "${cmd}" "sshpass" ; then
         _lognotice 2 "sshpass is used. You'll not be able to see any scp progress."
     fi
@@ -1281,7 +1281,7 @@ cp_from_target() #(host, user, pass, dst_path, src_paths...)
         cmd="${__sr_REMOTE_SCP} ${__sr_REMOTE_SCP_OPTS}"
         __remote_handle_pass "${cmd}" NEW_CMD "${pass}"; cmd=${NEW_CMD};
 
-        cmd="${cmd} ${port_opt} -r '${user}@${host}:\"${1}\"' '${dst_path}'"
+        cmd="${cmd} ${port_opt} -r ${user}@${host}:\"${1}\" \"${dst_path}\""
         if [ -z "${done_once}" ] && ___sw "${cmd}" "sshpass" ; then
             _lognotice 2 "sshpass is used. You'll not be able to see any scp progress."
             done_once=1
