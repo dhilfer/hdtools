@@ -2586,6 +2586,6 @@ main()
     return ${ret}
 }
 if [ "${__name__}" = "__main__" ] ; then
-    [ -n "${_ARGV}" ] && main ${_ARGV} || main "$@"
+    [ -n "${_ARGV}" ] && main "${_ARGV}" || main "$@"
     exit $?
 fi
