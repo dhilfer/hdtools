@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.15"
+VERSION="1.6.16"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -277,7 +277,7 @@ echo "Example set file (use '#' for comments):
     nas1:nas_user,192.168.13.123,/home/user/secret_keys/very_secret_key
 
     # this one is accessibly daily: 08:00 - 12:00
-    win_test:testuser,142.251.37.145,testpass,,1
+    win_test:testuser,142.251.37.145,testpass,,win
 
     # ws_test:username,webserver.local # currently disabled
     ws_test2:,webserver2.local,,22044
