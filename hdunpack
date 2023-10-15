@@ -12,7 +12,7 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0;} # ___srD=1; # verbose: 1.1.11, dry implies verbose
 
 
-VERSION="2.0.0"
+VERSION="2.0.1"
 SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
 
 # this is hdunpack: unpack stuff quickly
@@ -501,7 +501,7 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
 }
 
 UPGRADE_UNIQUE_TOKEN="9217785e-564b-4738-a437-cd152953fb9d"
-if true; then                                                           # upgrade: 2.3.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
+if true; then                                                           # upgrade: 2.3.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> VERSION
 check_ip_with_ping() #(host)
 {
     local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
@@ -623,8 +623,8 @@ Try following:
     new_version_str=$(cat "${target_tmp_file}" | sed -nr "${version_regex}")
 
     # check old vs new version
-    if [ $(___cvs $__VERSION__ $new_version_str ) = 1 ]; then
-        >&2 echo_red "  [error]: NEW version: $new_version_str < CURRENT version: $__VERSION__, skip upgrade"
+    if [ $(___cvs $VERSION $new_version_str ) = 1 ]; then
+        >&2 echo_red "  [error]: NEW version: $new_version_str < CURRENT version: $VERSION, skip upgrade"
         cmd="rm -f '${target_tmp_file}'"
         run "${cmd}"
         exit 1
@@ -647,7 +647,7 @@ Try following:
         run "${cmd}"
     fi
 
-    lognotice "ALL GOOD. ${name_info} was upgraded: ${__VERSION__} -> ${new_version_str}"
+    lognotice "ALL GOOD. ${name_info} was upgraded: ${VERSION} -> ${new_version_str}"
     exit 0
 }
 fi
@@ -659,7 +659,7 @@ main()
 
     if [ "${CMD_LINE_OPT__UPGRADE}" = "1" ] ; then
         CMD_LINE_OPT__DRY="0"
-        run_upgrade 'hdunpack' "${UPGRADE_LATEST_RELEASE_LINKS}" "${UPGRADE_UNIQUE_TOKEN}" 's!^__VERSION__="(.+)"$!\1!p' "${__path__}" "${__file__}"
+        run_upgrade 'hdunpack' "${UPGRADE_LATEST_RELEASE_LINKS}" "${UPGRADE_UNIQUE_TOKEN}" 's!^VERSION="(.+)"$!\1!p' "${__path__}" "${__file__}"
         exit $? # always exit after upgrade!
     fi
 
