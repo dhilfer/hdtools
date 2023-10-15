@@ -1,0 +1,685 @@
+#!/bin/sh
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License 3 as published
+# by the Free Software Foundation.
+# THERE IS NO ANY WARRANTY AT ALL
+
+__sr_RUN_STRICT=1
+if true; then # ___srV="2.10.2"
+___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;local _6d=;for _e8 in 1 2 3 4 5; do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};_6d=$((_Uc - _mZ));[ $_6d -ne 0 ] && { [ $_6d -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.10.2 $___srV)" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp(){ eval 'readlink -f "'$1'" 2>/dev/null';};__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;[ -n "$CMDER_ROOT" ] && WIN_CMD_ROOT=$(readlink -f "${CMDER_ROOT}");___type() { [ -n "$2" ] && eval "export $2=";local _rR=;local _tj=;_tj=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ]; then _rR=$(which "${1}" 2>/dev/null);[ -z "${_rR}" ] && return 1;fi;if [ -z "${_rR}" ]; then case "$_tj" in *function*) _rR=function ;; *builtin*) _rR=builtin ;; *alias*) _rR=alias ;; *) _rR=$(command -v ${1} 2>/dev/null);;esac;fi;[ -n "$2" ] && eval "export $2='$_rR'";return 0;};___sw(){ case "$1" in "$2"*) return 0 ;; esac;return 1;};___ew(){ case "$1" in *"$2") return 0 ;; esac;return 1;};echo_stderr(){ echo "$@" >&2; };___sw "$(echo -e t)" "-e" || { alias echo="echo -e";echo_stderr(){ echo -e "$@" >&2; };};__get_linenr(){ local __sd=0;[ -n "$1" ] && __sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${__sd}']''}';};_chkargs() { local __fn=$1;local __nr=$2;shift 2;[ ! $# -eq $__nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $__fn(): needs $__nr arg(s), $# given";exit 1;};};_chkargsm(){ local __fn=$1;local __nr=$2;shift 2;[ ! $__nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) $__fn(): needs at least $__nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS(){ IFS=$__DIFS; };__cIFS(){ _chkargs '__cIFS' 2 "$@";local __oifs=;__oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS(){ _chkargs '__rIFS' 1 "$@";local __oifs=;__oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN(){ local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2; do [ "$1" = "$__i" ] && { __r=0;break;}; done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run(){ [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@";[ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};run_e(){ echo_stderr "$([ "$DRY_RUN" = "1" ] && echo "(dry)")run: $@";[ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};_sr_p_sep=":";[ $__is_win__ = 1 ] && _sr_p_sep=";";add_sr_PATH(){ ! IN "$1" "${sr_PATH}" $_sr_p_sep && export sr_PATH="${1}${_sr_p_sep}${sr_PATH}";};__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1;shopt -s expand_aliases;};[ -z "${__name__}" ] && [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@";exit $?;};___ew "$BASH" "bash" && { __is_bash__=1;};__is_dbg__=0;[ $__is_bash__ = 1 ] && [ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ]; then _az=$__sr_inc_rp;unset __sr_inc_rp;else if [ -z "$__main__" ]; then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(___rp '${''BASH_SOURCE[0]''}');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_;export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.*};[ "$__name__" != "__main__" ] && { __name__=$__main__;__main__=$__main__;} || { __main__=$__file__;};_az=;add_sr_PATH "$__path__";if [ "$(___cvs 2.10.2 $___srV)" = 1 ]; then __require(){ [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip";return;};local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require(){ local __pp=;local __rip=;if ! ___sw "$1" "/"; then __cIFS 'require' "$_sr_p_sep";for __pp in $sr_PATH; do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}";break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh";break;};done;__rIFS 'require';[ "$3" != "1" ] && [ -z "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found [ sr_PATH=$sr_PATH ]";exit 1;};else __rip=$1;[ "$3" != "1" ] && [ ! -e "$__rip" ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1) require(): '$1': module not found (absolute path)";exit 1;};fi;if [ "$3" = "1" ];then __pp=;[ -z "$__rip" ] && return 1;__rip=;return 0;fi;__rip=$(___rp "${__rip}");__require "${__rip}" $2;__pp=;__rip=;return 0;};fi;if [ "$(___cvs 2.10.2 $___srV)" = 1 ];then ___srV="2.10.2";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: $___srV)";else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__ (___srV: 2.10.2): current ___srV: $___srV env has higher/equal version than I, skip redefine";fi;__tab='	';__newline='
+';fi
+
+[ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0;} # ___srD=1; # verbose: 1.1.11, dry implies verbose
+
+
+VERSION="2.0.0"
+SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
+
+# this is hdunpack: unpack stuff quickly
+# (c) 2014-present: Dieter Hilfer
+
+
+if true; then                                                           # base: 4.2.0
+if true; then                                                           # base:colors: 1.2.3
+# __sr_DISABLE_COLOR: 0
+# 1st: parm may be:
+#    <b>: bold
+#   <bg>: background
+__echo_col() { local _clr=; _clr=${1}; shift 1; local _bld=; local _grd=3; [ "${1}" = "<b>" ] && { _bld="1;"; shift 1; }; [ "${1}" = "<bg>" ] && { _bld="1;";_grd=4; shift 1; }; [ "${__sr_DISABLE_COLOR}" = "1" ] && echo "${@}" || echo "\033[${_bld}${_grd}${_clr}m${@}\033[0m" ; }
+echo_red()      { __echo_col 1 "${@}"; }
+echo_green()    { __echo_col 2 "${@}"; }
+echo_yellow()   { __echo_col 3 "${@}"; }
+echo_magenta()  { __echo_col 5 "${@}"; }
+echo_grey()     { __echo_col 0 "<b>" "${@}"; }
+
+echo_blue()      { __echo_col 4 "${@}"; }
+echo_lightblue() { __echo_col 6 "${@}"; }
+echo_bold()      { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
+fi
+# "traceable" redirection of stdout to /dev/null
+stdout_to_dev_null=" >/dev/null"
+[ "${__log_trace__}" = "1" ] && stdout_to_dev_null=
+# "traceable" redirection of stderr to /dev/null
+stderr_to_dev_null=" 2>/dev/null"
+[ "${__log_trace__}" = "1" ] && stderr_to_dev_null=
+# "traceable" redirection of stderr and stdout to /dev/null
+stderr_stdout_to_dev_null=" >/dev/null 2>&1"
+[ "${__log_trace__}" = "1" ] && stderr_stdout_to_dev_null=
+
+# (c)heck var is (s)et in (e)nvironment
+_csE() { [ -z "${1}" ] && return 1;[ -z "$(eval echo "$""${1}")" ] && return 1 || return 0;}
+_lognotice() { return 0; } # for _cse/logdefs below only
+# (c)heck var is (s)et in (e)nvironment or set to default #(env_var, def_val, !echo_var=0)
+_cse() { local _cse__v=; { [ -z "$(eval echo "$""${1}")"  ] && export "${1}=${2}";}; _cse__v=$(eval echo "$""${1}"); if [ "${3}" = "1" ] || [ "${__log_trace__}" = "1" ]; then _lognotice 2 "ENV: $(echo_green "${1}")=${_cse__v}";fi;}
+if true; then                                                           # base:log: 1.5.1
+_cse __log_no_facility__ 0           # default:  0, don't show log facilities ("notice", "error", ...)
+_cse __log_no_notice_facility__ 0    # default:  0, don't show log facilities above "notice", show the rest beyond (error, warning)
+_cse __log_date__ 0                  # default:  0, show timestamp # append .%N nanoseconds if target date supports this manually below
+_cse __log_trace__ 0                 # default:  0, show logdebug(), real file:line [ base bash capability required ] (bash, sh->bash)
+_cse __log_pid__ 0                   # default:  0, show process pid(as set by _sr to __pid__)
+_cse __log_no_main__ 0               # default:  0, don't show __main__ tool name
+_cse __log_to_logfile__ 0            # default:  0, don't use logger to log to logfiles
+_cse __log_logger_options__ ""       # default: "", pass these additional options to logger
+
+_cse __log_script_line_offset__ 0    # default:  0, passed by run_script_ontarget, run_script_in_chroot
+_cse __log_remote_host__    ""       # default: "", passed by run_script_ontarget/hdontarget (if set, show additional 'remote' facility)
+_cse __log_remote_user__    ""       # default: "", passed by run_script_ontarget/hdontarget
+
+[ "${__is_bbash__}" != "1" ] && [ "${__log_trace__}" = "1" ] && echo_stderr $(echo_grey "___sr: __log_trace__ is active, to see line numbers you must run in 'bash' or 'sh->bash'")
+__log_preface(){
+echo \
+$([ x${__log_date__} = x1 ] && date +'%Y-%m-%d %H:%M:%S:')\
+"$([ x${__log_no_facility__} != x1 ] && [ -n "${2}" ] && echo "${2} ")"\
+$([ x${__log_no_main__} != x1 ] && echo_magenta ${__main__})\
+$([ x${__log_no_main__} != x1 ] && echo :)\
+$([ x${__is_bbash__} = x1 ] && [ x${__log_trace__} = x1 ] && {\
+    [ "$(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')" != "${__main__}" ] && {\
+            echo "($(echo_magenta $(eval echo '${''BASH_SOURCE['$((${1}+1))']''##*/''}')):$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__})))):";\
+        } || {\
+            echo "$(echo_green $(($(eval echo '${''BASH_LINENO['${1}']''}')+${__log_script_line_offset__}))):";\
+        };\
+})\
+$([ -n "${__log_remote_host__}" ] && echo "[$(echo_magenta ${__log_remote_user__}@${__log_remote_host__})]:")\
+$([ x${__log_pid__} = x1 ] && echo "($(echo_lightblue "pid: ${__pid__}")):")\
+"$([ x${__log_no_main__} != x1 ] && echo ' ')"\
+;}
+_logerror()  { [ "${__sr_DSBL_ERR}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}       "$(echo_red '  [error]:')")$(echo_red "$@")";       [ "${__log_to_logfile__}" = 1 ] && logger -p 3 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logwarning(){ [ "${__sr_DSBL_WARN}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}    "$(echo_yellow '[warning]:')")$(echo_yellow "$@")";    [ "${__log_to_logfile__}" = 1 ] && logger -p 4 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_logdebug()  { [ "${__sr_DSBL_DBG}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}      "$(echo_grey '  [debug]:')")$(echo_grey "$@")";      [ "${__log_to_logfile__}" = 1 ] && logger -p 7 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+if [ "${__log_no_notice_facility__}" = "1" ] && [ "${__log_trace__}" != "1" ] ; then
+_lognotice() { [ "${__sr_DSBL_NTCE}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+else
+_lognotice() { [ "${__sr_DSBL_NTCE}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d}           "$(echo ' [notice]:')")$(echo "$@")";           [ "${__log_to_logfile__}" = 1 ] && logger -p 5 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+_loginfo()   { [ "${__sr_DSBL_INFO}" = "1" ] && return; local __d=; __d=${1}; shift 1; echo_stderr "$(__log_preface ${__d} "$(echo_lightblue '   [info]:')")$(echo_lightblue "$@")";        [ "${__log_to_logfile__}" = 1 ] && logger -p 6 ${__log_logger_options__} -- "${__main__}: $@"; return 0;}
+fi
+logerror()   { _logerror   2 "$@";}
+logwarning() { _logwarning 2 "$@";}
+logdebug()   { _logdebug   2 "$@";}
+loginfo()    { _loginfo    2 "$@";}
+lognotice()  { _lognotice  2 "$@";}
+# no trace -> no debug
+[ "${__log_trace__}" != "1" ] && _logdebug(){ true; } # pass
+fi
+if true; then                                                           # base:run: 2.2.0
+# _run #(stack_depth, cmd...)
+_run() { local _run__d=;_run__d=${1};shift 1; [ "${DBG_RUN}" = "1" ] && { _logdebug  ${_run__d} "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@";};[ "${DRY_RUN}" = "1" ] && return 0;eval "$@";return $?;}
+# run #(cmd...)
+run() { _run 3 "$@";return $?;}
+# run_e(cho) #(cmd...)
+run_e() { _lognotice 2 "$([ "${DRY_RUN}" = "1" ] && echo "(dry)")run: $@"; [ "${DRY_RUN}" = "1" ] && return 0; eval "$@";return $?;}
+# run_d(ie) on error #(cmd, *out), #(cmd...) if: $# != 2
+run_d() { local run_d__r=;if [ $# = 2 ]; then eval "export ${2}=";local run_d__ro=;run_d__ro=$(_run 3 "${1}");run_d__r=$?;else _run 3 "$@";run_d__r=$?;fi;if [ "${run_d__r}" != "0" ];then [ "${__sr_NO_RUN_DIE_TRACE}" = "1" ] && die "-" ${run_d__r} 3 || die "run: '$([ $# = 2 ] && echo ${1} || echo ${@})', failed with exitcode: ${run_d__r}" ${run_d__r} 3;fi;[ $# = 2 ] && eval "export ${2}='${run_d__ro}'";return 0;}
+#_run 3 "${cmd}" || die "run: '${cmd}', failed with exitcode: ${?}" ${?} 3; # run/die with custom stack depth
+fi
+if true; then                                                           # base:checks: 1.2.0
+#(reason, !exit_code=1, !stack_depth=2)
+die() { local die__e=1;local die__d=2;[ -n "${2}" ] && die__e=${2};[ -n "${3}" ] && die__d=${3};_logerror ${die__d} "${1}";exit ${die__e};}
+
+_cca() { die "_cca() is DEPRECATED, use ___type() from ___srV>='2.9.4' instead";}
+
+# (c)heck (ex)ists #(path)
+_cex() { [ -e "${1}"  ] || { _logwarning 2 "${1}: does not exist" ; return 1 ; } }
+# (c)heck path (ex)ists or (d)ie #(path, !add_err_txt="", !err_code)
+_cex_d() { local _cex_d__e=; [ -n "${3}" ] && _cex_d__e=${3}; [ ! -e "${1}" ] && { die "'${1}': path does not exist${2}" "${_cex_d__e}" 3;};}
+# (c)heck is (Ex)ecutable #(path)
+_cEx() { [ -x "${1}"  ] || { _logwarning 2 "${1}: is not a executable" ; return 1 ; } }
+# (c)heck is (Ex)ecutable or (d)ie #(path, !add_err_txt="", !err_code)
+_cEx_d() { local _cEx_d__e=; [ -n "${3}" ] && _cEx_d__e=${3}; [ ! -e "${1}" ] && { die "'${1}': is not a executable${2}" "${_cEx_d__e}" 3;};}
+
+# (e)cho (e)nvironment (v)ar  #(env_var, !add_txt="")
+_eev() { local _eev__v=; _eev__v=$(eval echo "$""${1}"); _lognotice 2 "ENV: $(echo_green "${1}")=${_eev__v}${2}";}
+# (s)et (e)nvironment with (e)cho  #(env_var, val)
+_see() { export "${1}=${2}"; _lognotice 2 "ENV: $(echo_green "${1}")=${2}";}
+# (c)heck var (s)et in (e)nvironment or (d)ie #(env_var, !add_err_txt="", !echo_var_if_ok=0, !err_code)
+_cse_d(){ local _cse_d__e=;local _cse_d__v=;[ -n "${4}" ] && _cse_d__e=${4};[ -z "$(eval echo "$""${1}")" ] && { die "${1}: is not set in env${2}" "${_cse_d__e}" 3;} || { if [ "${3}" = "1" ] || [ "${__log_trace__}" = "1" ]; then _cse_d__v=$(eval echo "$""${1}");_lognotice 2 "ENV: $(echo_green "${1}")=${_cse_d__v}";fi;};}
+
+# check os tools
+_cet() { local _cet__T=;local _cet__A=;_cet__T=$(echo "${1}" | cut -d":" -f1);_cet__A=$(echo "${1}" | cut -d":" -f2);[ -n "$(which ${_cet__T})"  ] || { logwarning "required tool: '${_cet__T}': was not found. try to install it with: 'sudo apt install ${_cet__A}', or so"; return 1 ; } ; }
+_ct() { local _ct__r=; local _ct__i; _ct__r=0; for _ct__i in ${1} ; do _cet "${_ct__i}"; _ct__r=$?; if [ "${_ct__r}" != "0" ]; then _ct__r=${_ct__r}; fi; done; if [ "${_ct__r}" != "0" ]; then die "-" 1 3; fi; }
+#_tools='convert:imagemagick
+#ppmquant:netpbm'
+#_ct "${_tools}"
+
+# (c)heck (i)s (r)oot or (d)ie #()
+_cir_d() { [ "$(id -u)" != "0" ] && die "You must be root to proceed" "" 3;}
+# (c)heck (n)ot (r)oot or (d)ie #()
+_cnr_d() { [ "$(id -u)" = "0" ] && die "You must NOT be root to proceed" "" 3;}
+fi
+fi
+# upgrade links, use # for comments
+_cse UPGRADE_LATEST_RELEASE_LINKS "
+https://raw.githubusercontent.com/dhilfer/hdtools/main/hdunpack
+"
+if true; then                                                           # options
+CMD_LINE_OPT__DIRECTORY="."  # change to directory
+CMD_LINE_OPT__UNPACK_VERBOSE=0
+CMD_LINE_OPT__PASSWORD=
+CMD_LINE_OPT__VERBOSE=0
+CMD_LINE_OPT__UPGRADE=0  # -
+print_usage()
+{
+    echo "${SHORT_DESCRIPTION}
+Usage: hdunpack  [OPTIONS] unpack_this [unpack_this ...]
+
+[OPTIONS]:
+  -h  --help                this help
+
+  -C  --directory DIR_PATH  change(/unpack) to directory
+
+  -v                        (try to) verbosely list files processed
+
+  -p  --password PASS       specify evt. password for supported formats:
+                              zip, 7z, rar
+
+------------ OTHER OPTIONS -----------------------------------------------
+
+           --verbose             print messages to stderr (which may  help
+                                 you to analyze hdunpack's behaviour)
+
+           --upgrade             try to upgrade hdgrep to latest version.
+
+                                 Set upgrade links via env variable:
+                                   UPGRADE_LATEST_RELEASE_LINKS
+                                 Separate multiple links using newline.
+
+                                 Current setup:
+${UPGRADE_LATEST_RELEASE_LINKS}
+---
+"
+}
+parse_all_options()
+{
+    local shifted=0
+    while [ "$#" -gt 0 ] ; do
+        case "${1}" in
+            --)
+            # end of option list
+                shift 1; shifted=$((shifted+1))
+                break;;
+            --help|-h)
+                print_usage; exit 0;;
+
+            # change to directory
+            --directory|-C)
+                CMD_LINE_OPT__DIRECTORY="${2}"
+                shift 2 ; shifted=$((shifted+2)) ;;
+
+            -v)
+                CMD_LINE_OPT__UNPACK_VERBOSE=1
+                shift 1 ; shifted=$((shifted+1));;
+
+            --password|-p)
+                CMD_LINE_OPT__PASSWORD="1"
+                CMD_LINE_OPT__PASSWORD="${2}"
+                shift 2 ; shifted=$((shifted+2)) ;;
+
+            # be verbose
+            --verbose)
+                CMD_LINE_OPT__VERBOSE=1
+                shift 1 ; shifted=$((shifted+1));;
+
+            --upgrade)
+                CMD_LINE_OPT__UPGRADE=1
+                shift 1 ; shifted=$((shifted+1));;
+            -*)
+              echo "unknown option: $1" >&2
+              broken_opts=1
+              shift 1;;
+            *)
+              # options parse done
+              break ;;
+      esac
+    done
+    return ${shifted}
+}
+fi
+
+
+makeid() #(len, *id)
+{
+    local __fn="makeid"; _chkargs "${__fn}" 2 "$@"
+
+    local len=; len="${1}";
+    local export_var_id=; export_var_id="${2}";
+    eval "export ${export_var_id}=";
+    local ret_id=
+
+    # ---
+    local ran=
+    local i=0
+    while [ ${i} -lt ${len} ]; do
+        ran=$(grep -m1 -ao '[0-9a-f]' /dev/urandom | head -n1)
+        ret_id="${ret_id}${ran}"
+        i=$((i+1))
+    done
+    # ---
+
+    # return values
+    eval "export ${export_var_id}='${ret_id}'"
+    return 0
+}
+check_all_files_exist() #(...)
+{
+    local __fn='check_all_files_exist'; _chkargsm ${__fn} 1 "$@"
+    while [ $# -gt 0 ] ; do
+        if [ ! -e  "${1}" ] ; then
+            logerror "'${1}': does not exists"
+            return 1
+        fi
+        if [ ! -f  "${1}" ] ; then
+            logerror "'${1}': must be a file"
+            return 1
+        fi
+        shift 1
+    done
+    return 0
+}
+
+unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
+{
+    local __fn="unpack"; _chkargsm "${__fn}" 2 "$@"
+
+    local archive=; archive="${1}";
+    local target_dir=; target_dir="${2}";
+    local unpack_verbose=; unpack_verbose="${3}";
+    [ -z "${unpack_verbose}" ] && unpack_verbose=0;
+    local password=; password="${4}";
+
+    local cmd=
+    local ret=
+    local reloc_hlp=
+    local pass_opt=
+
+    local archive_filename=
+    archive_filename=${archive##*/}; # same as __file__
+
+    local packed_archive_type=
+
+    local list_verbose_opt_tar=
+    [ "${unpack_verbose}" = "1" ] && list_verbose_opt_tar="-v"
+
+    local list_verbose_opt_zip="-q"
+    [ "${unpack_verbose}" = "1" ] && list_verbose_opt_zip=
+
+    lognotice "$(echo_lightblue '(try to)unpack: '"'"${archive}"'"'')"
+    lognotice "            to: '"$(___rp  ${target_dir})"'"
+    # handle target_dir
+    if [ -n "${target_dir}" ] && [ ! -e "${target_dir}" ]; then
+        cmd="mkdir -p -- '${target_dir}'"
+        run_d "${cmd}"
+    fi
+
+    makeid 16 _I_ID
+    local intermediate_file=
+    intermediate_file="${target_dir}/_unpk_${_I_ID}.tmp"
+    # check target_dir writable
+    cmd="touch '${intermediate_file}' ${stderr_stdout_to_dev_null}"
+    run "${cmd}" || die "'${target_dir}': is not writable"
+
+    # now go forward and unpack stuff brute force
+    ret=1
+
+    if [ "${ret}" != "0" ]; then                                        # try .gz
+        packed_archive_type="gz"
+        logdebug "try: ${packed_archive_type}"
+        if command -v pigz >/dev/null; then
+            cmd="pigz -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        else
+            cmd="gzip -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        fi
+        run "${cmd}"
+        ret=$?
+    fi
+    # afterhandle for .gz
+    if command -v pigz >/dev/null; then
+        # handle pigz + Ctrl-C
+        if [ "${ret}" = "4" ]; then # exitcode of pigz on cancel
+            #just die
+            die "-"
+        fi
+    fi
+
+    if [ "${ret}" != "0" ]; then                                        # try .xz
+        packed_archive_type="xz"
+        logdebug "try: ${packed_archive_type}"
+        if command -v pixz >/dev/null; then
+            cmd="pixz -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        else
+            cmd="xz -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        fi
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .bz2
+        packed_archive_type="bz2"
+        logdebug "try: ${packed_archive_type}"
+        cmd="bzip2 -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .zst
+        # zstd tool can unpack gz too! be aware
+        packed_archive_type="zst"
+        logdebug "try: ${packed_archive_type}"
+        cmd="zstd -q -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .lzop
+        packed_archive_type="lzop"
+        logdebug "try: ${packed_archive_type}"
+        cmd="lzop -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .lz4
+        packed_archive_type="lz4"
+        logdebug "try: ${packed_archive_type}"
+        cmd="lz4 -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+
+    if [ "${ret}" != "0" ]; then                                        # try .zip (no tar after)
+        # if zip works -> no tar afterwards!
+        packed_archive_type="zip"
+        logdebug "try: ${packed_archive_type}"
+
+        [ -n "${password}" ] && pass_opt="-P '${password}'"
+        reloc_hlp=${stderr_stdout_to_dev_null}
+        [ "${unpack_verbose}" = "1" ] && reloc_hlp=${stderr_to_dev_null}
+        cmd="unzip ${pass_opt} -d '${target_dir}' -o ${list_verbose_opt_zip} '${archive}' ${reloc_hlp}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .rar (no tar after)
+        # if rar works -> no tar afterwards!
+        packed_archive_type="rar"
+        logdebug "try: ${packed_archive_type}"
+
+        pass_opt="-p-" # Do not query password
+        [ -n "${password}" ] && pass_opt="-p'${password}'"
+        reloc_hlp=${stderr_stdout_to_dev_null}
+        [ "${unpack_verbose}" = "1" ] && reloc_hlp=${stderr_to_dev_null}
+        cmd="unrar x -y ${pass_opt} '${archive}' '${target_dir}' ${reloc_hlp}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .7z (no tar after)
+        # if 7z works -> no tar afterwards!
+        # 7z has no 'quiet', nor verbose option. We control via stdout redirect only
+        # unfortunately this implies "a lot of useles" printf on "non-packed" files if '-v' option is set
+        # therefore we should try .7z as "last option"
+
+        packed_archive_type="7z"
+        logdebug "try: ${packed_archive_type}"
+
+        # always specify some pass option for 7z
+        # on non secured archives this will just fall trough
+        # on secured archives without user provided --password/-p  option
+        # 7z will NOT prompt for pass (what we need here) and also just fall trough
+        pass_opt="-p'1234'"
+        [ -n "${password}" ] && pass_opt="-p'${password}'"
+
+        reloc_hlp=${stderr_stdout_to_dev_null}
+        [ "${unpack_verbose}" = "1" ] && reloc_hlp=${stderr_to_dev_null}
+        cmd="7z x -y ${pass_opt} -o'${target_dir}' '${archive}' ${reloc_hlp}"
+        run "${cmd}"
+        ret=$?
+    fi
+
+    # if all fails, may its not an archive at all
+
+    local tar_on_this=
+    local prev_unpack_ok=
+    local result_name=
+    prev_unpack_ret=0
+    tar_on_this="${intermediate_file}"
+    if [ "${ret}" != "0" ]; then
+        # all prev unpack failed
+        prev_unpack_ret=${ret}
+        tar_on_this="${archive}"
+        packed_archive_type= # unknown
+    fi
+
+    if [ "${ret}" = "0" ] && ( [ "${packed_archive_type}" = "zip" ] || [ "${packed_archive_type}" = "rar" ] || [ "${packed_archive_type}" = "7z" ] ); then
+        # that was a zip/rar/7z, successfully unpacked
+        logdebug "'${archive}': was unpacked using: '${packed_archive_type}' format, to: '"$(___rp  ${target_dir})"'"
+    else
+        # try tar
+        # https://unix.stackexchange.com/questions/129599/test-tar-file-integrity-in-bash
+        # pick unexpensive: '-t' variant for a while
+        cmd="tar -t -f '${tar_on_this}' >/dev/null 2>&1" # tar integrity (100ms on 1.6GB rootfs tar on corei7: fast enough)
+        run "${cmd}"
+        ret=$?
+        if [ "${ret}" != "0" ]; then
+            # this is not a(or broken) tar!
+            if [ "${prev_unpack_ret}" != "0" ]; then
+                # unpack original failed
+                # is tar? on original failed
+
+                # maybe its not an archive at all?
+                echo ""
+                lognotice "given file: '${archive}'"
+                lognotice "  seems not to be packed at all, or"
+                lognotice "  archive format is not supported on your system, or"
+                lognotice "  you need to specify a valid: --password/-p"
+                echo ""
+                lognotice "I'll run: 'file \"${archive}\"', for you. May it helps:"
+                cmd="file '${archive}'"
+                run "${cmd}"
+            else
+                # unpack original was OK!
+                # is tar? on original failed
+
+                # it was just a simple archive: like some.img.gz > some.img
+                result_name="${archive_filename}.unpaked"
+                if ___ew "${archive_filename}" ".${packed_archive_type}" ]; then
+                    result_name="${archive_filename%.*}" # strip .<type>, e.g.: bla.img.gz > bla.img # same as: __path__
+                fi
+                cmd="mv '${intermediate_file}' '${target_dir}/${result_name}'"
+                run_d "${cmd}"
+                # don't tell on success
+                logdebug "'${archive}': was unpacked using: '${packed_archive_type}' format, to: '${target_dir}/${result_name}'"
+            fi
+        else
+            # this is a tar
+            cmd="tar -C '${target_dir}' ${list_verbose_opt_tar} -x -f '${tar_on_this}'"
+            run "${cmd}" # this shall not fail
+
+            # don't tell on success
+            logdebug "'${archive}': was unpacked using: 'tar ${packed_archive_type}' format, to: '"$(___rp  ${target_dir})"'"
+        fi
+    fi
+    # cleanup intermediate
+    if [ -e "${intermediate_file}" ]; then
+        cmd="rm '${intermediate_file}'"
+        run "${cmd}"
+    fi
+
+}
+
+UPGRADE_UNIQUE_TOKEN="9217785e-564b-4738-a437-cd152953fb9d"
+if true; then                                                           # upgrade: 2.3.0 # requires ___srV>=2.9.12, lognotice, logwarning, echo_red MODIFIED: VERSION -> __VERSION__
+check_ip_with_ping() #(host)
+{
+    local __fn='check_ip_with_ping'; _chkargs ${__fn} 1 "$@"
+
+    local host=
+    host="${1}"
+
+    if [ "${__is_win__}" = "1" ] ; then
+        logdebug "(run): ping -w 1 -n 1 ${host}"
+        if ping -w 1 -n 1 ${host}; then
+            return 0
+        fi
+    else
+        logdebug "(run): ping -W 1 -c 1 ${host}  >/dev/null 2>&1"
+        if ping -W 1 -c 1 ${host}  >/dev/null 2>&1 ; then
+            return 0
+        fi
+    fi
+
+    return 1
+}
+download_file_with_wget() #(src_url, dst_file)
+{
+    local __fn="download_file_with_wget"; _chkargs "${__fn}" 2 "$@"
+
+    local src_url=; src_url="${1}";
+    local dst_file=; dst_file="${2}";
+
+    # don't consider 1000 possible wget settings, just get it
+    cmd="wget '${src_url}' -O - > '${dst_file}'"
+    run "${cmd}"
+    return $?
+}
+run_upgrade() #(name_info, upgrade_links, check_token, version_regex, target_path, target_file)
+{
+    local __fn="run_upgrade"; _chkargs "${__fn}" 6 "$@"
+
+    local name_info=; name_info="${1}";
+    local upgrade_links=; upgrade_links="${2}";
+    local check_token=; check_token="${3}";
+    local version_regex=; version_regex="${4}";
+    local target_path=; target_path="${5}";
+    local target_file=; target_file="${6}";
+
+    local ret=
+    local cmd=
+    local err_msg=
+    err_msg="upgrade failed
+
+Try following:
+
+* check upgrade link(s): ${upgrade_links}
+* specify alternative link(s) using env var: UPGRADE_LATEST_RELEASE_LINKS
+* check write access to: ${target_path}
+* if you see wget error: The certificate of 'xxx' is not trusted, you can
+  (re-)run with --verbose flag, copy/paste real wget command, then run it
+  manually using --no-check-certificate flag.
+"
+
+    lognotice "run upgrade for ${name_info} ..."
+
+    local target_tmp_file=
+    target_tmp_file="${target_path}/${target_file}._upgrade.tmp"
+    # try all available links until one of them works
+    local one_upgrade_link=
+    local remote_host=
+    local download_ok=0
+    local ping_ok=0
+    __cIFS "${__fn}" "${__newline}"
+    for one_upgrade_link in ${upgrade_links}; do
+        if ___sw "${one_upgrade_link}" "#"; then
+            continue
+        fi
+        # https://stackoverflow.com/questions/2497215/how-to-extract-domain-name-from-url
+        remote_host=$(echo "${one_upgrade_link}" | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/')
+        lognotice "check update url: ${one_upgrade_link} (host: ${remote_host})"
+
+        # on "newer" distros, ping requires sudo by default, try to work around
+        check_ip_with_ping "${remote_host}"
+        ping_ok=$?
+        if [ "${ping_ok}" != "0" ] ; then
+            logwarning "update url: ${one_upgrade_link} (host: ${remote_host}) seems not be accessible (ping failed)"
+            logwarning "I'll try to proceed anyway"
+        fi
+        lognotice "download data to: ${target_tmp_file}"
+
+        download_file_with_wget "${one_upgrade_link}" "${target_tmp_file}"
+        download_ok=$?
+        if [ "${download_ok}" != "0" ] ; then
+            # broken multiline colored on stderr on windows
+            >&2 echo_red "  [error]: download failed"
+            continue
+        else
+            download_ok=1
+            break
+        fi
+    done
+    __rIFS "${__fn}"
+
+    if [ "${download_ok}" != "1" ] ; then
+         >&2 echo_red "  [error]: ${err_msg}"
+        exit 1
+    fi
+
+    # now check unique token
+    lognotice "check contents ..."
+    local tok_ok=
+    tok_ok=$(cat "${target_tmp_file}" | grep "${check_token}")
+    if [ -z "${tok_ok}" ]; then
+        cmd="rm -f '${target_tmp_file}'"
+        run "${cmd}"
+        # broken multiline colored on stderr on windows
+        >&2 echo_red "  [error]: ${err_msg}"
+        exit 1
+    fi
+
+    # is valid
+    local new_version_str=
+    new_version_str=$(cat "${target_tmp_file}" | sed -nr "${version_regex}")
+
+    # check old vs new version
+    if [ $(___cvs $__VERSION__ $new_version_str ) = 1 ]; then
+        >&2 echo_red "  [error]: NEW version: $new_version_str < CURRENT version: $__VERSION__, skip upgrade"
+        cmd="rm -f '${target_tmp_file}'"
+        run "${cmd}"
+        exit 1
+    fi
+
+
+    lognotice "replace old version ..."
+    cmd="mv '${target_tmp_file}' '${target_path}/${target_file}'"
+    run "${cmd}"
+    ret=$?
+    if [ "${ret}" != "0" ]; then
+        # broken multiline colored on stderr on windows
+        >&2 echo_red "  [error]: ${err_msg}"
+        exit 1
+    fi
+
+    if [ "${__is_win__}" != "1" ] ; then
+        # chmod in linux only
+        cmd="chmod +x '${target_path}/${target_file}'"
+        run "${cmd}"
+    fi
+
+    lognotice "ALL GOOD. ${name_info} was upgraded: ${__VERSION__} -> ${new_version_str}"
+    exit 0
+}
+fi
+
+main()
+{
+    parse_all_options "$@"
+    shift $?
+
+    if [ "${CMD_LINE_OPT__UPGRADE}" = "1" ] ; then
+        CMD_LINE_OPT__DRY="0"
+        run_upgrade 'hdunpack' "${UPGRADE_LATEST_RELEASE_LINKS}" "${UPGRADE_UNIQUE_TOKEN}" 's!^__VERSION__="(.+)"$!\1!p' "${__path__}" "${__file__}"
+        exit $? # always exit after upgrade!
+    fi
+
+    if [ ! "$#" -gt 0 ]; then
+        echo "${SHORT_DESCRIPTION}"
+        logerror "you need to specify what to unpack (or see --help/-h)"
+        return 1
+    fi
+    if ! check_all_files_exist "$@" ; then
+        return 1
+    fi
+
+    while [ "$#" -gt 0 ] ; do
+        unpack "${1}" "${CMD_LINE_OPT__DIRECTORY}" "${CMD_LINE_OPT__UNPACK_VERBOSE}" "${CMD_LINE_OPT__PASSWORD}"
+        shift 1
+    done
+
+    return 0
+}
+if [ "${__name__}" = "__main__" ] ; then
+    main "$@"
+    exit $?
+fi
