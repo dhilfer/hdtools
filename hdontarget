@@ -24,7 +24,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.16"
+VERSION="1.6.17"
 SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -1543,12 +1543,12 @@ cp_and_run_ontarget() #(host, user, pass, src_path, !run_with_sudo=0, !dst_path=
         return 1
     fi
     # copy first
-    _lognotice 3 "[1/3] copy: '${src_path}', to: ${user}@${host}:${dst_path}"
+    lognotice "[1/3] copy: '${src_path}', to: ${user}@${host}:${dst_path}"
     if ! cp_to_target "${host}" "${user}" "${pass}" "${dst_path}" "${src_path}"; then
         logerror "${__fn}(): copy ${src_path} to ${user}@${host}:${dst_path} failed"
         return 1
     fi
-    _lognotice 3 "[2/3] run: ${user}@${host}:${dst_path} $@"
+    lognotice "[2/3] run: ${user}@${host}:${dst_path} $@"
 
     local remote_interpreter=
 
@@ -1585,9 +1585,9 @@ EOF
     local done_t=
     done_t="[3/3] ${user}@${host}:${dst_path}: finished with exit code: ${ret}"
     if [ "${ret}" != "0" ] ; then
-        _logerror 3 "${done_t}"
+        lognotice "${done_t}"
     else
-        _lognotice 3 "${done_t}"
+        lognotice "${done_t}"
     fi
 
     return $?
@@ -2586,6 +2586,6 @@ main()
     return ${ret}
 }
 if [ "${__name__}" = "__main__" ] ; then
-    [ -n "${_ARGV}" ] && main "${_ARGV}" || main "$@"
+    main "$@"
     exit $?
 fi
