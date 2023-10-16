@@ -12,7 +12,7 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0;} # ___srD=1; # verbose: 1.1.11, dry implies verbose
 
 
-VERSION="2.0.4"
+VERSION="2.0.6"
 SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
 
 # this is hdunpack: unpack stuff quickly
@@ -33,8 +33,10 @@ following compressions can additionally be part of a .tar archive
   .xz   :   xz, pixz(multicore)
   .bz2  :   bzip2
   .zst  :   zstd
-  .lzop :   lzop
   .lz4  :   lz4
+  .lzma :   lzma
+  .lzo  :   lzop
+  .lz   :   lzip
 '
 if true; then                                                           # base: 4.2.0
 if true; then                                                           # base:colors: 1.2.3
@@ -178,13 +180,13 @@ CMD_LINE_OPT__UPGRADE=0  # -
 print_usage()
 {
     echo "${SHORT_DESCRIPTION}
-Usage: hdunpack [OPTIONS] -- unpack_this [unpack_this ...]
+Usage: hdunpack [OPTIONS] [--] unpack_this [unpack_this ...]
 ${CURRENT_SUPPORTED_FORMATS_TOOLS}
 
 [OPTIONS]:
   -h  --help                this help
 
------------- UNPACK RELATED OPTIONS --------------------------------------
+------------ UNPACK RELATED OPTIONS ------------------------------------
 
   -C  --directory DIR_PATH  change(/unpack) to directory
 
@@ -194,7 +196,7 @@ ${CURRENT_SUPPORTED_FORMATS_TOOLS}
                             zip, 7z, rar
 
 
------------- OTHER OPTIONS -----------------------------------------------
+------------ OTHER OPTIONS ---------------------------------------------
 
   -V  --version             show version and exit
 
@@ -208,6 +210,11 @@ ${CURRENT_SUPPORTED_FORMATS_TOOLS}
                             Current setup:
 ${UPGRADE_LATEST_RELEASE_LINKS}
 ---
+"
+
+## arguments info
+    echo "[ARGUMENTS]:
+  List of files to unpack
 "
 }
 parse_all_options()
@@ -257,6 +264,9 @@ parse_all_options()
               break ;;
       esac
     done
+
+    [ "${broken_opts}" = "1" ] && { echo "run with --help/-h to see available options" >&2; exit 1; };
+
     return ${shifted}
 }
 fi
@@ -374,7 +384,7 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
         packed_archive_type="xz"
         logdebug "try: ${packed_archive_type}"
         if command -v pixz >/dev/null; then
-            cmd="pixz -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+            cmd="pixz -d -i '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
         else
             cmd="xz -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
         fi
@@ -388,25 +398,39 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
         run "${cmd}"
         ret=$?
     fi
-    if [ "${ret}" != "0" ]; then                                        # try .zst
-        # zstd tool can unpack .gz too! be aware
-        packed_archive_type="zst"
+    if [ "${ret}" != "0" ]; then                                        # try .lz4
+        packed_archive_type="lz4"
         logdebug "try: ${packed_archive_type}"
-        cmd="zstd -q -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        cmd="lz4 -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
         run "${cmd}"
         ret=$?
     fi
-    if [ "${ret}" != "0" ]; then                                        # try .lzop
-        packed_archive_type="lzop"
+    if [ "${ret}" != "0" ]; then                                        # try .lzma
+        packed_archive_type="lzma"
+        logdebug "try: ${packed_archive_type}"
+        cmd="lzma -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .lzo
+        packed_archive_type="lzo"
         logdebug "try: ${packed_archive_type}"
         cmd="lzop -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
         run "${cmd}"
         ret=$?
     fi
-    if [ "${ret}" != "0" ]; then                                        # try .lz4
-        packed_archive_type="lz4"
+    if [ "${ret}" != "0" ]; then                                        # try .lz
+        packed_archive_type="lz"
         logdebug "try: ${packed_archive_type}"
-        cmd="lz4 -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        cmd="lzip -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
+        run "${cmd}"
+        ret=$?
+    fi
+    if [ "${ret}" != "0" ]; then                                        # try .zst
+        # zstd tool can unpack .gz, .lz4, .lzma too! be aware
+        packed_archive_type="zst"
+        logdebug "try: ${packed_archive_type}"
+        cmd="zstd -q -c -d '${archive}' > ${intermediate_file} ${stderr_to_dev_null}"
         run "${cmd}"
         ret=$?
     fi
@@ -505,7 +529,7 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
         # try tar
         # https://unix.stackexchange.com/questions/129599/test-tar-file-integrity-in-bash
         # pick unexpensive: '-t' variant for a while
-        cmd="tar -t -f '${tar_on_this}' >/dev/null 2>&1" # tar integrity (100ms on 1.6GB rootfs tar on corei7: fast enough)
+        cmd="tar -t -f '${tar_on_this}' ${stderr_stdout_to_dev_null}" # tar integrity (100ms on 1.6GB rootfs tar on corei7: fast enough)
         run "${cmd}"
         ret=$?
         if [ "${ret}" != "0" ]; then
