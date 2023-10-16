@@ -13,8 +13,8 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0;} # ___srD=1; # verbose: 1.1.11, dry implies verbose
 
 
-VERSION="2.0.1"
-SHORT_DESCRIPTION="(${VERSION})hdpack: pack quickly a .tar.gz(.xz)"
+VERSION="2.0.2"
+SHORT_DESCRIPTION="(${VERSION})hdpack: pack quickly a .tar.gz(.xz) archive"
 
 # this is hdpack: pack stuff quickly
 # (c) 2014-present: Dieter Hilfer
@@ -153,8 +153,9 @@ https://raw.githubusercontent.com/dhilfer/hdtools/main/hdpack
 "
 if true; then                                                           # options
 # options
-CMD_LINE_OPT__DIRECTORY="_none_"  # change to directory
-CMD_LINE_OPT__BIG_ONE=0  # make ONE archive, instead of separate ones
+CMD_LINE_OPT__DIRECTORY="."  # change to directory
+CMD_LINE_OPT__SEPARATE=0  #
+CMD_LINE_OPT__XZ=0
 CMD_LINE_OPT__VERSION=0
 CMD_LINE_OPT__VERBOSE=0
 CMD_LINE_OPT__UPGRADE=0  # -
@@ -162,20 +163,25 @@ print_usage()
 {
     # options
     echo "${SHORT_DESCRIPTION}
-Usage: hdpack  [OPTIONS] pack_this [pack_this ...]
+Usage: hdpack  [OPTIONS] [--] pack_this [pack_this ...]
+
+hdpack will pack a .tar.gz by default. This shall be suitable for all
+common use cases. You can create a .tar.xz by choosing option: --xz/-x.
 
 [OPTIONS]:
   -h  --help                this help
 
------------- PACK RELATED OPTIONS ----------------------------------------
+------------ PACK RELATED OPTIONS --------------------------------------
 
   -C  --directory DIR_PATH  change to directory before pack
 
-  -B  --big-one             make ONE archive, instead of separate ones
+  -S  --separate            make separate archives, instead of pack
+                            everything into big one
 
   -x  --xz                  pack a .tar.xz instead of .tar.gz
 
------------- OTHER OPTIONS -----------------------------------------------
+
+------------ OTHER OPTIONS ---------------------------------------------
 
   -V  --version             show version and exit
 
@@ -212,9 +218,14 @@ parse_all_options()
             --directory|-C)
                 CMD_LINE_OPT__DIRECTORY="${2}"
                 shift 2 ; shifted=$((shifted+2)) ;;
+
             # make ONE archive, instead of separate ones
-            --big-one|-B)
-                CMD_LINE_OPT__BIG_ONE="1"
+            --separate|-S)
+                CMD_LINE_OPT__SEPARATE=1
+                shift 1 ; shifted=$((shifted+1));;
+
+            --xz|-x)
+                CMD_LINE_OPT__XZ=1
                 shift 1 ; shifted=$((shifted+1));;
 
             --version|-V)
@@ -250,16 +261,15 @@ if ! which "${TAR_TOOL}" >/dev/null; then
     die "${TAR_TOOL}: seems not to be installed"
 fi
 
-GZIP_TOOL=gzip
-if ! which "${GZIP_TOOL}" >/dev/null; then
-    die "${GZIP_TOOL}: seems not to be installed"
-fi
-
+GZIP_TOOL=$(which gzip) # shall be at least available
 PIGZ_TOOL=$(which pigz) # optional
-TAR_SUPPORTS_COMPRESS_TOOLS=$(${TAR_TOOL} --help | grep -- --use-compress-program)
-[ -z "${TAR_SUPPORTS_COMPRESS_TOOLS}" ] && logwarning "${TAR_TOOL} does not support: --use-compress-program option"
-[ -z "${PIGZ_TOOL}" ] && logwarning "pigz is not installed. To pack using more than one core, run: sudo apt install pigz, or so"
+XZ_TOOL=$(which xz) # optional
+PIXZ_TOOL=$(which pixz) # optional
+
+[ -z "${PIGZ_TOOL}" ] && logwarning "pigz is not installed. To pack gz using more than one core, run: sudo apt install pigz, or so"
 [ -n "${PIGZ_TOOL}" ] && GZIP_TOOL=${PIGZ_TOOL}
+[ -z "${PIXZ_TOOL}" ] && logwarning "pixz is not installed. To pack xz using more than one core, run: sudo apt install pixz, or so"
+[ -n "${PIXZ_TOOL}" ] && XZ_TOOL=${PIXZ_TOOL}
 
 PV_TOOL=$(which pv) # optional
 
@@ -275,7 +285,12 @@ escape_paths() #(*esc_p, ...)
     shift 1
 
     while [ $# -gt 0 ] ; do
-        ret_esc_p="${ret_esc_p} \"$1\""
+        # cheap
+        if ___sw "${1}" "*"  || ___ew "${1}" "*"; then
+            ret_esc_p="${ret_esc_p} $1"
+        else
+            ret_esc_p="${ret_esc_p} \"$1\""
+        fi
         shift 1
     done
 
@@ -285,14 +300,16 @@ escape_paths() #(*esc_p, ...)
     eval "export ${export_var_esc_p}='${ret_esc_p}'"
     return 0
 }
-pack_ONE_tar() #(result_file_path, ch_dir, ...)
+pack_ONE_tar() #(result_file_path, ch_dir, do_xz, ...)
 {
-    local __fn="pack_ONE_tar"; _chkargsm "${__fn}" 3 "$@"
+    local __fn="pack_ONE_tar"; _chkargsm "${__fn}" 4 "$@"
 
     local result_file_path=; result_file_path="${1}";
     local ch_dir=; ch_dir="${2}";
+    local do_xz=; do_xz="${3}";
 
-    shift 2
+    shift 3
+
     if [ ! $# -gt 0 ]; then
         logerror "you need to specify what to pack"
         return 1
@@ -300,63 +317,80 @@ pack_ONE_tar() #(result_file_path, ch_dir, ...)
 
     local cmd=
     local tar_cd=
-    if [ "${ch_dir}" != "_none_" ] ; then
+    if [ "${ch_dir}" != "." ] ; then
         if [ ! -d "${ch_dir}" ] ; then
             logerror "'${ch_dir}': is not a dir"
             return 1
         fi
-        tar_cd="-C '${ch_dir}'"
+        tar_cd="cd '${ch_dir}' &&"
     fi
 
-    local pack_info=
     local size_to_pack=
     local size_to_pack_human=
 
     escape_paths ALL_PATHS "$@"
-    cmd="du -sbc ${ALL_PATHS} | grep total | cut -d 't' -f 1 | xargs echo" #
+    cmd="${tar_cd} du -sbc ${ALL_PATHS} | grep total | cut -d 't' -f 1 | xargs echo" #
     size_to_pack=$(run "${cmd}")
     size_to_pack_human=$((size_to_pack/1000)) # kB
     size_to_pack_human=$((size_to_pack_human/1024)) # MiB
 
+    local pack_tool=
+
+    if [ "${do_xz}" = "1" ]; then
+        pack_tool=${XZ_TOOL}
+        [ -z "${pack_tool}" ] && die "neither: 'xz' nor 'pixz' is available on your PATH, I cannot do 'xz' packing :("
+    else
+        pack_tool=${GZIP_TOOL}
+        [ -z "${pack_tool}" ] && die "neither: 'gzip' nor 'pigz' is available on your PATH, I cannot do 'gz' packing :("
+    fi
+
     # build tar cmd (may using this wisdom)
     # https://gist.github.com/Kautenja/af670104f13c94f92b69ce054ee96b42
     if [ -n "${PV_TOOL}" ]; then
-        cmd="${TAR_TOOL} ${tar_cd} -cf - ${ALL_PATHS} | pv -tebap -s ${size_to_pack} | ${GZIP_TOOL} > ${result_file_path}"
+        cmd="${tar_cd} ${TAR_TOOL} -cf - ${ALL_PATHS} | pv -tebap -s ${size_to_pack} | ${pack_tool} > ${result_file_path}"
     else
-        cmd="${TAR_TOOL} ${tar_cd} -cf - ${ALL_PATHS} | ${GZIP_TOOL} > ${result_file_path}"
+        cmd="${tar_cd} ${TAR_TOOL} -cf - ${ALL_PATHS} | ${pack_tool} > ${result_file_path}"
     fi
 
-    if [ -n "${PIGZ_TOOL}" ] ; then
-        pack_info=" (multicore)"
-    else
-        pack_info=" (single core)"
-    fi
     local _mto=
     if [ $# -gt 1 ]; then
-        _mto=" +$(($#-1)) more file(s)"
+        _mto=" +$(($#-1)) more"
     fi
-    lognotice "pack${pack_info} ${size_to_pack_human} [MiB]: '${1}'${_mto} to '${result_file_path}'"
+    if [ "${size_to_pack_human}" = "0" ]; then
+        size_to_pack_human="<1"
+    fi
+    lognotice "pack ${size_to_pack_human} [MiB]: '${1}'${_mto} to '${result_file_path}'"
     run "${cmd}"
     return $?
 }
 
-guess_result_path() #(*guessed_path, from_name, target_dir, !level=0)
+guess_result_path() #(*guessed_path, from_name, target_dir, do_xz, !level=0)
 {
-    local __fn="guess_result_path"; _chkargsm "${__fn}" 3 "$@"
+    local __fn="guess_result_path"; _chkargsm "${__fn}" 4 "$@"
 
     local export_var_guessed_path=; export_var_guessed_path="${1}";
     eval "export ${export_var_guessed_path}=";
     local from_name=; from_name="${2}";
     local target_dir=; target_dir="${3}";
-    local level=; level="${4}";
+    local do_xz=; do_xz="${4}";
+    local level=; level="${5}";
     [ -z "${level}" ] && level=0;
     local ret_guessed_path=
 
     # ---
 
+    # cheap for a moment
+    if ___sw "${from_name}" "*"  || ___ew "${from_name}" "*"; then
+        from_name="archive"
+    fi
+
     local result_path=
     local result_name=
     local orig_dir=0
+
+    local ext="gz"
+    [ "${do_xz}" = "1" ] && ext="xz"
+
     result_name=$(readlink -m "${from_name}")
     if [ -d "${result_name}" ]; then
         orig_dir=1
@@ -370,9 +404,9 @@ guess_result_path() #(*guessed_path, from_name, target_dir, !level=0)
 
     # now we have possible result name, check whether existing, otherwise guess more
     if [ ${level} -eq 0 ]; then
-        result_path="${target_dir}/${result_name}.tar.gz"
+        result_path="${target_dir}/${result_name}.tar.${ext}"
     else
-        result_path="${target_dir}/${result_name}_${level}.tar.gz"
+        result_path="${target_dir}/${result_name}_${level}.tar.${ext}"
     fi
 
     if [ ! -e "${result_path}" ]; then
@@ -386,7 +420,7 @@ guess_result_path() #(*guessed_path, from_name, target_dir, !level=0)
 
     # go recursive
     logdebug "${__fn}: go recursive: $((level+1))"
-    guess_result_path "${export_var_guessed_path}" "${from_name}" "${target_dir}" $((level+1))
+    guess_result_path "${export_var_guessed_path}" "${from_name}" "${target_dir}" "${do_xz}" $((level+1))
 
     # ---
 
@@ -399,6 +433,12 @@ check_all_files_exist() #(...)
 {
     local __fn='check_all_files_exist'; _chkargsm ${__fn} 1 "$@"
     while [ $# -gt 0 ] ; do
+        # cheap for a moment
+        if ___sw "${1}" "*"  || ___ew "${1}" "*"; then
+            # is ok
+            shift 1
+            continue
+        fi
         if ! readlink -e "${1}" >/dev/null; then
             logerror "'${1}': does not exists"
             return 1
@@ -575,7 +615,6 @@ main()
         exit $? # always exit after upgrade!
     fi
 
-
     if [ ! "$#" -gt 0 ]; then
         echo "${SHORT_DESCRIPTION}"
         logerror "you need to specify what to pack (or see --help/-h)"
@@ -587,16 +626,17 @@ main()
         return 1
     fi
 
-    if [ "${CMD_LINE_OPT__BIG_ONE}" = "1" ] ; then
+    if [ "${CMD_LINE_OPT__SEPARATE}" != "1" ] ; then
         # we pack ONLY ONE archive
-        guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" # take first given name
-        pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "$@"
+        guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" "${CMD_LINE_OPT__XZ}" # take first given name
+        pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${CMD_LINE_OPT__XZ}" "$@"
         return $?
     fi
+
     # otherwise we pack more than one archive
     while [ "$#" -gt 0 ] ; do
-        guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" # take own name
-        pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${1}"
+        guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" "${CMD_LINE_OPT__XZ}" # take own name
+        pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${CMD_LINE_OPT__XZ}" "${1}"
         shift 1
     done
 
