@@ -12,10 +12,10 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0;} # ___srD=1; # verbose: 1.1.11, dry implies verbose
 
 
-VERSION="2.0.6"
+VERSION="2.0.7"
 SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
 
-# this is hdunpack: unpack stuff quickly
+# this is hdunpack: (try to) unpack stuff
 # (c) 2014-present: Dieter Hilfer
 
 CURRENT_SUPPORTED_FORMATS_TOOLS='
@@ -174,6 +174,7 @@ if true; then                                                           # option
 CMD_LINE_OPT__DIRECTORY="."  # change to directory
 CMD_LINE_OPT__UNPACK_VERBOSE=0
 CMD_LINE_OPT__PASSWORD=
+CMD_LINE_OPT__TAR_OPTIONS=""
 CMD_LINE_OPT__VERSION=0
 CMD_LINE_OPT__VERBOSE=0
 CMD_LINE_OPT__UPGRADE=0  # -
@@ -195,6 +196,9 @@ ${CURRENT_SUPPORTED_FORMATS_TOOLS}
   -p  --password PASS       specify evt. password for supported formats:
                             zip, 7z, rar
 
+  -O  --tar-options OPTS    in case you're unpacking a tar archive,
+                            additional options to pass to tar
+                            Example: --tar-options \"--same-owner --numeric-owner\"
 
 ------------ OTHER OPTIONS ---------------------------------------------
 
@@ -241,6 +245,10 @@ parse_all_options()
             --password|-p)
                 CMD_LINE_OPT__PASSWORD="1"
                 CMD_LINE_OPT__PASSWORD="${2}"
+                shift 2 ; shifted=$((shifted+2)) ;;
+
+            --tar-options|-O)
+                CMD_LINE_OPT__TAR_OPTIONS="${2}"
                 shift 2 ; shifted=$((shifted+2)) ;;
 
             --version|-V)
@@ -318,7 +326,7 @@ rar
 ar
 cpio
 '
-unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
+unpack() #(archive, target_dir, !unpack_verbose=0, !password=, !add_tar_options=)
 {
     local __fn="unpack"; _chkargsm "${__fn}" 2 "$@"
 
@@ -327,6 +335,7 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
     local unpack_verbose=; unpack_verbose="${3}";
     [ -z "${unpack_verbose}" ] && unpack_verbose=0;
     local password=; password="${4}";
+    local add_tar_options=; add_tar_options="${5}";
 
     local cmd=
     local ret=
@@ -566,7 +575,7 @@ unpack() #(archive, target_dir, !unpack_verbose=0, !password=)
             # this is a tar
             [ "${unpack_verbose}" = "1" ] && verbose_opt="-v"
 
-            cmd="tar -C '${target_dir}' ${verbose_opt} -x -f '${tar_on_this}'"
+            cmd="tar ${add_tar_options} -C '${target_dir}' ${verbose_opt} -x -f '${tar_on_this}'"
             run "${cmd}" # this shall not fail
 
             # don't tell on success
