@@ -13,12 +13,12 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] && { export DRY_RUN=1;__sr_dry_opt="--dry";} # use 'NO_DRY=1 run(_x) ...', to disable dry runs for certain cases. Later use: '<some-tool> --dry 2>&1 | grep "(dry)run: ", to pickup real wisdom
 [ -z "${TERM}" ] && __sr_DISABLE_COLOR=1
 
-VERSION="2.1.0"
+VERSION="2.1.1"
 SHORT_DESCRIPTION="(${VERSION})hdpack: pack quickly a .tar.gz(.xz) or .zip archive"
 
 # this is hdpack: pack stuff quickly
 # (c) 2014-present: Dieter Hilfer
-
+__log_no_notice_facility__=1
 if true; then                                                           # base: 4.3.0
 if true; then                                                           # base:colors: 1.2.3
 # __sr_DISABLE_COLOR: 0
@@ -491,7 +491,14 @@ guess_result_path() #(*guessed_path, from_name, target_dir, !do_ext="tar.gz", !l
     local result_name=
     local orig_dir=0
 
-    result_name=$(readlink -m "${from_name}")
+    # busybox readlink does not support -m :/
+    if [ "${from_name}" != "archive" ]; then
+        cmd="readlink -f '${from_name}'"
+        result_name=$(run_d "${cmd}")
+    else
+        result_name="${from_name}"
+    fi
+
     if [ -d "${result_name}" ]; then
         orig_dir=1
     fi
@@ -539,7 +546,7 @@ check_all_files_exist() #(...)
             shift 1
             continue
         fi
-        if ! readlink -e "${1}" >/dev/null; then
+        if ! readlink -f "${1}" >/dev/null; then
             logerror "'${1}': does not exists"
             return 1
         fi
