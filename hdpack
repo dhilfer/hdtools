@@ -16,7 +16,7 @@ ___cvs(){ [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};loca
 VERSION="2.1.1"
 SHORT_DESCRIPTION="(${VERSION})hdpack: pack quickly a .tar.gz(.xz) or .zip archive"
 
-# this is hdpack: pack stuff quickly
+# this  is hdpack: pack stuff quickly
 # (c) 2014-present: Dieter Hilfer
 __log_no_notice_facility__=1
 if true; then                                                           # base: 4.3.0
