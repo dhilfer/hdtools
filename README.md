@@ -268,4 +268,6 @@ following compressions can additionally be part of a .tar archive
   .lzma :   lzma
   .lzo  :   lzop
   .lz   :   lzip
+
+... MORE OPTIONS BELOW ...
 ```
