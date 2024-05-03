@@ -5,29 +5,45 @@
     - [hdgrep](#hdgrep)
     - [hdfind](#hdfind)
     - [hdontarget](#hdontarget)
+    - [hdpack](#hdpack)
+    - [hdunpack](#hdunpack)
 
 
 # INSTALLATION
 
-hdtools are pure sh-scripts (bash is not required), so they shall
-run on any \*nix like target around.
+hdtools are pure standalone sh-scripts (bash is not required), so they
+shall run on any \*nix like target around.
 
-For example to install hdgrep type:
+Basically copy desired tool somewhere on your target and start to use
+it.
+
+You can do a simple install for \<tool> (e.g.: hdgrep) like this:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep
-sudo chmod a+rx /usr/local/bin/hdgrep
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdgrep; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
 ```
 
 Due to github's URL policy you'll need a tool which is able to handle
 *https://* URL's. This is may not available on some of your tiniest
-initramfs-busybox. Beware of this constraint, or just get the tools
+initramfs-busybox. Beware of this constraint, or just put the tools
 somewhere on your local network and host by yourself (ajust
-**UPGRADE_LATEST_RELEASE_LINKS** within the code, or control it trough
-ENV var).
+**UPGRADE_LATEST_RELEASE_LINKS** var within the code, or control it
+trough ENV).
 
-Try to replace *'wget \<url> -O \<target>'* with *'curl -L \<url> -o \<target>'*
-if wget does not support https:// on your system.
+I wget does not support https:// on your system, try to replace:
+```sh
+wget <url> -O <target>
+```
+with
+```sh
+curl -L <url> -o <target>
+```
+
+If wget/curl struggle with github's https:// certifikate (e.g. due
+time/date etc. on your embedded sys) you can use
+(wget)--no-check-certificate or (curl)--insecure flag.
 
 
 # DESCRIPTION
@@ -50,29 +66,35 @@ daily business.
 ## Dependencies and Requirements
 
 Since all tools are written in shell you don't really need anything
-special to get them running. You'll mostly need the: *coreutils*, *sed*,
-*grep*, *xargs* and *find*. This shall be available on any \*nix
-platform, as well as on Cygwin/git-like environments on Windows.
+special to get them running. You'll mostly need the: *coreutils* and
+*sed*. For hdgrep/hdfind you'll additionally need *grep*, *find* and
+*xargs*. For hdontarget *openssh* or *dropbear*. For hdpack/hdunpack
+*tar*, *gzip*, *xz*, etc.
+
+This shall be available on any \*nix platform, as well as on
+Cygwin/git-like environments on Windows.
 
 Please read the related **--help/-h** of particular tool to learn more
 about its special dependencies and needs.
 
-Use the **--verbose** option to show the real executed commands and related 
-annotations.
+Use the **--verbose** option to show the real executed commands and
+related annotations.
 
-Use **--dry** option, which will just show the real commands without 
-execution. This one is useful to add some more ~~unsupported~~ user-specific 
-options or just to copy-/paste commands to another machine, or custom scripts.
+Use **--dry** option, which will just show the real commands without
+execution. This one is useful to add some more ~~unsupported~~
+user-specific options or just to copy-/paste commands to another
+machine, or custom scripts.
 
 
 ## Short overview for available tools and features
 
-Basic motivation for **hdgrep** and **hdfind** can be understand here at [XKCD](https://xkcd.com/1168/)
+Basic motivation for **hdgrep** and **hdfind** can be understand
+here at [XKCD](https://xkcd.com/1168/)
 
 Both tools will store last search results in a file, named
-**hdgrep.$(whoami).last_result**. By default either in '*/tmp/*' or (on X11 env)
-'*/run/user/<user_id>/*'. This can be used to quick sync your search
-results with your favourite editor.
+**hdgrep.$(whoami).last_result**. By default either in '*/tmp/*' or
+(on X11 env)'*/run/user/<user_id>/*'. This can be used to quick sync
+your search results with your favourite editor.
 
 
 ### hdgrep
@@ -82,8 +104,9 @@ uses **grep** and **find**.
 Type to install:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdgrep -O /usr/local/bin/hdgrep
-sudo chmod a+rx /usr/local/bin/hdgrep
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdgrep; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
 ```
 
 Type to update:
@@ -101,7 +124,7 @@ Since ripgrep is shipped with all major distros all you'll need to do is
 something like:
 
 ```sh
-sudo apt-get install ripgrep
+sudo apt install ripgrep
 ```
 
 ![hdgrep_example](https://github.com/dhilfer/hdtools/blob/main/doc_assets/hdgrep_example.gif?raw=true)
@@ -128,8 +151,9 @@ This is basically a wrapper to **find** command, increasing its usability.
 Type to install:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdfind -O /usr/local/bin/hdfind;
-sudo chmod a+rx /usr/local/bin/hdfind;
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdfind; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
 ```
 
 Type to update:
@@ -151,8 +175,9 @@ automate scripts (and workflows) if working with remote network targets.
 Type to install:
 
 ```sh
-sudo wget https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget -O /usr/local/bin/hdontarget
-sudo chmod a+rx /usr/local/bin/hdontarget
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdontarget; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
 ```
 
 Read the detailed help to see, what hdontarget can do for you:
@@ -171,4 +196,76 @@ Look at available usage examples
 
 ```sh
 hdontarget --help-examples
+```
+
+### hdpack
+
+This tool is a wrapper for **tar -cf** providing possibility to quick
+pack stuff.
+
+By default hdpack will pack a ".tar.gz" file, which can be changed to
+".tar.xz" or ".zip".
+
+If packing a ".zip" an optional password can be specified.
+
+Type to install:
+
+```sh
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdpack; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
+```
+
+Type to update:
+
+```sh
+hdpack --upgrade
+```
+
+
+### hdunpack
+
+This tool is a wrapper for a bunch of other tools, such as **tar**,
+**ar**, **xz**, **bz2**, **unzip**, **7z**, etc. trying to quick
+un-pack given files.
+
+
+Type to install:
+
+```sh
+# may you'll need to be root, or just set P=${HOME}/bin or whatever
+
+export T=hdunpack; export P=/usr/local/bin; wget https://raw.githubusercontent.com/dhilfer/hdtools/main/${T} -O ${P}/${T}; chmod a+rx ${P}/${T}; unset T; unset P
+```
+
+Type to update:
+
+```sh
+hdunpack --upgrade
+```
+
+Run hdunpack with --help, to see currently supported formats:
+```sh
+hdunpack -h
+(2.1.1)hdunpack: (try to) unpack stuff
+Usage: hdunpack [OPTIONS] [--] unpack_this [unpack_this ...]
+
+hdunpack currently supports following compressions(file formats),
+respectively related tools
+  .tar  :   tar (without compression)
+  .7z   :   7zip
+  .zip  :   unzip
+  .rar  :   unrar
+  .ar   :   ar
+  .cpio :   cpio
+
+following compressions can additionally be part of a .tar archive
+  .gz   :   gzip, pigz(multicore)
+  .xz   :   xz, pixz(multicore)
+  .bz2  :   bzip2
+  .zst  :   zstd
+  .lz4  :   lz4
+  .lzma :   lzma
+  .lzo  :   lzop
+  .lz   :   lzip
 ```
