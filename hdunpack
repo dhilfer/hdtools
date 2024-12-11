@@ -16,7 +16,7 @@ if true; then # ___srV="2.13.0"
 # this is hdunpack: (try to) unpack stuff
 # (c) 2014-present: Dieter Hilfer
 
-VERSION="2.2.2"
+VERSION="2.2.3"
 SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
 
 CURRENT_SUPPORTED_FORMATS_TOOLS='
@@ -214,14 +214,6 @@ _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdunpack
 "
 if true; then                                                           # options
-CMD_LINE_OPT__DIRECTORY="."  # change to directory
-CMD_LINE_OPT__DONT_CREATE_EXTRA_DIR=0
-CMD_LINE_OPT__UNPACK_VERBOSE=0
-CMD_LINE_OPT__PASSWORD=
-CMD_LINE_OPT__TAR_OPTIONS=""
-CMD_LINE_OPT__VERSION=0
-CMD_LINE_OPT__VERBOSE=0
-CMD_LINE_OPT__UPGRADE=0  # -
 print_usage()
 {
     echo "${SHORT_DESCRIPTION}
@@ -277,6 +269,16 @@ ${UPGRADE_LATEST_RELEASE_LINKS}
   List of files to unpack
 "
 }
+
+
+CMD_LINE_OPT__DIRECTORY="."  # change to directory
+CMD_LINE_OPT__DONT_CREATE_EXTRA_DIR=0
+CMD_LINE_OPT__UNPACK_VERBOSE=0
+CMD_LINE_OPT__PASSWORD=
+CMD_LINE_OPT__TAR_OPTIONS=""
+CMD_LINE_OPT__VERSION=0
+CMD_LINE_OPT__VERBOSE=0
+CMD_LINE_OPT__UPGRADE=0  # -
 parse_all_options()
 {
     local shifted=0
@@ -537,7 +539,7 @@ unpack() #(archive, target_dir, !dont_create_extra_dir=0, !unpack_verbose=0, !pa
         run "${cmd}"
         ret=$?
     fi
-    if [ "${ret}" != "0" ]; then                                        # try .zip (no tar after)
+    if [ "${ret}" != "0" ] && [ "${__is_win__}" != "1" ]; then          # try .zip (no tar after), unzip just doesn't work on windows+sh :(
         # if zip works -> no tar afterwards!
         packed_archive_type="zip"
         logdebug "try: ${packed_archive_type}"
@@ -552,7 +554,6 @@ unpack() #(archive, target_dir, !dont_create_extra_dir=0, !unpack_verbose=0, !pa
         [ "${unpack_verbose}" = "1" ] && verbose_opt=
         reloc_hlp=${stderr_stdout_to_dev_null}
         [ "${unpack_verbose}" = "1" ] && reloc_hlp=${stderr_to_dev_null}
-
         cmd="unzip ${pass_opt} -d '${target_dir}' -o ${verbose_opt} '${archive}' ${reloc_hlp}"
         run "${cmd}"
         ret=$?
@@ -620,7 +621,7 @@ unpack() #(archive, target_dir, !dont_create_extra_dir=0, !unpack_verbose=0, !pa
 
     if [ "${ret}" = "0" ] && IN "${packed_archive_type}" "${NO_TAR_IN_THIS}" "${__newline}"; then
         # that was a zip/rar/7z/ar/cpio ..., successfully unpacked
-        lognotice "'"$(get_real_os_path_unix "${archive}")"': was unpacked using: '${packed_archive_type}' format, to: '"$(get_real_os_path_unix "${target_dir}")"'"
+        lognotice "'"$(get_real_os_path_unix "${archive}")"': was unpacked using: '${packed_archive_type}' tool/format, to: '"$(get_real_os_path_unix "${target_dir}")"'"
     else
         # try tar
         # https://unix.stackexchange.com/questions/129599/test-tar-file-integrity-in-bash
