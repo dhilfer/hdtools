@@ -5,9 +5,9 @@
 # THERE IS NO ANY WARRANTY AT ALL
 
 __sr_RUN_STRICT=1
-if true; then # ___srV="2.13.0"
-    ___sw() { case "$1" in "$2"*) return 0;;esac;return 1;};echo_stderr() { echo "$@" >&2; };___sw "$(echo -e t)" "-e" || { alias echo="echo -e";echo_stderr() { echo -e "$@" >&2; };};__is_dbg__=0;[ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__is_sourced__=0;if [ -n "$BASH_VERSION" ]; then (return 0 2>/dev/null) && __is_sourced__=1; else case ${0##*/} in sh | -sh | dash | -dash | ash | -ash) __is_sourced__=1 ;; esac fi;__is_required__=0;[ -n "$__sr_inc_rp" ] && { __is_sourced__=1; __is_required__=1; };if [ $__is_dbg__ = 0 ] && [ $__is_required__ = 0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_ALLOW_SOURCE" != "1" ];then echo_stderr "(sr): $BASH_SOURCE: this script is NOT allowed to be source(d) (allow it with: __sr_ALLOW_SOURCE=1): exit 1(5secs).";sleep 5;exit 1;fi;if [ $__is_required__=0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_main_sourced" = "1" ] && [ -z "$__sr_inc_rp" ]; then echo_stderr "(sr): this environment is soiled. This means __sr was sourced in this environment once. MAY YOU SHALL (RE-)SOURCE IN A NEW CLEAN ENV.";else ___cvs() { [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;local _6d=;for _e8 in 1 2 3 4 5; do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};_6d=$((_Uc - _mZ));[ $_6d -ne 0 ] && { [ $_6d -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.13.0 $___srV)" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp() { eval 'readlink -f "'$1'" 2>/dev/null'; };__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;___type() { [ -n "$2" ] && eval "export $2=";local _rR=;local _tj=;_tj=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ]; then _rR=$(which "${1}" 2>/dev/null);[ -z "${_rR}" ] && return 1;fi;if [ -z "${_rR}" ]; then case "$_tj" in *function*) _rR=function ;; *builtin*) _rR=builtin ;; *alias*) _rR=alias ;; *) _rR=$(command -v ${1} 2>/dev/null) ;;esac fi;[ -n "$2" ] && eval "export $2='$_rR'";return 0;};___ew() { case "$1" in *"$2") return 0 ;; esac;return 1;};__get_linenr() { local __sd=0;[ -n "$1" ] && __sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${__sd}']''}';};_chkargs() { local __fn=$1;local __nr=$2;shift 2;[ ! $# -eq $__nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs $__nr arg(s), $# given";exit 1;};};_chkargsm() { local __fn=$1;local __nr=$2;shift 2;[ ! $__nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs at least $__nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS() { IFS=$__DIFS;};__cIFS() { _chkargs '__cIFS' 2 "$@";local __oifs=;__oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS() { _chkargs '__rIFS' 1 "$@";local __oifs=;__oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN() { local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2; do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run() { [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};run_e() { echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};_sr_p_sep=":";[ $__is_win__ = 1 ] && _sr_p_sep=";";add_sr_PATH() { ! IN "$1" "${sr_PATH}" $_sr_p_sep && export sr_PATH="${1}${_sr_p_sep}${sr_PATH}"; };__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1;shopt -s expand_aliases;};[ "${__is_sourced__}" = "0" ] && [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@";exit $?;};___ew "$BASH" "bash" && { __is_bash__=1; };__pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ]; then _az=$__sr_inc_rp;unset __sr_inc_rp;else if [ -z "$__main__" ]; then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(eval 'readlink -f "${''BASH_SOURCE[0]''}"');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_;export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.sh*};[ "$__name__" != "__main__" ] && { __name__=$__ns__;__main__=$__main__;} || { __main__=$__file__;};[ "$__name__" = "__main__" ] && [ "$__is_sourced__" = "1" ] && export __sr_main_sourced=1;unset _az;[ -d "$__path__" ] && add_sr_PATH "$__path__";if [ "$(___cvs 2.13.0 $___srV)" = 1 ]; then __require() { [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip";return;};local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;local __ir=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;__ir=$__is_required__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;__is_required__=$__ir;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require() { local __pp=;local __rip=;if ! ___sw "$1" "/" && ! ___sw "$1" "./"; then __cIFS 'require' "$_sr_p_sep"; for __pp in $sr_PATH; do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}";break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh";break;};done;__rIFS 'require';[ -z "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: [ sr_PATH=$sr_PATH ]";[ "$3" = "1" ] && return 1;exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: (absolute path)";[ "$3" = "1" ] && return 1;exit 1;};fi;[ "$3" = "1" ] && return 0;__rip=$(___rp "${__rip}");__require "${__rip}" $2;__pp=;__rip=;return 0;};fi;if [ "$(___cvs 2.13.0 $___srV)" = 1 ]; then ___srV="2.13.0";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: $___srV"; else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: 2.13.0: current ___srV: $___srV env has higher/equal version than I have, skip redefine";fi;__tab='	';__newline='
-';fi;fi
+if true; then # ___srV="2.13.1"
+    ___sw() { case "$1" in "$2"*) return 0;;esac;return 1;};echo_stderr() { echo "$@" >&2; };___sw "$(echo -e t)" "-e" || { alias echo="echo -e";echo_stderr() { echo -e "$@" >&2; };};__is_dbg__=0;[ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__is_sourced__=0;if [ -n "$BASH_VERSION" ]; then (return 0 2>/dev/null) && __is_sourced__=1; else case ${0##*/} in sh | -sh | dash | -dash | ash | -ash) __is_sourced__=1 ;; esac fi;__is_required__=0;[ -n "$__sr_inc_rp" ] && { __is_sourced__=1; __is_required__=1; };if [ $__is_dbg__ = 0 ] && [ $__is_required__ = 0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_ALLOW_SOURCE" != "1" ];then echo_stderr "(sr): $BASH_SOURCE: this script is NOT allowed to be source(d) (allow it with: __sr_ALLOW_SOURCE=1): exit 1(5secs).";sleep 5;exit 1;fi;if [ $__is_required__=0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_main_sourced" = "1" ] && [ -z "$__sr_inc_rp" ]; then echo_stderr "(sr): this environment is soiled. This means __sr was sourced in this environment once. MAY YOU SHALL (RE-)SOURCE IN A NEW CLEAN ENV.";else ___cvs() { [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;local _6d=;for _e8 in 1 2 3 4 5; do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};_6d=$((_Uc - _mZ));[ $_6d -ne 0 ] && { [ $_6d -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp() { eval 'readlink -f "'$1'" 2>/dev/null'; };__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;___type() { [ -n "$2" ] && eval "export $2=";local _rR=;local _tj=;_tj=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ]; then _rR=$(which "${1}" 2>/dev/null);[ -z "${_rR}" ] && return 1;fi;if [ -z "${_rR}" ]; then case "$_tj" in *function*) _rR=function ;; *keyword*) _rR=builtin ;; *builtin*) _rR=builtin ;; *alias*) _rR=alias ;; *) _rR=$(command -v ${1} 2>/dev/null) ;;esac fi;[ -n "$2" ] && eval "export $2='$_rR'";return 0;};___ew() { case "$1" in *"$2") return 0 ;; esac;return 1;};__get_linenr() { local __sd=0;[ -n "$1" ] && __sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${__sd}']''}';};_chkargs() { local __fn=$1;local __nr=$2;shift 2;[ ! $# -eq $__nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs $__nr arg(s), $# given";exit 1;};};_chkargsm() { local __fn=$1;local __nr=$2;shift 2;[ ! $__nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs at least $__nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS() { IFS=$__DIFS;};__cIFS() { _chkargs '__cIFS' 2 "$@";local __oifs=;__oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS() { _chkargs '__rIFS' 1 "$@";local __oifs=;__oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN() { local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2; do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run() { [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};run_e() { echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};_sr_p_sep=":";[ $__is_win__ = 1 ] && _sr_p_sep=";";add_sr_PATH() { ! IN "$1" "${sr_PATH}" $_sr_p_sep && export sr_PATH="${1}${_sr_p_sep}${sr_PATH}"; };__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1;shopt -s expand_aliases;};[ "${__is_sourced__}" = "0" ] && [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@";exit $?;};___ew "$BASH" "bash" && { __is_bash__=1; };__pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ]; then _az=$__sr_inc_rp;unset __sr_inc_rp;else if [ -z "$__main__" ]; then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(eval 'readlink -f "${''BASH_SOURCE[0]''}"');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_;export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.sh*};[ "$__name__" != "__main__" ] && { __name__=$__ns__;__main__=$__main__;} || { __main__=$__file__;};[ "$__name__" = "__main__" ] && [ "$__is_sourced__" = "1" ] && export __sr_main_sourced=1;unset _az;[ -d "$__path__" ] && add_sr_PATH "$__path__";if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then __require() { [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip";return;};local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;local __ir=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;__ir=$__is_required__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;__is_required__=$__ir;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require() { local __pp=;local __rip=;if ! ___sw "$1" "/" && ! ___sw "$1" "./"; then __cIFS 'require' "$_sr_p_sep"; for __pp in $sr_PATH; do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}";break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh";break;};done;__rIFS 'require';[ -z "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: [ sr_PATH=$sr_PATH ]";[ "$3" = "1" ] && return 1;exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: (absolute path)";[ "$3" = "1" ] && return 1;exit 1;};fi;[ "$3" = "1" ] && return 0;__rip=$(___rp "${__rip}");__require "${__rip}" $2;__pp=;__rip=;return 0;};fi;if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then ___srV="2.13.1";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: $___srV"; else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: 2.13.1: current ___srV: $___srV env has higher/equal version than I have, skip redefine";fi;__tab='	';__newline='
+';fi;fi #'
 
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] || [ -n "$(echo "$@" | sed -nr 's!(--verbose)!\1!p')" ] && { export __log_trace__=1;export DBG_RUN=1;export TMP_DEBUG="true";export __sr_TMP_DEBUG=1;export __sr_RUN_DIE_TRACE=1;__sr_NO_RUN_DIE_TRACE=0; __sr_verbose_opt="--verbose";} # ___srD=1; # verbose: 1.1.12, dry implies verbose
 [ -n "$(echo "$@" | sed -nr 's!(--dry)!\1!p')" ] && { export DRY_RUN=1;__sr_dry_opt="--dry";} # use 'NO_DRY=1 run(_x) ...', to disable dry runs for certain cases. Later use: '<some-tool> --dry 2>&1 | grep "(dry)run: ", to pickup real wisdom
@@ -16,11 +16,11 @@ if true; then # ___srV="2.13.0"
 # this is hdpack: pack stuff quickly
 # (c) 2014-present: Dieter Hilfer
 
-VERSION="2.2.2"
+VERSION="2.3.0"
 SHORT_DESCRIPTION="(${VERSION})hdpack: pack quickly a .tar.gz(.xz) or .zip archive"
 
 __log_no_notice_facility__=1
-if true; then                                                           # base: 4.6.0 :
+if true; then                                                           # base: 4.6.0
 if true; then                                                           # base:colors: 1.2.3
 # __sr_DISABLE_COLOR: 0
 # 1st: parm may be:
@@ -189,21 +189,13 @@ alias get_real_os_path_unix=___rp
 fi
 fi
 
+check_path_is_absolute_win(){ case "$1" in [cCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZaAbB]:[/\\]*)return 0;;esac;return 1;}
+
 # upgrade links, use # for comments
 _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdpack
 "
 if true; then                                                           # options
-# options
-CMD_LINE_OPT__DIRECTORY="."  # change to directory
-CMD_LINE_OPT__SEPARATE=0  #
-CMD_LINE_OPT__GZ=0
-CMD_LINE_OPT__XZ=0
-CMD_LINE_OPT__ZIP=0
-CMD_LINE_OPT__PASSWORD=""
-CMD_LINE_OPT__VERSION=0
-CMD_LINE_OPT__VERBOSE=0
-CMD_LINE_OPT__UPGRADE=0  # -
 print_usage()
 {
     # options
@@ -232,6 +224,21 @@ via [OPTIONS] below.
     -p  --password PASS       if packing a .zip archive, you can specify
                               an optional password.
 
+------------ OUTPUT RELATED OPTIONS ------------------------------------
+
+  -o    --out-file PATH       use explicit PATH for pack result.
+
+                              By default hdpack will guess the filename
+                              for result archive using first item's
+                              name and if a file with same name already
+                              exists additionally append a numeric value
+                              e.g: _1, _2, ...
+                              The destination dir for pack result will
+                              be your current working dir.
+
+                              This option is valid only if --separate/-S
+                              is not set.
+
 ------------ OTHER OPTIONS ---------------------------------------------
 
   -V    --version             show version and exit
@@ -253,10 +260,24 @@ ${UPGRADE_LATEST_RELEASE_LINKS}
   List of files or dirs to pack
 "
 }
+
+# options
+CMD_LINE_OPT__DIRECTORY="."  #
+CMD_LINE_OPT__SEPARATE="0"  #
+CMD_LINE_OPT__GZ="0"  #
+CMD_LINE_OPT__XZ="0"  #
+CMD_LINE_OPT__ZIP="0"  #
+CMD_LINE_OPT__PASSWORD=""  #
+CMD_LINE_OPT__OUT_FILE=""  #
+CMD_LINE_OPT__VERSION="0"  #
+CMD_LINE_OPT__VERBOSE="0"  #
+CMD_LINE_OPT__UPGRADE="0"  #
 parse_all_options()
 {
-    local shifted=0
-    while [ "$#" -gt 0 ] ; do
+    local shifted=
+    shifted=0
+    local broken_opts=
+    while [ "$#" -gt 0 ]; do
         case "${1}" in
             --)
             # end of option list
@@ -264,44 +285,48 @@ parse_all_options()
                 break;;
             --help|-h)
                 print_usage; exit 0;;
-
-            # change to directory
+            #
             --directory|-C)
-                CMD_LINE_OPT__DIRECTORY="${2}"
-                shift 2 ; shifted=$((shifted+2)) ;;
-
-            # make ONE archive, instead of separate ones
+                CMD_LINE_OPT__DIRECTORY="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--directory|-C needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            #
             --separate|-S)
-                CMD_LINE_OPT__SEPARATE=1
+                CMD_LINE_OPT__SEPARATE="1"
                 shift 1 ; shifted=$((shifted+1));;
-
+            #
             --gz|-g)
-                CMD_LINE_OPT__GZ=1
+                CMD_LINE_OPT__GZ="1"
                 shift 1 ; shifted=$((shifted+1));;
-
+            #
             --xz|-x)
-                CMD_LINE_OPT__XZ=1
+                CMD_LINE_OPT__XZ="1"
                 shift 1 ; shifted=$((shifted+1));;
-
+            #
             --zip|-z)
-                CMD_LINE_OPT__ZIP=1
+                CMD_LINE_OPT__ZIP="1"
                 shift 1 ; shifted=$((shifted+1));;
-
+            #
             --password|-p)
-                CMD_LINE_OPT__PASSWORD="${2}"
-                shift 2 ; shifted=$((shifted+2)) ;;
-
+                CMD_LINE_OPT__PASSWORD="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--password|-p needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            #
+            --out-file|-o)
+                CMD_LINE_OPT__OUT_FILE="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--out-file|-o needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            #
             --version|-V)
-                CMD_LINE_OPT__VERSION=1
+                CMD_LINE_OPT__VERSION="1"
                 shift 1 ; shifted=$((shifted+1));;
-
-            # be verbose
+            #
             --verbose)
-                CMD_LINE_OPT__VERBOSE=1
+                CMD_LINE_OPT__VERBOSE="1"
                 shift 1 ; shifted=$((shifted+1));;
-
+            #
             --upgrade)
-                CMD_LINE_OPT__UPGRADE=1
+                CMD_LINE_OPT__UPGRADE="1"
                 shift 1 ; shifted=$((shifted+1));;
             -*)
               echo "unknown option: $1" >&2
@@ -313,7 +338,8 @@ parse_all_options()
       esac
     done
 
-    [ "${broken_opts}" = "1" ] && { echo "run with --help/-h to see available options" >&2; exit 1; };
+    # check required options
+    [ "${broken_opts}" = "1" ] && { echo "run with --help to see available options" >&2; exit 1; };
 
     return ${shifted}
 }
@@ -403,6 +429,7 @@ pack_ONE_tar() #(result_file_path, ch_dir, do_xz, ...)
     local size_to_pack_human=
 
     escape_paths ALL_PATHS "$@"
+
     cmd="${tar_cd} du -sbc ${ALL_PATHS} | grep total | cut -d 't' -f 1 | xargs echo" #
     size_to_pack=$(run "${cmd}")
     size_to_pack_human=$((size_to_pack/1000)) # kB
@@ -454,19 +481,17 @@ pack_ONE_zip() #(result_file_path, ch_dir, password, ...)
 
     local cmd=
     local zip_cd=
-    if [ "${ch_dir}" != "." ] ; then
-        if [ ! -d "${ch_dir}" ] ; then
-            logerror "'${ch_dir}': is not a dir"
-            return 1
-        fi
-        zip_cd="cd '${zip_cd}' &&"
+
+
+    if [ -n "${ch_dir}" ] ; then
+        zip_cd="cd '${ch_dir}' &&"
     fi
 
     local size_to_pack=
     local size_to_pack_human=
 
     escape_paths ALL_PATHS "$@"
-    cmd="${tar_cd} du -sbc ${ALL_PATHS} | grep total | cut -d 't' -f 1 | xargs echo" #
+    cmd="${zip_cd} du -sbc ${ALL_PATHS} | grep total | cut -d 't' -f 1 | xargs echo" #
     size_to_pack=$(run "${cmd}")
     size_to_pack_human=$((size_to_pack/1000)) # kB
     size_to_pack_human=$((size_to_pack_human/1024)) # MiB
@@ -502,7 +527,8 @@ pack_ONE_zip() #(result_file_path, ch_dir, password, ...)
         # pack using 7z (can pack parallel, can it? I dont think so)
 
         # https://superuser.com/questions/142021/7-zip-compression-on-multi-core-computers
-        cmd="${zip_cd} ${SEVEN_ZIP_TOOL} ${password_zip_opt} -r -tzip a \"${result_file_path}\" ${ALL_PATHS}"
+        # -r
+        cmd="${zip_cd} ${SEVEN_ZIP_TOOL} ${password_zip_opt} -tzip a \"${result_file_path}\" ${ALL_PATHS}"
     else
         die "cannot pack zip file, neither zip, nor 7z was found on this machine"
     fi
@@ -535,6 +561,32 @@ guess_result_path() #(*guessed_path, from_name, target_dir, !do_ext="tar.gz", !l
     local ret_guessed_path=
 
     # ---
+
+    if [ -n "${CMD_LINE_OPT__OUT_FILE}" ]; then
+        if [ "${CMD_LINE_OPT__SEPARATE}" = "1" ]; then
+            die "you cannot specify -S/--separate and --out-file/-o at the same time, sorry"
+        fi
+
+        # if some path is given explicetely, shall be easy
+        if ___sw "${CMD_LINE_OPT__OUT_FILE}" "/"; then
+            # is absolute
+            ret_guessed_path="${CMD_LINE_OPT__OUT_FILE}"
+        else
+            if [ "${__is_win__}" = "1" ] && check_path_is_absolute_win "${CMD_LINE_OPT__OUT_FILE}"; then
+                # still absolute, like c:\test\me
+                ret_guessed_path="${CMD_LINE_OPT__OUT_FILE}"
+            else
+                ret_guessed_path="${__cwd__}/${CMD_LINE_OPT__OUT_FILE}"
+            fi
+        fi
+
+        lognotice "--out-file/-o is set, output path will be: '${ret_guessed_path}'"
+        eval "export ${export_var_guessed_path}='${ret_guessed_path}'"
+        return
+    else
+        lognotice "--out-file/-o is unset, I will guess out path for you"
+    fi
+
 
     # cheap for a moment
     if ___sw "${from_name}" "*"  || ___ew "${from_name}" "*"; then
@@ -787,6 +839,9 @@ main()
         return 1
     fi
 
+    if [ -d "${CMD_LINE_OPT__OUT_FILE}" ] ; then
+        die "specified --out-file/-o: '${CMD_LINE_OPT__OUT_FILE}', is a existing directory"
+    fi
 
     if [ "${CMD_LINE_OPT__GZ}" = "0" ] && [ "${CMD_LINE_OPT__XZ}" = "0" ] &&  [ "${CMD_LINE_OPT__ZIP}" = "0" ]; then
         # auto select format depending on os
@@ -814,15 +869,24 @@ main()
         archive_ext="zip"
     fi
 
+    local ch_dir=
+    if [ ! -d "${CMD_LINE_OPT__DIRECTORY}" ] ; then
+        logerror "--directory/-C '${CMD_LINE_OPT__DIRECTORY}': is not a dir"
+        return 1
+    fi
+    # normalize it to absolute path
+    ch_dir=$(get_real_os_path_unix "${CMD_LINE_OPT__DIRECTORY}")
+
     local ret=
     if [ "${CMD_LINE_OPT__SEPARATE}" != "1" ] ; then
         # we pack ONLY ONE archive
         guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" "${archive_ext}" # take first given name
+
         if [ "${pack_tar}" != "1" ]; then
-            pack_ONE_zip "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${CMD_LINE_OPT__PASSWORD}" "$@"
+            pack_ONE_zip "${RESULT_FILE_PATH}" "${ch_dir}" "${CMD_LINE_OPT__PASSWORD}" "$@"
             ret=$?
         else
-            pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${pack_tar_xz}" "$@"
+            pack_ONE_tar "${RESULT_FILE_PATH}" "${ch_dir}" "${pack_tar_xz}" "$@"
             ret=$?
         fi
         return $ret
@@ -833,10 +897,10 @@ main()
         guess_result_path RESULT_FILE_PATH "${1}" "${__cwd__}" "${archive_ext}" # take own name
 
         if [ "${pack_tar}" = "1" ]; then
-            pack_ONE_zip "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${CMD_LINE_OPT__PASSWORD}" "${1}"
+            pack_ONE_zip "${RESULT_FILE_PATH}" "${ch_dir}" "${CMD_LINE_OPT__PASSWORD}" "${1}"
             ret=$?
         else
-            pack_ONE_tar "${RESULT_FILE_PATH}" "${CMD_LINE_OPT__DIRECTORY}" "${pack_tar_xz}" "${1}"
+            pack_ONE_tar "${RESULT_FILE_PATH}" "${ch_dir}" "${pack_tar_xz}" "${1}"
             ret=$?
         fi
         shift 1
