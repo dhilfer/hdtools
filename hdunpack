@@ -16,7 +16,7 @@ if true; then # ___srV="2.13.1"
 # this is hdunpack: (try to) unpack stuff
 # (c) 2014-present: Dieter Hilfer
 
-VERSION="2.2.4"
+VERSION="2.2.5"
 SHORT_DESCRIPTION="(${VERSION})hdunpack: (try to) unpack stuff"
 
 CURRENT_SUPPORTED_FORMATS_TOOLS='
@@ -454,7 +454,7 @@ unpack() #(archive, target_dir, !dont_create_extra_dir=0, !unpack_verbose=0, !pa
     # now go forward and unpack stuff brute force
     ret=1
     # special case [1]. On windows try to unpack using 7z first
-    if [ "${ret}" != "0" ] && [ "${__is_win__}" != "1" ]; then          # try .7z (no tar after) # try let this last
+    if [ "${ret}" != "0" ] && [ "${__is_win__}" = "1" ]; then          # try .7z (no tar after) # try let this last
         # if 7z works -> no tar afterwards!
         # 7z has no 'quiet', nor verbose option. We control via stdout redirect only
         # unfortunately this implies "a lot of useles" printf on "non-packed" files if '-v' option is set
