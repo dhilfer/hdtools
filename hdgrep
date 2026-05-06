@@ -5,7 +5,6 @@
 # THERE IS NO ANY WARRANTY AT ALL
 
 
-
 __sr_RUN_STRICT=0
 if true; then # ___srV="2.13.1"
     ___sw() { case "$1" in "$2"*) return 0;;esac;return 1;};echo_stderr() { echo "$@" >&2; };___sw "$(echo -e t)" "-e" || { alias echo="echo -e";echo_stderr() { echo -e "$@" >&2; };};__is_dbg__=0;[ -n "$_Dbg_DEBUGGER_LEVEL" ] && __is_dbg__=1;__is_sourced__=0;if [ -n "$BASH_VERSION" ]; then (return 0 2>/dev/null) && __is_sourced__=1; else case ${0##*/} in sh | -sh | dash | -dash | ash | -ash) __is_sourced__=1 ;; esac fi;__is_required__=0;[ -n "$__sr_inc_rp" ] && { __is_sourced__=1; __is_required__=1; };if [ $__is_dbg__ = 0 ] && [ $__is_required__ = 0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_ALLOW_SOURCE" != "1" ];then echo_stderr "(sr): $BASH_SOURCE: this script is NOT allowed to be source(d) (allow it with: __sr_ALLOW_SOURCE=1): exit 1(5secs).";sleep 5;exit 1;fi;if [ $__is_required__=0 ] && [ $__is_sourced__ = 1 ] && [ "$__sr_main_sourced" = "1" ] && [ -z "$__sr_inc_rp" ]; then echo_stderr "(sr): this environment is soiled. This means __sr was sourced in this environment once. MAY YOU SHALL (RE-)SOURCE IN A NEW CLEAN ENV.";else ___cvs() { [ -z "$1" ] && { echo 0;return;};[ -z "$2" ] && { echo 1;return;};local _e8=;local _Uc=;local _mZ=;local _6d=;for _e8 in 1 2 3 4 5; do _Uc=$(eval "echo $1 | cut -d "." -f$_e8");_mZ=$(eval "echo $2 | cut -d "." -f$_e8");[ -z "$_Uc" ] && [ -z "$_mZ" ] && { echo 0;return;};[ -z "$_Uc" ] && { echo -1;return;};[ -z "$_mZ" ] && { echo 1;return;};_6d=$((_Uc - _mZ));[ $_6d -ne 0 ] && { [ $_6d -le 0 ] && echo -1 || echo 1;return;};done;echo 0;};if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then [ -z "$___srD" ] && ___srD=0;___rp() { eval 'readlink -f "'$1'" 2>/dev/null'; };__is_win__=0;[ -n "$APPDATA" ] && __is_win__=1;___type() { [ -n "$2" ] && eval "export $2=";local _rR=;local _tj=;_tj=$(LANG=C command -pV "${1}" 2>/dev/null);if [ "$?" != "0" ]; then _rR=$(which "${1}" 2>/dev/null);[ -z "${_rR}" ] && return 1;fi;if [ -z "${_rR}" ]; then case "$_tj" in *function*) _rR=function ;; *keyword*) _rR=builtin ;; *builtin*) _rR=builtin ;; *alias*) _rR=alias ;; *) _rR=$(command -v ${1} 2>/dev/null) ;;esac fi;[ -n "$2" ] && eval "export $2='$_rR'";return 0;};___ew() { case "$1" in *"$2") return 0 ;; esac;return 1;};__get_linenr() { local __sd=0;[ -n "$1" ] && __sd=$1;[ "$__is_bbash__" = "1" ] && eval echo '${''BASH_LINENO['${__sd}']''}';};_chkargs() { local __fn=$1;local __nr=$2;shift 2;[ ! $# -eq $__nr ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs $__nr arg(s), $# given";exit 1;};};_chkargsm() { local __fn=$1;local __nr=$2;shift 2;[ ! $__nr -le $# ] && { echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2): $__fn(): needs at least $__nr arg(s), $# given";exit 1;};};__DIFS=$IFS;__rdIFS() { IFS=$__DIFS;};__cIFS() { _chkargs '__cIFS' 2 "$@";local __oifs=;__oifs="${1}__oifs";eval "export ${__oifs}='$IFS'";IFS=$2;};__rIFS() { _chkargs '__rIFS' 1 "$@";local __oifs=;__oifs="${1}__oifs";eval 'IFS="${'"${__oifs}"'}"';};IN() { local __i=;local __r=1;[ -n "$3" ] && __cIFS 'IN' "$3";for __i in $2; do [ "$1" = "$__i" ] && { __r=0;break;};done;[ -n "$3" ] && __rIFS 'IN';return $__r;};run() { [ "$DBG_RUN" = "1" ] && echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};run_e() { echo_stderr "$([ "${DRY_RUN}" = "1" ] && { [ "${NO_DRY}" = "1" ] && echo "(no-dry)" || echo "(dry)"; })run: $@";[ "${NO_DRY}" != "1" ] && [ "$DRY_RUN" = "1" ] && return 0;eval "$@";return $?;};_sr_p_sep=":";[ $__is_win__ = 1 ] && _sr_p_sep=";";add_sr_PATH() { ! IN "$1" "${sr_PATH}" $_sr_p_sep && export sr_PATH="${1}${_sr_p_sep}${sr_PATH}"; };__is_bbash__=0;__is_bash__=0;[ -n "$BASH" ] && { __is_bbash__=1;shopt -s expand_aliases;};[ "${__is_sourced__}" = "0" ] && [ "$__is_bbash__" = "0" ] && [ "${__sr_RUN_STRICT}" != "1" ] && [ -n "$(command -pv bash)" ] && { [ $___srD = 1 ] && echo_stderr "(sr) relocate to bash (disable it with: __sr_RUN_STRICT=1)";$(command -v bash) "$0" "$@";exit $?;};___ew "$BASH" "bash" && { __is_bash__=1; };__pid__=$$;__cwd__=$(pwd);fi;__name__=;_az=;if [ -n "$__sr_inc_rp" ]; then _az=$__sr_inc_rp;unset __sr_inc_rp;else if [ -z "$__main__" ]; then __name__=__main__;export __modules__=;fi;[ "$__is_bbash__" = "1" ] && _az=$(eval 'readlink -f "${''BASH_SOURCE[0]''}"');[ -z "$_az" ] && _az=${0};fi;__f_path__=$(___rp "${_az}");[ -n "$__HDBDB_RP_" ] && { __f_path__=$__HDBDB_RP_;export __HDBDB_RP_=;};__path__=${__f_path__%/*};__file__=${__f_path__##*/};__ns__=${__file__%.sh*};[ "$__name__" != "__main__" ] && { __name__=$__ns__;__main__=$__main__;} || { __main__=$__file__;};[ "$__name__" = "__main__" ] && [ "$__is_sourced__" = "1" ] && export __sr_main_sourced=1;unset _az;[ -d "$__path__" ] && add_sr_PATH "$__path__";if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then __require() { [ "$2" != "1" ] && IN "$1" "$__modules__" ":" && { [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': is already loaded, skip";return;};local __nm=;local __sp=;local __sf=;local __sn=;local __sz=;local __ir=;[ -n "$__f_path__" ] && { __nm=$__name__;__sz=$__f_path__;__sp=$__path__;__sf=$__file__;__sn=$__ns__;__ir=$__is_required__;};export __modules__="$1:$__modules__";export __sr_inc_rp=$1;[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1'";. "$1";unset __sr_inc_rp;[ -n "$__sz" ] && { __name__=$__nm;__f_path__=$__sz;__path__=$__sp;__file__=$__sf;__ns__=$__sn;__is_required__=$__ir;};[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 2) require(): '$1': successfully loaded";};require() { local __pp=;local __rip=;if ! ___sw "$1" "/" && ! ___sw "$1" "./"; then __cIFS 'require' "$_sr_p_sep"; for __pp in $sr_PATH; do [ -e "${__pp}/${1}" ] && { __rip="${__pp}/${1}";break;};[ -e "${__pp}/${1}.sh" ] && { __rip="${__pp}/${1}.sh";break;};done;__rIFS 'require';[ -z "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: [ sr_PATH=$sr_PATH ]";[ "$3" = "1" ] && return 1;exit 1;};else __rip=$1;[ ! -e "$__rip" ] && { [ "$3" != "1" ] || [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__:$(__get_linenr 1): require(): '$1': module not found: (absolute path)";[ "$3" = "1" ] && return 1;exit 1;};fi;[ "$3" = "1" ] && return 0;__rip=$(___rp "${__rip}");__require "${__rip}" $2;__pp=;__rip=;return 0;};fi;if [ "$(___cvs 2.13.1 $___srV)" = 1 ]; then ___srV="2.13.1";[ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: $___srV"; else [ $___srD = 1 ] && echo_stderr "(sr) $__path__/$__file__: ___srV: 2.13.1: current ___srV: $___srV env has higher/equal version than I have, skip redefine";fi;__tab='	';__newline='
@@ -36,9 +35,9 @@ fi
 #     which can easily be disabled
 #   - exec speed is not as important, as usability (and code maintainability)
 
-__VERSION__="7.11.0"
+__VERSION__="7.12.0"
 
-BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"]"
+BASIC_USAGE="(${__VERSION__}): hdgrep [-C search_dir] [OPTIONS(--help/-h to show)] [--] PATTERN [FILEMASK=\"*\"|FILE_PATH]"
 
 # control persistence here
 HDGREP_ENABLE_KEEP_LAST_RESULT=1
@@ -895,6 +894,21 @@ Try following:
     exit 0
 }
 fi
+check_path_is_absolute_win(){ case "$1" in [cCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZaAbB]:[/\\]*)return 0;;esac;return 1;}
+check_path_is_absolute() { [ "${__is_win__}" = "1" ] && return check_path_is_absolute_win "$1"; ___sw "$1" "/" && return 0; return 1; }
+
+check_is_path()
+{
+    case "$1" in
+      ./*|../*|/*)
+        return 0;
+        ;;
+      *)
+        [ "${__is_win__}" = "1" ] && return check_path_is_absolute_win "$1"
+        ;;
+    esac
+    return 1;
+}
 
 main()
 {
@@ -931,8 +945,7 @@ main()
     logdebug "tools options cache control: ${HDGREP_CTSO_CACHE_CTRL_TMP_FILE}"
 
     local ign_info=
-    __cIFS '_info_ign_' '
-'
+    __cIFS '_info_ign_' "${__newline}"
     for i in ${FIND_IGNORE_PATTTERNS} ; do
         ign_info="${ign_info} '${i}'"
     done
@@ -949,6 +962,18 @@ main()
         exit 0
     fi
 
+    local const_path=
+    if check_is_path "${find_files_pattern}"; then
+        const_path="${find_files_pattern}"
+
+        if [ -e "${const_path}" ] && [ ! -d "${const_path}" ]; then
+            true # pass
+        else
+            die "given path does not exist or is not a file: ${const_path}"
+        fi
+    fi
+
+
 
     local exlusive_ctr=0;
     [ "${CMD_LINE_OPT__ZGREP}" = "1" ] && exlusive_ctr=$((exlusive_ctr+1));
@@ -962,9 +987,11 @@ main()
     fi
 
     # override * to *.pdf if no explicit filemask option was given
-    if [ "${CMD_LINE_OPT__PDFGREP}" = "1" ] ; then
-        if [ "${find_files_pattern}" = "*" ] ; then
-            find_files_pattern="*.pdf"
+    if [ -z "${const_path}" ]; then
+        if [ "${CMD_LINE_OPT__PDFGREP}" = "1" ] ; then
+            if [ "${find_files_pattern}" = "*" ] ; then
+                find_files_pattern="*.pdf"
+            fi
         fi
     fi
 
@@ -973,7 +1000,11 @@ main()
         if [ "${CMD_LINE_OPT__PS}" = "1" ] ; then
             logdebug "grep for '""$(echo_red "${grep_for_this}")""' in process list"
         else
-            logdebug "grep for '""$(echo_red "${grep_for_this}")""' in '""${search_in_this_directory}""' in '""$(echo_red "${find_files_pattern}")""' files"
+            if [ -z "${const_path}" ]; then
+                logdebug "grep for '""$(echo_red "${grep_for_this}")""' in '""${search_in_this_directory}""' in '""$(echo_red "${find_files_pattern}")""' files"
+            else
+                logdebug "grep for '""$(echo_red "${grep_for_this}")""' in '""$(echo_red "${find_files_pattern}")""'"
+            fi
         fi
     else
         logdebug "grep for '""$(echo_red "${grep_for_this}")""' in list given via ""$(echo_red stdin)"""
@@ -1087,8 +1118,7 @@ main()
 
             local ignore_tmp=
             if [ "${FIND_CAN_WHOLENAME}" = "1" ] && [ "${FIND_CAN_NOT}" = "1" ]; then
-                __cIFS '_find_ign_' '
-    '
+                __cIFS '_find_ign_' "${__newline}"
                 for i in ${FIND_IGNORE_PATTTERNS} ; do
                     ignore_tmp=${i}
                     ___sw "${ignore_tmp}" "*" || ignore_tmp="*${ignore_tmp}"
@@ -1272,28 +1302,29 @@ main()
         # use ripgrep
         local col_preview=
         grep_options=
-        __cIFS '_rg_ign_' '
-'
-        local ignore_tmp=
-        for i in ${FIND_IGNORE_PATTTERNS} ; do
-            ignore_tmp=${i}
-            if ___sw "${ignore_tmp}" "/"; then
-                # fix rg glob pattern
-                ignore_tmp='**'"${ignore_tmp}"
-            fi
-            if [ "${__is_win__}" = "1" ] ; then
-                # fix rg windows paths
-                ignore_tmp=$(echo "${ignore_tmp}" | tr '/' '\\')
-            fi
-            grep_options="${grep_options} -g '!${ignore_tmp}'";
-        done
-        __rIFS '_rg_ign_'
+        if [ -z "${const_path}" ]; then
+            __cIFS '_rg_ign_' "${__newline}"
+            local ignore_tmp=
+            for i in ${FIND_IGNORE_PATTTERNS} ; do
+                ignore_tmp=${i}
+                if ___sw "${ignore_tmp}" "/"; then
+                    # fix rg glob pattern
+                    ignore_tmp='**'"${ignore_tmp}"
+                fi
+                if [ "${__is_win__}" = "1" ] ; then
+                    # fix rg windows paths
+                    ignore_tmp=$(echo "${ignore_tmp}" | tr '/' '\\')
+                fi
+                grep_options="${grep_options} -g '!${ignore_tmp}'";
+            done
+            __rIFS '_rg_ign_'
 
-        if [ -n "${CMD_LINE_OPT__DEPTH}" ]; then
-            grep_options="${grep_options} --max-depth ${CMD_LINE_OPT__DEPTH}";
+            if [ -n "${CMD_LINE_OPT__DEPTH}" ]; then
+                grep_options="${grep_options} --max-depth ${CMD_LINE_OPT__DEPTH}";
+            fi
         fi
 
-        grep_options="${grep_options} --no-config --no-ignore --no-follow --hidden --no-heading"
+        grep_options="${grep_options} --no-config --no-ignore --no-follow --hidden --no-heading --with-filename "
 
         if [ "${show_defaults}" = "1" ] ; then
             grep_options="${grep_options} -n"
@@ -1420,13 +1451,25 @@ main()
                 fi
             fi
         fi
-        cmd_pre="${cmd_pre} ${grep_cmd} ${color_txt} ${grep_options} '${grep_for_this}' ${grep_search_where} ${stderr_txt}"
+
+        if [ -n "${const_path}" ]; then
+            # const path is given
+            cmd_pre="${grep_cmd} ${color_txt} ${grep_options} '${grep_for_this}' '${const_path}' ${stderr_txt}"
+        else
+            cmd_pre="${cmd_pre} ${grep_cmd} ${color_txt} ${grep_options} '${grep_for_this}' ${grep_search_where} ${stderr_txt}"
+        fi
+
     else
         # ripgrep search
         local rg_file_pattern=
         rg_file_pattern=
-        if [ "${find_files_pattern}" != "*" ] ; then
-            rg_file_pattern="-g '${find_files_pattern}'"
+        if [ -z "${const_path}" ]; then
+            if [ "${find_files_pattern}" != "*" ] ; then
+                rg_file_pattern="-g '${find_files_pattern}'"
+            fi
+        else
+            # const path given
+            search_in_this_directory="${const_path}"
         fi
         cmd_pre="${grep_cmd} ${color_txt} ${rg_file_pattern} ${grep_options} -- '${grep_for_this}' '${search_in_this_directory}' ${stderr_txt}"
     fi
