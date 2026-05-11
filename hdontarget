@@ -25,8 +25,8 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.6.20"
-SHORT_DESCRIPTION="a cheap ssh wrapper, for automation of ~stupid~ things"
+VERSION="1.7.1"
+SHORT_DESCRIPTION="a ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
 
@@ -227,6 +227,122 @@ __debug_call "$@"
 _cse UPGRADE_LATEST_RELEASE_LINKS "
 https://raw.githubusercontent.com/dhilfer/hdtools/main/hdontarget
 "
+if [ "${__name__}" = "__main__" ]; then                                 # list, dict: 2.0.0
+# pos, start, end: starts at: 0, negative indexes are supported
+# skip_comment_tok is only evaluated for ifs=${__newline}
+list_size() #(lst, *size, !ifs=${__newline}, !skip_comment_tok=)
+{
+    [ -z "${1}" ] && { eval "export ${2}=0"; return 0; }
+    local ret_size=
+    if [ -z "${3}" ] || [ "${3}" = "${__newline}" ]; then
+        if [ -z "${4}" ] ; then
+            ret_size=$(echo "${1}" | sed '/^[[:space:]]*$/d' | wc -l)
+        else
+            ret_size=$(echo "${1}" | grep -v -E "^[[:space:]]*${4}" | sed '/^[[:space:]]*$/d' | wc -l)
+        fi
+        eval "export ${2}=$((ret_size))"
+        return 0
+    fi
+    ret_size=$(echo "${1}" | tr -d -c "${3}" | wc -c)
+    eval "export ${2}=$((ret_size+1))"
+    return 0
+}
+list_get() #(lst, pos, *val, !ifs=${__newline}, !skip_comment_tok=)
+{
+    [ -z "${1}" ] && { eval "export ${3}="; return 0; }
+    local ret_val=
+    local pos="${2}"
+    if ___sw "${pos}" "-" ; then
+        list_size "${1}" _LG_SIZE "${4}" "${5}"
+        pos=$((_LG_SIZE+pos))
+    fi
+    if [ -z "${4}" ] || [ "${4}" = "${__newline}" ]; then
+        pos=$((${pos}+1))
+        if [ -z "${5}" ] ; then
+            # delete empty lines | delete every line, stop at pos
+            ret_val=$(echo "${1}" | sed '/^[[:space:]]*$/d' | sed "${pos}q;d")
+        else
+            ret_val=$(echo "${1}" | grep -v -E "^[[:space:]]*${5}" | sed '/^[[:space:]]*$/d' | sed "${pos}q;d")
+        fi
+    else
+        ret_val=$(echo "${1}${4}" | cut -s -d "${4}" -f $((${pos}+1)))
+    fi
+    eval "export ${3}='${ret_val}'"
+}
+list_join() #(lst, start, end, sep, *val, !ifs=${__newline}, !skip_comment_tok=)
+{
+    local __fn="list_join";
+
+    local lst="${1}";
+    local start="${2}";
+    local end="${3}";
+    local sep="${4}";
+    local export_var_val="${5}";
+    eval "export ${export_var_val}=";
+    local ifs="${6}";
+    local skip_comment_tok="${7}";
+    local ret_val=
+
+    [ -z "${ifs}" ] && ifs="${__newline}"
+
+    # ---
+    list_size "${lst}" _LG_SIZE "${ifs}" "${skip_comment_tok}"
+    [ "${_LG_SIZE}" -lt 0 ] && return
+    [ ${start} -lt 0 ] && start=$((_LG_SIZE+start));[ ${start} -lt 0 ] && return
+    [ ${end} -eq 0 ] && end=$((_LG_SIZE-1))
+    [ ${end} -lt 0 ] && end=$((_LG_SIZE+end)); [ ${end} -lt 0 ] && return
+    [ ${end} -le ${start} ] && return
+
+    local end_1=$((end-1))
+    local i=
+    local c=0
+    __cIFS "${__fn}" "${ifs}"
+    for i in ${lst}; do
+        [ -n "${skip_comment_tok}" ] && ___sw "${i}" "${skip_comment_tok}" && continue
+        [ ${c} -ge ${end} ] && break;
+        [ ${c} -eq ${end_1} ] && sep=;
+        if [ ${c} -ge ${start} ]; then
+            ret_val="${ret_val}${i}${sep}";
+        fi
+        c=$((c+1))
+    done
+    __rIFS "${__fn}"
+    # ---
+
+    # return values
+    eval "export ${export_var_val}='${ret_val}'"
+    return 0
+}
+list_slice() #(lst, start, end, *val, !ifs=${__newline}, !skip_comment_tok=)
+{
+    local ifs="${5}"; [ -z "${ifs}" ] && ifs="${__newline}"
+    list_join "${1}" "${2}" "${3}" "${ifs}" "${4}" "${ifs}" "${6}"
+    return 0
+}
+list_reverse() #(lst, *rev, !ifs=${__newline})
+{
+    local __fn="list_reverse"
+    local ifs="${3}"
+    local ret_rev=
+    # ---
+    local i=
+    [ -z "${ifs}" ] && ifs="${__newline}"
+    __cIFS "${__fn}" "${ifs}"
+    for i in ${1}; do
+        ret_rev="${i}${ifs}${ret_rev}"
+    done
+    __rIFS "${__fn}"
+    # ---
+    # return values
+    eval "export ${2}='${ret_rev}'"
+    return 0
+}
+
+#(dict, *keys)
+dict_keys(){ eval "export ${2}='""$(echo "${1}" | sed -nr 's!^([ ]*)([a-zA-Z0-9_]+):(.*)!\2!p' | sort | uniq)""'"; }
+#(dict, key, def_val, *val)
+dict_get(){ eval "export ${4}='""$(echo "${1}" | sed -nr "s!^([ ]*)${2}:(.*)!\2!p" | tail -n 1)""'"; [ -n "${3}" ] && { [ -z "$(eval echo "$""${4}")" ] && eval "export ${4}='${3}'";};}
+fi
 if [ "${__name__}" = "__main__" ]; then                                 # options
 print_usage()
 {
@@ -540,25 +656,41 @@ $(echo_bold "Tools/Helpers")
                             ps aux | grep 'ssh'
 
 
-    --export-this-path SERVER-IP run local and remote scripts doing:
+    --sshfs-mount-this-path SERVER-HOST[,REMOTE-MP] (EXPEREMENTAL)
+    --nfs-mount-this-path SERVER-HOST[,REMOTE-MP]
+    --export-this-path ( is DEPRECATED alias to --nfs-mount-this-path )
 
-                            [1] Export  current  working  directory
-                            via NFS using exportfs-tool  to SERVER-IP/24
-                            network.
+                            SERVER-HOST  is  (mostly) the  IP address of
+                            THIS machine as it is seen by remote target.
 
-                            [2] Login  on   remote  target, try to mount
-                            the  exported  path  to  mount  point  which
-                            corresponds to  current  working  directory.
-
-                            SERVER-IP is basically the IP address of
-                            THIS machine as seen by remote target.
-
-                            You can try to find your SERVER-IP using:
+                            You can try to find SERVER-HOST using:
                             ip -h route get <remote target IP> | sed 's/^.*src \([^ ]*\).*$/\1/;q'
 
-                            If  SERVER-IP is set  to 'auto',  hdontarget
+                            If  SERVER-HOST is set to 'auto', hdontarget
                             will  run the  command above and try to find
-                            SERVER-IP for you.
+                            SERVER-HOST for you.
+
+                            REMOTE-MP is optional. If not specified,
+                            it will be set to current working directory.
+
+                        nfs-mount:
+                            [1] Export current working directory via NFS
+                            using 'exportfs'-tool to: * network on this
+                            machine.
+                            If local user is not root 'sudo' will be
+                            used while run 'exportfs'.
+
+                            [2] Login on remote target, try to mount the
+                            exported path via NFS to REMOTE-MP using
+                            '(busybox) mount -t nfs'.
+                            If remote user is not root 'sudo' will be
+                            used while run 'mount'.
+
+                        sshfs-mount:
+                            [1] Login on remote target, try to mount the
+                            current working directory via SSHFS using
+                            'sshfs'-tool to REMOTE-MP using current user
+                            (determined via 'whoami'-tool).
 
 
     -CF  --chain-forward SET_NAME chain hdontarget calls to login to
@@ -821,7 +953,6 @@ and coloring helpers.
 CMD_LINE_OPT__HELP="0"
 # modified: disabled options in linked mode
 #   --update-completion
-#   --edit-config
 #   --load-set
 #   --list
 #   --list-pass
@@ -833,7 +964,7 @@ CMD_LINE_OPT__HELP="0"
 # modified : disabled options on windows
 #   --update-completion
 #   --link-set
-#   --export-this-path
+#   --nfs-this-path aka. --export-this-path
 
 # options
 CMD_LINE_OPT__HELP_EXAMPLES="0"  #
@@ -856,7 +987,9 @@ CMD_LINE_OPT__COPY_FROM_TARGET="0"  #
 CMD_LINE_OPT__SCP_LEGACY_NON_SFTP="0"  #
 CMD_LINE_OPT__GENERATE_KEYPAIR=""  #
 CMD_LINE_OPT__INSTALL_KEYHOLE=""  #
-CMD_LINE_OPT__EXPORT_THIS_PATH=""  #
+CMD_LINE_OPT__NFS_MOUNT_THIS_PATH=""  #
+# https://wiki.ubuntuusers.de/FUSE/sshfs/
+CMD_LINE_OPT__SSHFS_MOUNT_THIS_PATH=""  #
 CMD_LINE_OPT__PORT_FORWARDING=""  #
 CMD_LINE_OPT__CREATE_TUNNEL=""  #
 CMD_LINE_OPT__CHAIN_FORWARD=""
@@ -911,7 +1044,7 @@ parse_all_options()
                 shift 1 ; shifted=$((shifted+1));;
             #
             --edit-config|-ec)
-                [ "${LINKED_MODE}" = "1" ] && { echo "--edit-config is disabled in linked mode" >&2; exit 1; };
+                #[ "${LINKED_MODE}" = "1" ] && { echo "--edit-config is disabled in linked mode" >&2; exit 1; };
                 CMD_LINE_OPT__EDIT_CONFIG="1"
                 shift 1 ; shifted=$((shifted+1));;
             #
@@ -999,10 +1132,15 @@ parse_all_options()
                 [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--install-keyhole needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
             #
-            --export-this-path)
-                [ "${__is_win__}" = "1" ] && { echo "--export-this-path is disabled on windows" >&2; exit 1; };
-                CMD_LINE_OPT__EXPORT_THIS_PATH="$2"
-                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--export-this-path needs an additional parameter" >&2; exit 1; };
+            --export-this-path|--nfs-mount-this-path)
+                [ "${__is_win__}" = "1" ] && { echo "--nfs-mount-this-path is disabled on windows" >&2; exit 1; };
+                CMD_LINE_OPT__NFS_MOUNT_THIS_PATH="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--nfs-mount-this-path needs an additional parameter" >&2; exit 1; };
+                shift 2; shifted=$((shifted+2));;
+            #
+            --sshfs-mount-this-path)
+                CMD_LINE_OPT__SSHFS_MOUNT_THIS_PATH="$2"
+                [ $# -lt 2 ] || [ "$2" = "--" ] && { echo "--nfs-mount-this-path needs an additional parameter" >&2; exit 1; };
                 shift 2; shifted=$((shifted+2));;
             #
             --create-tunnel|-cT)
@@ -1740,32 +1878,32 @@ EOF
     ret=$?
     return ${ret}
 }
-export_and_mount_nfs_to_remote_target() #(host, user, pass, export_this_src_path, export_this_src_ip, !remote_mp="${export_this_src_path}")
+export_and_mount_nfs_on_remote_target() #(host, user, pass, export_this_path, mount_from_this_host, !remote_mp="${export_this_path}")
 {
-    local __fn="export_and_mount_nfs_to_remote_target"; _chkargsm "${__fn}" 5 "$@"
+    local __fn="export_and_mount_nfs_on_remote_target"; _chkargsm "${__fn}" 5 "$@"
 
     local host=; host="${1}";
     local user=; user="${2}";
     local pass=; pass="${3}";
-    local export_this_src_path=; export_this_src_path="${4}";
-    local export_this_src_ip=; export_this_src_ip="${5}";
+    local export_this_path=; export_this_path="${4}";
+    local mount_from_this_host=; mount_from_this_host="${5}";
     local remote_mp=; remote_mp="${6}";
-    [ -z "${remote_mp}" ] && remote_mp="${export_this_src_path}";
+    [ -z "${remote_mp}" ] && remote_mp="${export_this_path}";
 
     local cmd=
     local tmp_srv_ip=
 
     # check existing
-    if [ ! -d "${export_this_src_path}" ]; then
-        logerror "requested export local path is not a directory: $(echo_lightblue ${export_this_src_path})"
+    if [ ! -d "${export_this_path}" ]; then
+        logerror "requested export local path is not a directory: $(echo_lightblue ${export_this_path})"
         return 1
     fi
-    export_this_src_path=$(___rp "${export_this_src_path}")
+    export_this_path=$(___rp "${export_this_path}")
 
     local as_root=
     [ "$(id -u)" != "0" ] && as_root="sudo"
 
-    lognotice "export local path: ${export_this_src_path} via NFS to:" $(echo_blue '<bg>' " ${host} ") "${host}:${remote_mp}"
+    lognotice "export local path: ${export_this_path} via NFS to:" $(echo_blue '<bg>' " ${host} ") "${remote_mp}"
     lognotice "$(echo_yellow '<bg>' hint): show local exports:" $(echo_lightblue "showmount -e")
     lognotice "$(echo_yellow '<bg>' hint): reset/recover local exports with:" $(echo_lightblue "(sudo) service nfs-kernel-server restart")
     lognotice "$(echo_yellow '<bg>' hint): check mounts on remote target:" $(echo_lightblue "mount | grep 'type nfs'")
@@ -1776,23 +1914,23 @@ export_and_mount_nfs_to_remote_target() #(host, user, pass, export_this_src_path
     nfs_exports=$(run "${cmd}")
     local current_export=
 
-    if [ "${export_this_src_ip}" = "auto" ]; then
-        logwarning "you specified --export-this-path SERVER-IP: auto, I'll try to determine it for you"
+    if [ "${mount_from_this_host}" = "auto" ]; then
+        logwarning "you specified --nfs-mount-this-path SERVER-HOST: auto, I'll try to determine it for you"
         cmd="ip -h route get ${host} | sed 's/^.*src \([^ ]*\).*$/\1/;q'"
         tmp_srv_ip=$(run "${cmd}")
         if [ -z "${tmp_srv_ip}" ] ; then
-            die "I couldn't find it, sorry. You must specify it explicitely."
+            die "I couldn't find it, sorry. You must specify SERVER-HOST explicitely."
         fi
-        export_this_src_ip=${tmp_srv_ip}
-        logwarning "found SERVER-IP $(echo_yellow '<b>' ${export_this_src_ip})$(echo_yellow \(this machine IP as seen by remote\) host: ${host})"
+        mount_from_this_host=${tmp_srv_ip}
+        logwarning "found SERVER-HOST $(echo_yellow '<b>' ${mount_from_this_host})$(echo_yellow \(this machine IP as seen by remote\) host: ${host})"
     fi
-    current_export=$(echo "${nfs_exports}" | grep ${export_this_src_path})
-    if [ -z "$(echo "${nfs_exports}" | grep ${export_this_src_path})" ]; then
-        lognotice "exportfs: *:${export_this_src_path}"
-        cmd="${as_root} /usr/sbin/exportfs -i -o rw,sync,no_subtree_check,no_root_squash *:${export_this_src_path}"
+    current_export=$(echo "${nfs_exports}" | grep ${export_this_path})
+    if [ -z "$(echo "${nfs_exports}" | grep ${export_this_path})" ]; then
+        lognotice "exportfs: *:${export_this_path}"
+        cmd="${as_root} /usr/sbin/exportfs -i -o rw,sync,no_subtree_check,no_root_squash *:${export_this_path}"
         run "${cmd}" || die '-'
     else
-        lognotice "local path: ${export_this_src_path}, seems to be already exported via NFS (acc. to showmount -e): '${current_export}'"
+        lognotice "local path: ${export_this_path}, seems to be already exported via NFS (acc. to showmount -e): '${current_export}'"
         lognotice "if stuff does NOT work as expected, try to reset current nfs exports with 'sudo service nfs-kernel-server restart' or so"
     fi
 
@@ -1802,22 +1940,36 @@ export_and_mount_nfs_to_remote_target() #(host, user, pass, export_this_src_path
     script=$(cat <<EOF
 host="${host}"
 remote_mp="${remote_mp}"
-export_this_src_ip="${export_this_src_ip}"
-export_this_src_path="${export_this_src_path}"
+mount_from_this_host="${mount_from_this_host}"
+export_this_path="${export_this_path}"
 EOF
 cat <<'EOF'
 [ "$(id -u)" != "0" ] && as_root="sudo"
-cmd="mount | grep '${export_this_src_path}'"
+cmd="mount | grep '${remote_mp}'"
 nfs_mount="$(run "${cmd}")"
+mount_opts="-t nfs -o nolock,rw '${mount_from_this_host}:${export_this_path}' '${remote_mp}'"
 
 if [ -z "${nfs_mount}" ]; then
-    lognotice "mount NFS path (using: busybox mount -t nfs): ${export_this_src_ip}:${export_this_src_path} on ${host} to ${remote_mp}"
+    lognotice "mount NFS path (local)${mount_from_this_host}:${export_this_path} on (remote)${host}:${remote_mp}"
     cmd="${as_root} mkdir -p '${remote_mp}'"
-    run "${cmd}" || die "run: ${cmd}, failed"
-    cmd="${as_root} busybox mount -t nfs -o nolock,rw '${export_this_src_ip}:${export_this_src_path}' '${remote_mp}'"
-    run "${cmd}" || die "run: ${cmd}, failed"
+    run_d "${cmd}"
+    cmd="chmod 777 '${remote_mp}'"
+    run "${cmd}"
+
+    lognotice "try nfs mount using: mount -t nfs"
+    cmd="${as_root} mount ${mount_opts}"
+    run "${cmd}"
+    ret=$?
+    if [ "${ret}" != 0 ]; then
+        logerror "mount seems to fail, try nfs mount with busybox"
+        lognotice "try using: busybox mount -t nfs"
+        cmd="${as_root} busybox mount ${mount_opts}"
+        run_d "run: ${cmd}, failed"
+    else
+        lognotice "mount nfs OK"
+    fi
 else
-    lognotice "${export_this_src_path}, seems to be already mounted on target: ${host}"
+    lognotice "${export_this_path}, seems to be already mounted on target: ${host}"
     lognotice "mount output: ${nfs_mount}"
 fi
 exit 0
@@ -1830,6 +1982,90 @@ EOF
     ret=$?
     return $ret
 }
+mount_sshfs_on_remote_target() #(host, user, pass, export_this_path, mount_with_this_user, mount_from_this_host, !remote_mp="${export_this_path}")
+{
+    local __fn="mount_sshfs_on_remote_target"; _chkargsm "${__fn}" 6 "$@"
+
+    local host=; host="${1}";
+    local user=; user="${2}";
+    local pass=; pass="${3}";
+    local export_this_path=; export_this_path="${4}";
+    local mount_with_this_user=; mount_with_this_user="${5}";
+    local mount_from_this_host=; mount_from_this_host="${6}";
+    local remote_mp=; remote_mp="${7}";
+    [ -z "${remote_mp}" ] && remote_mp="${export_this_path}";
+
+    local cmd=
+    local tmp_srv_ip=
+
+    # check existing
+    if [ ! -d "${export_this_path}" ]; then
+        logerror "requested export local path is not a directory: $(echo_lightblue ${export_this_path})"
+        return 1
+    fi
+    export_this_path=$(___rp "${export_this_path}")
+
+    lognotice "mount local path: ${export_this_path} via SSHFS on:" $(echo_blue '<bg>' " ${host} ") "${remote_mp}"
+    lognotice "$(echo_yellow '<bg>' hint): reset/recover local exports with:" $(echo_lightblue "(sudo) service sshd restart")
+    lognotice "$(echo_yellow '<bg>' hint): check mounts on remote target:" $(echo_lightblue "mount | grep 'sshfs'")
+
+    if [ "${mount_from_this_host}" = "auto" ]; then
+        logwarning "you specified --sshfs-mount-this-path SERVER-HOST: auto, I'll try to determine it for you"
+        cmd="ip -h route get ${host} | sed 's/^.*src \([^ ]*\).*$/\1/;q'"
+        tmp_srv_ip=$(run "${cmd}")
+        if [ -z "${tmp_srv_ip}" ] ; then
+            die "I couldn't find it, sorry. You must specify SERVER-HOST explicitely."
+        fi
+        mount_from_this_host=${tmp_srv_ip}
+        logwarning "found SERVER-HOST $(echo_yellow '<b>' ${mount_from_this_host})$(echo_yellow \(this machine IP as seen by remote\) host: ${host})"
+    fi
+
+    # mount this path on remote target
+    local script=
+    local script_line_ofset=$(__get_linenr)
+    script=$(cat <<EOF
+host="${host}"
+remote_mp="${remote_mp}"
+mount_from_this_host="${mount_from_this_host}"
+mount_with_this_user="${mount_with_this_user}"
+export_this_path="${export_this_path}"
+EOF
+cat <<'EOF'
+[ "$(id -u)" != "0" ] && as_root="sudo"
+cmd="mount | grep '${remote_mp}'"
+sshfs_mount="$(run "${cmd}")"
+sshfs_opts="-o sshfs_sync -o no_readahead -o sync_readdir"
+if [ -z "${sshfs_mount}" ]; then
+    lognotice "mount SSHFS path (local)${mount_with_this_user}@${mount_from_this_host}:${export_this_path} on (remote)${host}:${remote_mp}"
+    cmd="${as_root} mkdir -p '${remote_mp}'"
+    run_d "${cmd}"
+    cmd="${as_root} chmod 777 '${remote_mp}'"
+    run "${cmd}"
+
+    lognotice "try sshfs mount"
+
+    cmd="sshfs ${sshfs_opts} ${mount_with_this_user}@${mount_from_this_host}:\"${export_this_path}\" \"${remote_mp}\""
+    run_d "${cmd}"
+    lognotice "mount sshfs OK"
+
+    lognotice "going to (blocking) sleep. Keep mount running. Press Ctrl-C to stop/cancel mount"
+    cmd="sleep 9999999"
+    run "${cmd}"
+else
+    lognotice "${export_this_path}, seems to be already mounted on target: ${host}"
+    lognotice "mount output: ${sshfs_mount}"
+fi
+exit 0
+EOF
+)
+
+    local ret=
+    #(host, user, pass, script, !script_line_ofset=0, !run_with_sudo=0, !interpreter="/bin/sh", !disable_sh_like_extensions=0)
+    run_script_ontarget "${host}" "${user}" "${pass}" "${script}" "${script_line_ofset}" 0 "/bin/sh" 0
+    ret=$?
+    return $ret
+}
+
 do_port_forwarding() #(host, user, pass, local_port, remote_local_port, reverse, goto_background, show_tunnel_hint)
 {
     local __fn="do_port_forwarding"; _chkargs "${__fn}" 8 "$@"
@@ -1896,122 +2132,6 @@ do_port_forwarding() #(host, user, pass, local_port, remote_local_port, reverse,
 
     return 0
 }
-fi
-if [ "${__name__}" = "__main__" ]; then                                 # list, dict: 2.0.0
-# pos, start, end: starts at: 0, negative indexes are supported
-# skip_comment_tok is only evaluated for ifs=${__newline}
-list_size() #(lst, *size, !ifs=${__newline}, !skip_comment_tok=)
-{
-    [ -z "${1}" ] && { eval "export ${2}=0"; return 0; }
-    local ret_size=
-    if [ -z "${3}" ] || [ "${3}" = "${__newline}" ]; then
-        if [ -z "${4}" ] ; then
-            ret_size=$(echo "${1}" | sed '/^[[:space:]]*$/d' | wc -l)
-        else
-            ret_size=$(echo "${1}" | grep -v -E "^[[:space:]]*${4}" | sed '/^[[:space:]]*$/d' | wc -l)
-        fi
-        eval "export ${2}=$((ret_size))"
-        return 0
-    fi
-    ret_size=$(echo "${1}" | tr -d -c "${3}" | wc -c)
-    eval "export ${2}=$((ret_size+1))"
-    return 0
-}
-list_get() #(lst, pos, *val, !ifs=${__newline}, !skip_comment_tok=)
-{
-    [ -z "${1}" ] && { eval "export ${3}="; return 0; }
-    local ret_val=
-    local pos="${2}"
-    if ___sw "${pos}" "-" ; then
-        list_size "${1}" _LG_SIZE "${4}" "${5}"
-        pos=$((_LG_SIZE+pos))
-    fi
-    if [ -z "${4}" ] || [ "${4}" = "${__newline}" ]; then
-        pos=$((${pos}+1))
-        if [ -z "${5}" ] ; then
-            # delete empty lines | delete every line, stop at pos
-            ret_val=$(echo "${1}" | sed '/^[[:space:]]*$/d' | sed "${pos}q;d")
-        else
-            ret_val=$(echo "${1}" | grep -v -E "^[[:space:]]*${5}" | sed '/^[[:space:]]*$/d' | sed "${pos}q;d")
-        fi
-    else
-        ret_val=$(echo "${1}${4}" | cut -s -d "${4}" -f $((${pos}+1)))
-    fi
-    eval "export ${3}='${ret_val}'"
-}
-list_join() #(lst, start, end, sep, *val, !ifs=${__newline}, !skip_comment_tok=)
-{
-    local __fn="list_join";
-
-    local lst="${1}";
-    local start="${2}";
-    local end="${3}";
-    local sep="${4}";
-    local export_var_val="${5}";
-    eval "export ${export_var_val}=";
-    local ifs="${6}";
-    local skip_comment_tok="${7}";
-    local ret_val=
-
-    [ -z "${ifs}" ] && ifs="${__newline}"
-
-    # ---
-    list_size "${lst}" _LG_SIZE "${ifs}" "${skip_comment_tok}"
-    [ "${_LG_SIZE}" -lt 0 ] && return
-    [ ${start} -lt 0 ] && start=$((_LG_SIZE+start));[ ${start} -lt 0 ] && return
-    [ ${end} -eq 0 ] && end=$((_LG_SIZE-1))
-    [ ${end} -lt 0 ] && end=$((_LG_SIZE+end)); [ ${end} -lt 0 ] && return
-    [ ${end} -le ${start} ] && return
-
-    local end_1=$((end-1))
-    local i=
-    local c=0
-    __cIFS "${__fn}" "${ifs}"
-    for i in ${lst}; do
-        [ -n "${skip_comment_tok}" ] && ___sw "${i}" "${skip_comment_tok}" && continue
-        [ ${c} -ge ${end} ] && break;
-        [ ${c} -eq ${end_1} ] && sep=;
-        if [ ${c} -ge ${start} ]; then
-            ret_val="${ret_val}${i}${sep}";
-        fi
-        c=$((c+1))
-    done
-    __rIFS "${__fn}"
-    # ---
-
-    # return values
-    eval "export ${export_var_val}='${ret_val}'"
-    return 0
-}
-list_slice() #(lst, start, end, *val, !ifs=${__newline}, !skip_comment_tok=)
-{
-    local ifs="${5}"; [ -z "${ifs}" ] && ifs="${__newline}"
-    list_join "${1}" "${2}" "${3}" "${ifs}" "${4}" "${ifs}" "${6}"
-    return 0
-}
-list_reverse() #(lst, *rev, !ifs=${__newline})
-{
-    local __fn="list_reverse"
-    local ifs="${3}"
-    local ret_rev=
-    # ---
-    local i=
-    [ -z "${ifs}" ] && ifs="${__newline}"
-    __cIFS "${__fn}" "${ifs}"
-    for i in ${1}; do
-        ret_rev="${i}${ifs}${ret_rev}"
-    done
-    __rIFS "${__fn}"
-    # ---
-    # return values
-    eval "export ${2}='${ret_rev}'"
-    return 0
-}
-
-#(dict, *keys)
-dict_keys(){ eval "export ${2}='""$(echo "${1}" | sed -nr 's!^([ ]*)([a-zA-Z0-9_]+):(.*)!\2!p' | sort | uniq)""'"; }
-#(dict, key, def_val, *val)
-dict_get(){ eval "export ${4}='""$(echo "${1}" | sed -nr "s!^([ ]*)${2}:(.*)!\2!p" | tail -n 1)""'"; [ -n "${3}" ] && { [ -z "$(eval echo "$""${4}")" ] && eval "export ${4}='${3}'";};}
 fi
 if [ "${__name__}" = "__main__" ]; then                                 # bash completion: 1.0.0: generic options # requires lognotice, logerror, die
 update_bash_completion() #()
@@ -2331,6 +2451,37 @@ real_path()
     fi
     echo "$1"
 }
+_get_remote_mount_creds() #(opt_rm_mount, *remote_mount_host, *remote_mp)
+{
+    local __fn="_get_remote_mount_creds"; _chkargs "${__fn}" 3 "$@"
+
+    local opt_rm_mount=; opt_rm_mount="${1}";
+    local export_var_remote_mount_host=; export_var_remote_mount_host="${2}";
+    eval "export ${export_var_remote_mount_host}=";
+    local export_var_remote_mp=; export_var_remote_mp="${3}";
+    eval "export ${export_var_remote_mp}=";
+    local ret_remote_mount_host=
+    local ret_remote_mp=
+
+    # ---
+
+    #currently this a list looking like this SERVER-HOST[,REMOTE-MP]
+    #(lst, pos, *val, !ifs=${__newline}, !skip_comment_tok=)
+    list_get "${opt_rm_mount}" 1 _VAL ','
+    ret_remote_mp="${_VAL}"
+    if [ -z "${ret_remote_mp}" ]; then
+        ret_remote_mp="$(pwd)"
+    fi
+    list_get "${opt_rm_mount}" 0 _VAL ','
+    ret_remote_mount_host="${_VAL}"
+
+    # ---
+
+    # return values
+    eval "export ${export_var_remote_mount_host}='${ret_remote_mount_host}'"
+    eval "export ${export_var_remote_mp}='${ret_remote_mp}'"
+    return 0
+}
 main()
 {
     local __fn='main';
@@ -2603,9 +2754,16 @@ main()
         install_keyhole "${target_host}" "${target_user}" "${target_pass}" "${CMD_LINE_OPT__INSTALL_KEYHOLE}" "${CMD_LINE_OPT__USE_SUDO}"
         ret=$?
         [ "${ret}" != "0" ] && die "-"
-    elif [ -n "${CMD_LINE_OPT__EXPORT_THIS_PATH}" ] ; then
-        #(host, user, pass, export_this_src_path, export_this_src_ip, !remote_mp="${export_this_src_path}")
-        export_and_mount_nfs_to_remote_target "${target_host}" "${target_user}" "${target_pass}" "${cwd}" "${CMD_LINE_OPT__EXPORT_THIS_PATH}" "${cwd}"
+    elif [ -n "${CMD_LINE_OPT__NFS_MOUNT_THIS_PATH}" ] ; then
+        _get_remote_mount_creds "${CMD_LINE_OPT__NFS_MOUNT_THIS_PATH}" REMOTE_MOUNT_HOST REMOTE_MP
+        #(host, user, pass, export_this_path, mount_from_this_host, !remote_mp="${export_this_path}")
+        export_and_mount_nfs_on_remote_target "${target_host}" "${target_user}" "${target_pass}" "${cwd}" "${REMOTE_MOUNT_HOST}" "${REMOTE_MP}"
+        ret=$?
+        [ "${ret}" != "0" ] && die "-"
+    elif [ -n "${CMD_LINE_OPT__SSHFS_MOUNT_THIS_PATH}" ] ; then
+        _get_remote_mount_creds "${CMD_LINE_OPT__SSHFS_MOUNT_THIS_PATH}" REMOTE_MOUNT_HOST REMOTE_MP
+        #(host, user, pass, export_this_path, mount_with_this_user, mount_from_this_host, !remote_mp="${export_this_path}")
+        mount_sshfs_on_remote_target "${target_host}" "${target_user}" "${target_pass}" "${cwd}" "$(whoami)" "${REMOTE_MOUNT_HOST}" "${REMOTE_MP}"
         ret=$?
         [ "${ret}" != "0" ] && die "-"
     elif [ -n "${CMD_LINE_OPT__CREATE_TUNNEL}" ] ; then
