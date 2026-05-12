@@ -25,7 +25,7 @@ fi
 # this is hdontarget: do ssh with increased usability
 # (c) 2018-present: Dieter Hilfer
 
-VERSION="1.7.1"
+VERSION="1.7.2"
 SHORT_DESCRIPTION="a ssh wrapper, for automation of ~stupid~ things"
 
 echo_bold()     { [ "${__sr_DISABLE_COLOR}" != "1" ] && echo "\033[1m${@}\033[0m" || echo "$@"; }
@@ -1275,6 +1275,9 @@ else
     _cse __sr_REMOTE_SCP_OPTS "-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${to}"
     unset _to
 fi
+
+[ -n "${CMD_LINE_OPT__SSHFS_MOUNT_THIS_PATH}" ] && CMD_LINE_OPT__PSEUDO_TTY=1
+
 [ "${CMD_LINE_OPT__FORWARD_X}" = "1" ] && __sr_REMOTE_SSH_OPTS="${__sr_REMOTE_SSH_OPTS} -X"
 [ "${CMD_LINE_OPT__PSEUDO_TTY}" = "1" ] && __sr_REMOTE_SSH_OPTS="${__sr_REMOTE_SSH_OPTS} -t"
 
@@ -2711,6 +2714,9 @@ main()
     if [ -n "${target_pass}" ] && [ ! -f "${target_pass}" ] && [ "${CMD_LINE_OPT__SHOW_PASS}" = "1" ]; then
         lognotice "-sp/--show-pass is set (show password): ${target_pass}"
     fi
+
+
+
 
     local command=
     if [ -n "${CMD_LINE_OPT__AS_SCRIPT}" ] ; then
