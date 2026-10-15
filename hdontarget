@@ -1311,6 +1311,27 @@ __remote_handle_pass() #(cmd, *new_cmd, !pass=)
     eval "export ${export_var_new_cmd}='${ret_new_cmd}'"
     return 0
 }
+# POSIX single-quote a value, so it survives being embedded once into a command
+# string that a remote shell will parse #(val, *quoted)
+_sr_shquote() #(val, *quoted)
+{
+    local __sq_v=; __sq_v=$(printf '%s' "${1}" | sed -r "s!'!'\\\''!g")
+    eval "export ${2}=\"'\${__sq_v}'\""
+}
+# quote+join argv into ONE string that a remote POSIX shell can parse back into
+# the original, separate arguments #(*joined, args...)
+_sr_quote_argv() #(*joined, args...)
+{
+    local __qa_out=; __qa_out="${1}"; shift 1
+    local __qa_joined=
+    local __qa_q=
+    while [ $# -gt 0 ]; do
+        _sr_shquote "${1}" __qa_q
+        __qa_joined="${__qa_joined}${__qa_joined:+ }${__qa_q}"
+        shift 1
+    done
+    eval "export ${__qa_out}=\"\${__qa_joined}\""
+}
 ontarget() #(host, user, !pass=, !cmd=, !args...)
 {
     local __fn="ontarget"; _chkargsm "${__fn}" 2 "$@"
@@ -1319,7 +1340,6 @@ ontarget() #(host, user, !pass=, !cmd=, !args...)
     local user=; user="${2}";
     local pass=; pass="${3}";
 
-    local cmd=
     local cmd=
     local ret=0
     cmd="${__sr_REMOTE_SSH} ${__sr_REMOTE_SSH_OPTS}"
@@ -1330,24 +1350,40 @@ ontarget() #(host, user, !pass=, !cmd=, !args...)
 
     local port_opt=; [ -n "${CMD_LINE_OPT__PORT}" ] && port_opt="-p ${CMD_LINE_OPT__PORT}" # consciously eval global CMD_x value for the moment
 
+    # remote_cmd is built as ONE already-quoted string (each original argument is
+    # individually POSIX-quoted, see _sr_shquote/_sr_quote_argv above) and is later
+    # passed to ssh as a single argv word -- never eval'd locally, so it only gets
+    # parsed once: by the remote shell. This replaces the previous approach of
+    # concatenating the whole ssh invocation (incl. raw "$@") into one string and
+    # local-eval'ing it, which re-interpreted quotes/backslashes/$ twice and lost
+    # argument boundaries whenever COMMAND-OPTIONS contained shell metacharacters.
+    local remote_cmd=
     if [ $# -gt 3 ]; then
         shift 3
+        local args_q=; _sr_quote_argv args_q "$@"
+        local host_q=; _sr_shquote "${host}" host_q
+        local user_q=; _sr_shquote "${user}" user_q
         if [ "${CMD_LINE_OPT__IS_WIN}" = "0" ]; then
-            cmd="${cmd} ${port_opt} ${user}@${host} ${sep} 'export __log_remote_host__=\"${host}\"; export __log_remote_user__=\"${user}\"; $@'"
+            remote_cmd="export __log_remote_host__=${host_q}; export __log_remote_user__=${user_q}; ${args_q}"
         else
-            cmd="${cmd} ${port_opt} ${user}@${host} ${sep} 'set __log_remote_host__=\"${host}\" & set __log_remote_user__=\"${user}\" & $@'"
+            remote_cmd="set __log_remote_host__=${host_q} & set __log_remote_user__=${user_q} & ${args_q}"
         fi
-        nr_lines=$(echo "${cmd}" | wc -l)
-    else
-        cmd="${cmd} ${port_opt} ${user}@${host}"
+        nr_lines=$(echo "${remote_cmd}" | wc -l)
     fi
+
     if [ "${CMD_LINE_OPT__VERBOSE_SHOW_FULL_CMD}" != "1" ] && [ ${nr_lines} -gt 3 ] ; then
         # cut output to max 3 lines
-        [ "${DBG_RUN}" = "1" ] && { logdebug "run: $(echo "${cmd}" | head -n 3)
+        [ "${DBG_RUN}" = "1" ] && { logdebug "run: $(echo "${cmd} ${port_opt} ${user}@${host} ${sep} ${remote_cmd}" | head -n 3)
 ... only first 3 lines are shown, show all with: --verbose-show-full-cmd";};
-        logdebug "run$([ "${DRY_RUN}" = "1" ] && echo "(dry)"): ${cmd}"; [ "${DRY_RUN}" != "1" ] && { eval "${cmd}"; ret=$?; } # replace (enchanced) log-run(), prevent some escaping problems
-    else
-        logdebug "run$([ "${DRY_RUN}" = "1" ] && echo "(dry)"): ${cmd}"; [ "${DRY_RUN}" != "1" ] && { eval "${cmd}"; ret=$?; } # replace (enchanced) log-run(), prevent some escaping problems
+    fi
+    logdebug "run$([ "${DRY_RUN}" = "1" ] && echo "(dry)"): ${cmd} ${port_opt} ${user}@${host} ${sep} ${remote_cmd}"
+    if [ "${DRY_RUN}" != "1" ]; then
+        if [ -n "${remote_cmd}" ]; then
+            ${cmd} ${port_opt} "${user}@${host}" ${sep} "${remote_cmd}"
+        else
+            ${cmd} ${port_opt} "${user}@${host}"
+        fi
+        ret=$?
     fi
     return ${ret}
 }
